@@ -1,0 +1,52 @@
+﻿@{
+    ViewBag.Title = "手机短信/发送短信";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script>
+    $(function () {
+        $("#PhonenNumber").bind("keyup", function (e) {
+            var arr = new Array();
+            $("#PhonenCount").html($("#PhonenNumber").val().split(',').length);
+        })
+    })
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var arr = new Array();
+        arr = $("#PhonenNumber").val().split(',');
+        for (var i = 0; i < arr.length; i++) {
+            if (!isMobile(arr[i])) {
+                top.TipMsg("【" + arr[i] + "】必须为手机号码格式！", 4000, "error");
+                return false;
+            }
+        }
+        Loading(true, "正在发送...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            AjaxJson("/ExampleModule/PhoneNote/SubmitSendNote", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 10px">
+    <div style="height: 29px;">
+        <div style="float: left; line-height: 26px; width: 49%; font-size: 14px;">
+            手机号码
+        </div>
+        <div style="float: right; text-align: left; line-height: 26px; width: 49%; font-size: 14px;">
+            发送内容
+        </div>
+    </div>
+    <div class="border" style="float: left; height: 240px; width: 49%;">
+        <textarea id="PhonenNumber" style="width: 100%; height: 100%; border: none;" datacol="yes" err="手机号码" checkexpession="NotNull"></textarea>
+        <div>号码数（<span id="PhonenCount">0</span>）多个号码之间用“,”分隔</div>
+    </div>
+    <div class="border" style="float: right; height: 240px; width: 49%;">
+        <textarea id="SendContent" style="width: 100%; height: 100%; border: none;" datacol="yes" err="发送内容" checkexpession="NotNull"></textarea>
+    </div>
+</form>

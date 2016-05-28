@@ -1,0 +1,3 @@
+2015-06-27 15:52:33,365 [5] ERROR LeaRun.DataAccess.DbHelper - ÓÃ»§ 'sa' µÇÂ¼Ê§°Ü¡£
+2015-06-27 15:52:36,000 [6] ERROR LeaRun.DataAccess.DbHelper - ÓÃ»§ 'sa' µÇÂ¼Ê§°Ü¡£
+2015-06-27 15:52:36,248 [10] ERROR LeaRun.DataAccess.DbHelper - ÓÃ»§ 'sa' µÇÂ¼Ê§°Ü¡£

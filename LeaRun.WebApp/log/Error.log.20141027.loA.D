@@ -1,0 +1,6 @@
+2014-10-27 15:04:52,201 [41] ERROR LeaRun.DataAccess.DbHelper - 在与 SQL Server 建立连接时出现与网络相关的或特定于实例的错误。未找到或无法访问服务器。请验证实例名称是否正确并且 SQL Server 已配置为允许远程连接。 (provider: TCP Provider, error: 0 - 在一个非套接字上尝试了一个操作。)
+2014-10-27 15:05:21,407 [41] ERROR LeaRun.DataAccess.DbHelper - 在与 SQL Server 建立连接时出现与网络相关的或特定于实例的错误。未找到或无法访问服务器。请验证实例名称是否正确并且 SQL Server 已配置为允许远程连接。 (provider: TCP Provider, error: 0 - 在一个非套接字上尝试了一个操作。)
+2014-10-27 15:05:24,512 [41] ERROR LeaRun.DataAccess.DbHelper - 在与 SQL Server 建立连接时出现与网络相关的或特定于实例的错误。未找到或无法访问服务器。请验证实例名称是否正确并且 SQL Server 已配置为允许远程连接。 (provider: TCP Provider, error: 0 - 在一个非套接字上尝试了一个操作。)
+2014-10-27 15:06:52,599 [41] ERROR LeaRun.DataAccess.DbHelper - 在与 SQL Server 建立连接时出现与网络相关的或特定于实例的错误。未找到或无法访问服务器。请验证实例名称是否正确并且 SQL Server 已配置为允许远程连接。 (provider: TCP Provider, error: 0 - 在一个非套接字上尝试了一个操作。)
+2014-10-27 15:07:29,365 [41] ERROR LeaRun.DataAccess.DbHelper - 在与 SQL Server 建立连接时出现与网络相关的或特定于实例的错误。未找到或无法访问服务器。请验证实例名称是否正确并且 SQL Server 已配置为允许远程连接。 (provider: TCP Provider, error: 0 - 在一个非套接字上尝试了一个操作。)
+2014-10-27 15:07:29,875 [47] ERROR LeaRun.DataAccess.DbHelper - 在与 SQL Server 建立连接时出现与网络相关的或特定于实例的错误。未找到或无法访问服务器。请验证实例名称是否正确并且 SQL Server 已配置为允许远程连接。 (provider: TCP Provider, error: 0 - 在一个非套接字上尝试了一个操作。)

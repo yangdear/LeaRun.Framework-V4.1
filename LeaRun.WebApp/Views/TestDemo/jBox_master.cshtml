@@ -1,0 +1,64 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>消息提示</title>
+    <link href="~/Content/Scripts/jBox-master/c74f71-921494.css" rel="stylesheet" />
+    <link href="~/Content/Scripts/jBox-master/jBox.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jBox-master/jquery-1.11.0.js"></script>
+</head>
+<body>
+
+    <div class="g-line demo-title-line">
+        <div class="demo-title" style="width: 120px; margin-left: -60px">Tooltips</div>
+    </div>
+
+    <div class="demo-buttons clearfix">
+        <div class="demo-button" id="demoT1">Hover me!</div>
+        <div class="demo-button" id="demoT2">Hover me!</div>
+        <div class="demo-button" id="demoT3">Hover me!</div>
+        <div class="demo-button" id="demoT4">Hover me!</div>
+        <div class="demo-button" id="demoT5">Hover me!</div>
+        <div class="demo-button" id="demoT6">Hover me!</div>
+        <div class="demo-button demo-button-click" id="demoT7">Click me!</div>
+        <div class="demo-button demo-button-click" id="demoT8">Click me!</div>
+    </div>
+
+    <div class="g-line demo-title-line">
+        <div class="demo-title" style="width: 180px; margin-left: -90px">Modal Windows</div>
+    </div>
+
+    <div class="demo-buttons clearfix">
+        <div class="demo-button demo-button-click" id="demoM1">Click me!</div>
+        <div class="demo-button demo-button-click" id="demoM2">Click me!</div>
+        <div class="demo-button demo-button-click" id="demoM3">Click me!</div>
+        <div class="demo-button demo-button-click" id="demoM4">Click me!</div>
+    </div>
+
+
+    <div class="g-line demo-title-line">
+        <div class="demo-title" style="width: 100px; margin-left: -50px">Notices</div>
+    </div>
+
+    <div class="demo-buttons clearfix">
+        <div class="demo-button demo-button-notice demo-button-click" id="demoN1"><span class="jBox-notice-text">Click me!</span></div>
+        <div class="demo-button demo-button-notice demo-button-click" id="demoN2"><span class="jBox-notice-text">Click me!</span></div>
+        <div class="demo-button demo-button-notice demo-button-click" id="demoN3">
+            <span class="jBox-notice-text">Click me!</span>
+            <div class="jBoxN3-volume-container">
+                <div class="jBoxN3-volume icon-volume-mute" id="jBoxN3-volume0" onclick="setN3Volume(0)"></div>
+                <div class="jBoxN3-volume icon-volume-low" id="jBoxN3-volume50" onclick="setN3Volume(50)"></div>
+                <div class="jBoxN3-volume icon-volume-medium active" id="jBoxN3-volume100" onclick="setN3Volume(100)"></div>
+            </div>
+        </div>
+        <div class="demo-button demo-button-notice demo-button-click" id="demoN4"><span class="jBox-notice-text">Click me!</span></div>
+    </div>
+    <script src="~/Content/Scripts/jBox-master/jBox.min.js"></script>
+    <script src="~/Content/Scripts/jBox-master/4545d1-f27779.js"></script>
+</body>
+</html>

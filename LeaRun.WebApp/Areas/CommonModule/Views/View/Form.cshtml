@@ -1,0 +1,290 @@
+﻿@{
+    ViewBag.Title = "系统视图》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        resizeU();
+        $(window).resize(resizeU);
+        function resizeU() {
+            $(".ScrollBar").height($(window).height() - 36)
+        }
+        InitControl();
+    })
+    //表单赋值
+    function InitControl() {
+        var KeyValue = GetQuery('KeyValue');
+        if (!!KeyValue) {
+            SetViewList(KeyValue);
+            SetViewWhereList(KeyValue);
+        }
+    }
+    //提交表单
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var KeyValue = GetQuery('KeyValue');
+            var postData = {
+                KeyValue: KeyValue,
+                ModuleId: GetQuery('ModuleId'),
+                ViewJson: GetTableDataJson("#grid_ColumnField"),
+                ViewWhereJson: GetTableDataJson("#grid_WhereField"),
+            }
+            AjaxJson("/CommonModule/View/ViewSubmitForm", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+
+    /*显示标题字段begin=========================================================*/
+    //获取标题字段明细
+    function SetViewList(KeyValue) {
+        AjaxJson("/CommonModule/View/GetViewJson", { ModuleId: KeyValue }, function (data) {
+            var JsonData = eval(data);
+            $.each(JsonData, function (i) {
+                var _TableRowIndex = TableRowIndex;
+                CreateTableRow();
+                var SetData = JsonData[i];
+                for (var key in SetData) {
+                    var id = $('#' + key + "➩" + _TableRowIndex);
+                    var value = $.trim(SetData[key]).replace("&nbsp;", "");
+                    var type = id.attr('type');
+                    switch (type) {
+                        case "checkbox":
+                            if (value == 1) {
+                                id.attr("checked", 'checked');
+                            } else {
+                                id.removeAttr("checked");
+                            }
+                            break;
+                        default:
+                            id.val(value);
+                            break;
+                    }
+                }
+            });
+        });
+    }
+    //添加一行
+    var TableRowIndex = $('#grid_ColumnField tr').length + Number(1);
+    function CreateTableRow() {
+        var tr = '';
+        tr += '<tr>';
+        var KeyValue = GetQuery('KeyValue');
+        if (!!KeyValue) {
+            tr += '<td class="td-div" style="width: 30px; text-align: center;">' + TableRowIndex + '<input id="ViewDetailId➩' + TableRowIndex + '" type="hidden"  /></td>'
+        } else {
+            tr += '<td class="td-div" style="width: 30px; text-align: center;">' + TableRowIndex + '</td>'
+        }
+        tr += '<td style="width: 120px;"><input id="FieldName➩' + TableRowIndex + '" type="text" class="txt" /></td>'
+        tr += '<td style="width: 120px;"><input id="FullName➩' + TableRowIndex + '"  type="text" class="txt" /></td>'
+        tr += '<td style="width: 120px;"><input id="ShowName➩' + TableRowIndex + '"  type="text" class="txt" /></td>'
+        tr += '<td style="width: 60px; text-align: center;"><input id="ColumnWidth➩' + TableRowIndex + '" value="0" type="text" style="text-align: center;" class="txt" datacol="yes" err="宽度" checkexpession="Num" /></td>'
+        tr += '<td style="width: 60px; text-align: center;"><select id="TextAlign➩' + TableRowIndex + '" class="txtselect" ><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></td>'
+        tr += '<td style="width: 60px; text-align: center;"><input id="AllowDerive➩' + TableRowIndex + '" name="checkbox" type="checkbox"/></td>'
+        tr += '<td style="width: 60px; text-align: center;"><input id="AllowShow➩' + TableRowIndex + '"  name="checkbox" type="checkbox"/></td>'
+        tr += '<td style="width: 60px; text-align: center;"><input id="SortCode➩' + TableRowIndex + '" value="' + TableRowIndex + '" type="text" style="text-align: center;" class="txt" datacol="yes" err="排序" checkexpession="Num" /></td>'
+        tr += '<td style="width: 60px; text-align: center;"><input id="Enabled➩' + TableRowIndex + '" onclick=\"EnabledEvent(' + TableRowIndex + ')\" checked="checked" type="checkbox" /></td>'
+        tr += '<td ><input id="CustomSwitch➩' + TableRowIndex + '"  type="text" class="txt" /></td>'
+        tr += '<td style="width: 30px; text-align: center;"><span onclick="$(this).parent().parent().remove()" title="删除" style="cursor: pointer;"><img src="@Url.Content("~/Content/Images/Icon16/Delete.png")" /></span></td>'
+        tr += '</tr>';
+        $("#grid_ColumnField tbody").append(tr);
+        TableRowIndex++;
+    }
+    /*显示标题字段end=========================================================*/
+
+    /*查询条件字段begin=======================================================*/
+    //获取条件字段明细
+    function SetViewWhereList(KeyValue) {
+        AjaxJson("/CommonModule/View/GetViewWhereJson", { ModuleId: KeyValue }, function (data) {
+            var JsonData = eval(data);
+            $.each(JsonData, function (i) {
+                var _TableRowIndex = RowIndex_WhereField;
+                CreateRow_WhereField();
+                var SetData = JsonData[i];
+                for (var key in SetData) {
+                    var id = $('#' + key + "➩WhereField" + _TableRowIndex);
+                    var value = $.trim(SetData[key]).replace("&nbsp;", "");
+                    var type = id.attr('type');
+                    switch (type) {
+                        case "checkbox":
+                            if (value == 1) {
+                                id.attr("checked", 'checked');
+                            } else {
+                                id.removeAttr("checked");
+                            }
+                            break;
+                        default:
+                            id.val(value);
+                            break;
+                    }
+                }
+            });
+        });
+    }
+    //添加一行
+    var RowIndex_WhereField = $('#grid_WhereField tr').length + Number(1);
+    function CreateRow_WhereField() {
+        var tr = '';
+        tr += '<tr>';
+        var KeyValue = GetQuery('KeyValue');
+        if (!!KeyValue) {
+            tr += '<td class="td-div" style="width: 30px; text-align: center;">' + RowIndex_WhereField + '<input id="ViewWhereDetailId➩WhereField' + RowIndex_WhereField + '" type="hidden"  /></td>'
+        } else {
+            tr += '<td class="td-div" style="width: 30px; text-align: center;">' + RowIndex_WhereField + '</td>'
+        }
+        tr += '<td style="width: 120px;"><input id="FieldName➩WhereField' + RowIndex_WhereField + '" type="text" class="txt" /></td>'
+        tr += '<td style="width: 120px;"><input id="FullName➩WhereField' + RowIndex_WhereField + '" type="text" class="txt" /></td>'
+        tr += '<td style="width: 120px;"><input id="ShowName➩WhereField' + RowIndex_WhereField + '" type="text" class="txt" /></td>'
+        tr += '<td style="width: 60px;"><select id="ControlType➩WhereField' + RowIndex_WhereField + '" class="txtselect"><option value="1">文本框</option><option value="2">下拉框</option><option value="3">日期框</option></select></td>'
+        tr += '<td style="width: 80px;"><input id="ControlDefault➩WhereField' + RowIndex_WhereField + '" type="text"  class="txt" /></td>'
+        tr += '<td style="width: 200px;"><input id="ControlSource➩WhereField' + RowIndex_WhereField + '" onfocus="BindControlSource(' + RowIndex_WhereField + ')" type="text"  class="txt" /></td>'
+        tr += '<td style="width: 200px;"><input id="ControlCustom➩WhereField' + RowIndex_WhereField + '" type="text"  class="txt" /></td>'
+        tr += '<td style="width: 60px; text-align: center;"><input id="AllowShow➩WhereField' + RowIndex_WhereField + '"  type="checkbox"/></td>'
+        tr += '<td style="width: 60px; text-align: center;"><input id="SortCode➩WhereField' + RowIndex_WhereField + '" value="' + RowIndex_WhereField + '" type="text" style="text-align: center;" class="txt" datacol="yes" err="排序" checkexpession="Num" /></td>'
+        tr += '<td style="width: 60px; text-align: center;"><input id="Enabled➩WhereField' + RowIndex_WhereField + '" type="checkbox" checked="checked" /></td>'
+        tr += '<td style="width: 30px; text-align: center;"><span onclick="$(this).parent().parent().remove()" title="删除" style="cursor: pointer;"><img src="@Url.Content("~/Content/Images/Icon16/Delete.png")" /></span></td>'
+        tr += '</tr>';
+        $("#grid_WhereField tbody").append(tr);
+        RowIndex_WhereField++;
+    }
+    //绑定数据源
+    function BindControlSource(index) {
+        var ControlType = $("#ControlType➩WhereField" + index).val();
+        if (ControlType == 2) {
+            var objId = "ControlSource➩WhereField" + index;
+            comboBoxTree(objId, "160px");
+            var itemtree = {
+                onnodeclick: function (item) {
+                    DataDictionaryCode = item.value;       //编码
+                    $("#ControlSource➩WhereField" + index).val(item.value);
+                },
+                url: "@Url.Content("~/CommonModule/DataDictionary/TreeJson")"
+            };
+            $("#comboBoxTree" + objId).treeview(itemtree);
+        }
+    }
+    /*查询条件字段end=========================================================*/
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <div class="line"></div>
+    <div class="bd" style="border: none;">
+        <div class="leftline rightline">
+            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                <div class="tab_list_top" style="position: absolute">
+                    <div id="TabColumnField" class="tab_list bd actived" onclick="Tabchange('ColumnField')">显示标题字段</div>
+                    <div id="TabWhereField" class="tab_list bd " onclick="Tabchange('WhereField')">查询条件字段</div>
+                </div>
+            </div>
+        </div>
+        <div class="ScrollBar">
+            <div id="ColumnField" class="tabPanel">
+                @*显示标题字段*@
+                <table id="grid_ColumnField" class="grid" style="width: 100%; margin-top: 1px;">
+                    <thead>
+                        <tr>
+                            <td style="width: 30px; text-align: center;">
+                                <div class="table-header">行号</div>
+                            </td>
+                            <td style="width: 120px;">
+                                <div class="table-header">绑定字段</div>
+                            </td>
+                            <td style="width: 120px;">
+                                <div class="table-header">内部名称</div>
+                            </td>
+                            <td style="width: 120px;">
+                                <div class="table-header">显示名称</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">显示列宽</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">对齐方式</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">导出/打印</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">是否显示</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">显示顺序</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">有效</div>
+                            </td>
+                            <td>
+                                <div class="table-header">自定义</div>
+                            </td>
+                            <td style="width: 30px; text-align: center;">
+                                <div class="table-header">
+                                    <span onclick="CreateTableRow()" title="添加一行" style="cursor: pointer;">
+                                        <img src="~/Content/Images/Icon16/add.png" /></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div id="WhereField" class="tabPanel" style="display: none">
+                @*查询条件字段*@
+                <table id="grid_WhereField" class="grid" style="width: 100%; margin-top: 1px;">
+                    <thead>
+                        <tr>
+                            <td style="width: 30px; text-align: center;">
+                                <div class="table-header">行号</div>
+                            </td>
+                            <td style="width: 120px;">
+                                <div class="table-header">绑定字段</div>
+                            </td>
+                            <td style="width: 120px;">
+                                <div class="table-header">内部名称</div>
+                            </td>
+                            <td style="width: 120px;">
+                                <div class="table-header">显示名称</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">控件类型</div>
+                            </td>
+                            <td style="width: 80px;">
+                                <div class="table-header">控件默认值</div>
+                            </td>
+                            <td style="width: 205px;">
+                                <div class="table-header">绑定数据源</div>
+                            </td>
+                            <td style="width: 200px;">
+                                <div class="table-header">自定义</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">显示/隐藏</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">显示顺序</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">有效</div>
+                            </td>
+                            <td style="width: 30px; text-align: center;">
+                                <div class="table-header">
+                                    <span onclick="CreateRow_WhereField()" title="添加一行" style="cursor: pointer;">
+                                        <img src="~/Content/Images/Icon16/add.png" /></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>

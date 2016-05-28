@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "数据字典》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        LoadParent();
+        InitControl();
+    })
+    //加载上级
+    function LoadParent() {
+        var DataDictionaryId = GetQuery('DataDictionaryId');//分类主键
+        var DataDictionaryName = GetQuery('DataDictionaryName');//分类名称
+        var DataDictionaryDetailId = GetQuery('DataDictionaryDetailId');//数据字典主键
+        var DataDictionaryDetailName = GetQuery('DataDictionaryDetailName');//数据字典名称
+        $("#ParentName").focus(function () {
+            var objId = this.id;
+            comboBoxTree(objId, "160px");
+            var itemtree = {
+                onnodeclick: function (item) {
+                    $("#ParentId").val(item.id);
+                    $('#ParentName').val(item.text);
+                }
+            };
+            getAjax("/CommonModule/DataDictionary/DataDictionaryDetailJson?DataDictionaryId=" + DataDictionaryId, "", function (data) {
+                var root = {
+                    "id": "0",
+                    "text": DataDictionaryName,
+                    "value": "0",
+                    "isexpand": true,
+                    "hasChildren": true
+                };
+                root["ChildNodes"] = JSON.parse(data);
+                itemtree.data = [root];
+                $("#comboBoxTree" + objId).treeview(itemtree);
+                //移除Id上级元素
+                $("#comboBoxTree" + objId + "_" + GetQuery('KeyValue').replace(/-/g, '_')).parent('li').remove();
+            });
+        })
+        if (DataDictionaryDetailId != "") {
+            $("#ParentId").val(DataDictionaryDetailId);
+            $("#ParentName").val(DataDictionaryDetailName);
+        } else {
+            $("#ParentName").val(DataDictionaryName);
+        }
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/DataDictionary/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        } else {
+            //显示顺序
+            AjaxJson("/CommonModule/DataDictionary/SortCode", {}, function (Data) {
+                $("#SortCode").val(Data);
+            })
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var KeyValue = GetQuery('KeyValue');
+            var postData = GetWebControls("#form1");
+            if (KeyValue == "") {
+                postData["DataDictionaryId"] = GetQuery('DataDictionaryId');
+            }
+            AjaxJson("/CommonModule/DataDictionary/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class="formTitle">上级<font face="宋体">*</font>：
+            </th>
+            <td class="formValue">
+                <input id="ParentId" type="hidden" value="0" />
+                <input id="ParentName" type="text" class="txt icontree" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">项目名称<font face="宋体">*</font>：
+            </th>
+            <td class="formValue">
+                <input id="FullName" type="text" datacol="yes" err="项目名称" checkexpession="NotNull" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">项目值<font face="宋体">*</font>：
+            </th>
+            <td class="formValue">
+                <input id="Code" maxlength="50" type="text" datacol="yes" err="项目值" checkexpession="NotNull" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">显示顺序<font face="宋体">*</font>：</th>
+            <td class="formValue">
+                <input id="SortCode" type="text" onkeyup="IsNumber(this.id)" class="txt" datacol="yes" err="显示顺序" checkexpession="Num" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">选项：
+            </th>
+            <td class="formValue">
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                    <label for="Enabled">有效</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">说明：
+            </th>
+            <td class="formValue" colspan="3">
+                <textarea id="Remark" name="Description" maxlength="200" class="txtArea" rows="4"></textarea>
+            </td>
+        </tr>
+    </table>
+</form>

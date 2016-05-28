@@ -1,0 +1,188 @@
+﻿@{
+    ViewBag.Title = "写信页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<!--编辑器组件start-->
+<script src="~/Content/Scripts/ckeditor/ckeditor.js"></script>
+<!--编辑器组件endt-->
+<!--选择颜色组件start-->
+<link href="~/Content/Scripts/cxColor/css/jquery.cxcolor.css" rel="stylesheet" />
+<script src="~/Content/Scripts/cxColor/js/jquery.cxcolor.js"></script>
+<!--选择颜色组件end-->
+<!--上传文件组件start-->
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<!--上传文件组件end-->
+<script>
+    $(function () {
+        uploadify();
+        InitControl();
+    });
+    //得到一个对象实体
+    function InitControl() {
+        var KeyValue = GetQuery('KeyValue');
+        if (!!KeyValue) {
+            AjaxJson("/ExampleModule/Email/SetEmailControl", { KeyValue: KeyValue }, function (data) {
+                $("#Theme").val(data.Email.Theme).css('color', data.Email.ThemeColour);
+                $("#Content").html(data.Email.Content);
+                //收件人
+                var AddresseeJson = data.EmailAddressee;
+                $.each(AddresseeJson, function (i) {
+                    $("#AddresseeList").append('<a onclick="$(this).remove()" id="' + AddresseeJson[i].AddresseeId + '" class="nui-txt-link">' + AddresseeJson[i].AddresseeName + '</a>');
+                });
+                //附件
+                var AccessoryJson = data.EmailAccessory;
+                $.each(AccessoryJson, function (i) {
+                    $("#FileUpList").append('<p style="padding-bottom: 5px;">' + index_uploadify + '、' + AccessoryJson[i].FileName + ' (' + AccessoryJson[i].FileSize + ')<a id="' + AccessoryJson[i].EmailAccessoryId + '" FileName="' + AccessoryJson[i].FileName + '" FileSize="' + AccessoryJson[i].FileSize + '" path="' + AccessoryJson[i].FilePath + '" class="nui-txt-link" onclick="DeleteFile(this.id)">删除</a></p>');
+                    index_uploadify++;
+                });
+            });
+        }
+    }
+    //上传文件
+    var index_uploadify = 1;
+    function uploadify() {
+        $("#uploadify").uploadify({
+            uploader: '/ExampleModule/Email/EmailUpload',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "上传文件",
+            height: 24,
+            width: 70,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                $("#FileUpList").append('<p style="padding-bottom: 5px;">' + index_uploadify + '、' + DataJson.Name + ' (' + DataJson.Size + ')<a id="' + DataJson.Id + '" FileName="' + DataJson.Name + '" FileSize="' + DataJson.Size + '" path="' + DataJson.Path + '" class="nui-txt-link" onclick="DeleteFile(this.id)">删除</a></p>');
+                index_uploadify++;
+            }
+        });
+    }
+    //删除文件
+    function DeleteFile(id) {
+        var $Id = $("#" + id);
+        var path = $Id.attr('path');
+        AjaxJson("/ExampleModule/Email/EmailDeleteFile", { Path: path }, function (Data) {
+            $Id.parent().remove();
+        });
+    }
+    //选择收件人
+    function optionAddressee() {
+        Loading(true, "正在加载收件人...");
+        $(".optionTag").css('left', 12).css('top', 36).show();
+        $('#iframe_optionTag').attr('src', '/Utility/OptionUser')
+    }
+    //添加收件人
+    var AddresseeArray = new Array();
+    function CallbackSetUser(Data) {
+        if (!ArrayExists(AddresseeArray, JSON.stringify(Data))) {
+            AddresseeArray.push(JSON.stringify(Data));
+            $("#AddresseeList").append('<a onclick="$(this).remove()" id="' + Data.UserId + '" class="nui-txt-link">' + Data.RealName + '(' + Data.Account + ');</a>');
+        }
+    }
+    //发送、存草稿（State：状态;1-已发送;0-草稿）
+    function AcceptClick(State) {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var AddresseeJson = new Array();
+            $("#AddresseeList").find("a").each(function () {
+                var Addressee = { AddresseeId: $(this).attr('id'), AddresseeName: $(this).html() };
+                AddresseeJson.push(JSON.stringify(Addressee));
+            });
+            var AccessoryJson = new Array();
+            $("#FileUpList").find("a").each(function () {
+                var Accessory = {
+                    EmailAccessoryId: $(this).attr('id'),
+                    FileName: $(this).attr('FileName'),
+                    FilePath: $(this).attr('path'),
+                    FileSize: $(this).attr('FileSize'),
+                };
+                AccessoryJson.push(JSON.stringify(Accessory));
+            });
+            var PostData = {
+                KeyValue: GetQuery('KeyValue'),
+                State: State,                                               //状态;1-已发送;0-草稿
+                Theme: $("#Theme").val(),                                   //主题
+                ThemeColour: $('#Theme').attr('style').split(";")[1],       //主题颜色
+                Content: CKEDITOR.instances.Content.getData(),              //内容
+                AddresseeJson: "[" + eval(AddresseeJson) + "]",             //收件人Json
+                AccessoryJson: "[" + eval(AccessoryJson) + "]",             //附件Json
+            }
+            AjaxJson("/ExampleModule/Email/SendEmail", PostData, function (result) {
+                tipDialog(result.Message, 3, result.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+    //发送
+    function SendEvent() {
+        AcceptClick(1);
+    }
+    //存草稿
+    function SaveDraftEvent() {
+        AcceptClick(0);
+    }
+</script>
+<form id="form1" style="margin: 1px;">
+    <div class="background border" style="padding: 15px; padding-top: 0px; padding-bottom: 0px;">
+        <div class="bottomline" style="">
+            <table border="0" cellspacing="0" style="height: 30px; width: 100%">
+                <tr>
+                    <td valign="top" style="width: 60px; padding-top: 6px;">
+                        <label><a title="点击添加收件人" class="nui-txt-link" onclick="optionAddressee()">收件人</a>：</label></td>
+                    <td id="AddresseeList"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="bottomline" style="height: 30px; line-height: 30px;">
+            <label><a title="点击选择色彩主题" onclick="SelectColorEvent();" class="nui-txt-link">主　题</a>：</label>
+            <span id="select_color"></span>
+            <label>
+                <input id="Theme" type="text" class="txt background" style="width: 92%; color: #000000;" datacol="yes" err="主　题" checkexpession="NotNull" />
+            </label>
+        </div>
+        <div style="height: 29px; padding-top: 3px;">
+            <label style="float: left; padding: 4px;">附　件 ：</label>
+            <div style="float: left;">
+                <input id="uploadify" name="uploadify" type="file" />
+            </div>
+        </div>
+        <div id="FileUpList" style="padding-left: 60px;">
+        </div>
+        <textarea id="Content" name="Content"></textarea>
+        <div style="height: 30px; line-height: 30px;">
+            <label style="float: left;">发件人：@ViewBag.Addresser</label>
+        </div>
+    </div>
+    @*选择收件人窗口*@
+    <div class="optionTag" style="width: 300px; height: 422px;">
+        <i></i>
+        <span></span>
+        <b title="关闭" onclick="$(this).parent().hide()"></b>
+        <iframe id="iframe_optionTag" frameborder="0" scrolling="yes" width="100%" height="100%"></iframe>
+    </div>
+</form>
+
+<script type="text/javascript">
+    //初始化编辑器
+    CKEDITOR.replace("Content", { toolbar: 'Basic', height: 330 });
+    //选择颜色-设置标题色彩
+    function SelectColorEvent() {
+        var mycolor = $("#select_color").cxColor();
+        mycolor.show();
+        $("#select_color").bind("change", function () {
+            $("#Theme").css("color", this.value)
+        });
+    }
+</script>
+<style type="text/css">
+    .cke_chrome .cke_top {
+        border-right: none;
+        border-left: none;
+        padding-bottom: 0px;
+    }
+</style>

@@ -1,0 +1,362 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="LeaRun.Utilities.CmdHelper" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAACAAAAAAAAAAAgAAAQAAgAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Common\CmdHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.CommonHelper" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QADICCAAACAAABAAAAAABAABAAAUwAICAAQQQACQKEg=</HashCode>
+      <FileName>Base.Common\CommonHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.ConvertHelper" Collapsed="true">
+    <Position X="9.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAEAAAAAgAgAAAAAAAAAAAAAgAAAAAAAAA=</HashCode>
+      <FileName>Base.Common\ConvertHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.PinyinHelper" Collapsed="true">
+    <Position X="7.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAAAAAAACAAAAAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>Base.Common\PinyinHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.RandomHelper" Collapsed="true">
+    <Position X="9.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAgAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>Base.Common\RandomHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.RMBHelper" Collapsed="true">
+    <Position X="2.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Common\RMBHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.SqlFilterHelper" Collapsed="true">
+    <Position X="9.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Base.Common\SqlFilterHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.StringHelper" Collapsed="true">
+    <Position X="11" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAEAEAAAAQAAEAAAAAgDAAwAgAABGQAAhCCAAEA=</HashCode>
+      <FileName>Base.Common\StringHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.SysHelper" Collapsed="true">
+    <Position X="0.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAQAAACACAAAAAAACAAAAAAA=</HashCode>
+      <FileName>Base.Common\SysHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.ConfigHelper" Collapsed="true">
+    <Position X="7.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAQAA=</HashCode>
+      <FileName>Base.Config\ConfigHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.DataHelper" Collapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABIAAAAAAAgAAAAAAAAABAAIAAAAAAAAAAACQAA=</HashCode>
+      <FileName>Base.Data\DataHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.HashtableHelper" Collapsed="true">
+    <Position X="5.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAACAAAAAAEAIAABAIAAAAABAAAAIA=</HashCode>
+      <FileName>Base.Data\HashtableHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.DateTimeHelper" Collapsed="true">
+    <Position X="2.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAABAAAAAEBAAAFAABAQAECAAgACAAAIQAABAAAAAA=</HashCode>
+      <FileName>Base.DateTime\DateTimeHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.LogFactory" Collapsed="true">
+    <Position X="11" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.DebugLog\LogFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.LogHelper" Collapsed="true">
+    <Position X="0.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAYACAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.DebugLog\LogHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.DeriveExcel" Collapsed="true">
+    <Position X="4" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAAAAAAAAEAAAAQAAAAAAEAAAAAAA=</HashCode>
+      <FileName>Base.Document\Excel\DeriveExcel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.ImportExcel" Collapsed="true">
+    <Position X="11" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAE=</HashCode>
+      <FileName>Base.Document\Excel\ImportExcel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.DeriveWord" Collapsed="true">
+    <Position X="5.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>Base.Document\Word\DeriveWord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.IManageUser" Collapsed="true">
+    <Position X="9.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAIAgACDAAAgAAgAAAAAACACAYAAAAACAEA=</HashCode>
+      <FileName>Base.Extension\IManageUser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.ManageProvider" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="2.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQACAAAABAEAAAAAACAAAAQAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Extension\ManageProvider.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="LeaRun.Utilities.DirFileHelper" Collapsed="true">
+    <Position X="9.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAkAgEAgIAABAIAggYBAAESTgQAAQABAg0AAAAQEQA=</HashCode>
+      <FileName>Base.File\DirFileHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.FileDateSorter" Collapsed="true">
+    <Position X="11" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAg=</HashCode>
+      <FileName>Base.File\FileDateSorter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.FileDownHelper" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAARAAAAAAAAAEBAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Base.File\FileDownHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.GZipHelper" Collapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAABAAAAAIAAAgAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.File\GZipHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.INIFileHelper" Collapsed="true">
+    <Position X="0.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAgAAAAAEACAAACAACAAAAAQAAAQAAAAAA=</HashCode>
+      <FileName>Base.File\INIFileHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.ReadHelper" Collapsed="true">
+    <Position X="11" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAAAAAAAAAAAEAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.File\ReadHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.SizeHelper" Collapsed="true">
+    <Position X="5.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>Base.File\SizeHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.UploadHelper" Collapsed="true">
+    <Position X="7.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.File\UploadHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.HttpHelper" Collapsed="true">
+    <Position X="7.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAQAAAAEAAAAAAACCAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Http\HttpHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.NetHelper" Collapsed="true">
+    <Position X="5.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>oQAAABAAGAQAAGiAAAAABIAAAgAAAABACIAAEACEAQA=</HashCode>
+      <FileName>Base.Http\NetHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.RequestHelper" Collapsed="true">
+    <Position X="0.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CACCQAIIBBgAAKAAgIgAAAABAAAQAIoAIDAAAAACAAA=</HashCode>
+      <FileName>Base.Http\RequestHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.JsonHelper" Collapsed="true">
+    <Position X="7.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAIAAAAAAAAAAAAAAAIAAAAAAAgAA=</HashCode>
+      <FileName>Base.Json\JsonHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.JsonMessage" Collapsed="true">
+    <Position X="9.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAgAAAAAgAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Base.Json\JsonMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.Condition" Collapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAACEAAAAAAIg=</HashCode>
+      <FileName>Base.Model\Condition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.ConditionBuilder" Collapsed="true">
+    <Position X="5.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Model\Condition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.GridPage" Collapsed="true">
+    <Position X="2.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAQAMAAAAAAAQAABEAAAAAAAA=</HashCode>
+      <FileName>Base.Model\GridPage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.JqGridColumn" Collapsed="true">
+    <Position X="4" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEEEQAAAAJABQAAAAECAAAQEAAIAgAQQQBABFAA=</HashCode>
+      <FileName>Base.Model\JqGridColumn.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.JqGridParam" Collapsed="true">
+    <Position X="5.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEARAAAAAAAAQAAAAAEAAACAAAAA=</HashCode>
+      <FileName>Base.Model\JqGridParam.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.TreeJson" Collapsed="true">
+    <Position X="4" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Model\TreeJson.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.TreeJsonEntity" Collapsed="true">
+    <Position X="5.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAQgACEABIEAAAAAAAAAEAAiAIAAAACAAAAgA=</HashCode>
+      <FileName>Base.Model\TreeJson.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.DESEncrypt" Collapsed="true">
+    <Position X="7.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Security\DESEncrypt.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.Md5Helper" Collapsed="true">
+    <Position X="4" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Security\Md5Helper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.CookieHelper" Collapsed="true">
+    <Position X="11" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAEAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Web\CookieHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.IPScanerHelper" Collapsed="true">
+    <Position X="2.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQgA0IAAAAAIABAAARAJAAEoIAJAAAACWQAgAAAAAYA=</HashCode>
+      <FileName>Base.Web\IPScanerHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.SessionHelper" Collapsed="true">
+    <Position X="4" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAABABAAAAABAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Web\SessionHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.ToState" Collapsed="true">
+    <Position X="2.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Web\ToState.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.XMLHelper" Collapsed="true">
+    <Position X="9.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAEAAECAAAAAAAAAAgAAAQAAAAIAAAA=</HashCode>
+      <FileName>Base.Xml\XMLHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Utilities.Base.Helper.SqlChecker" Collapsed="true">
+    <Position X="7.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Common\SqlChecker.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="LeaRun.Utilities.IManageProvider" Collapsed="true">
+    <Position X="0.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQACAAAABAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Extension\IManageProvider.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="LeaRun.Utilities.PermissionMode" Collapsed="true">
+    <Position X="2.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Base.Extension\Permission\PermissionMode.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="LeaRun.Utilities.ConditionOperate" Collapsed="true">
+    <Position X="0.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAgIBAAAgAACAAAgYEAAFBAAAAAAAAAUQIAABQBASA=</HashCode>
+      <FileName>Base.Model\Condition.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>

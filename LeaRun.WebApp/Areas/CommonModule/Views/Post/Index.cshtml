@@ -1,0 +1,170 @@
+﻿@{
+    ViewBag.Title = "岗位管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetTree();
+        GetGrid();
+    });
+    var CompanyId = "", DepartmentId = "", DepartmentName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                if (item.Type == "Company") {
+                    DepartmentId = "";
+                    CompanyId = item.CompanyId;     //公司ID
+                } else if (item.Type == "Department") {
+                    CompanyId = item.CompanyId;     //公司ID
+                    DepartmentId = item.id;         //部门ID
+                    DepartmentName = item.text;     //部门名称
+                }
+                $("#CenterTitle").html(" - " + item.text + "(" + item.value + ")");
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/CommonModule/Post/GridPageListJson")?CompanyId=" + CompanyId + "&DepartmentId=" + DepartmentId, page: 1
+                }).trigger('reloadGrid');
+            },
+            url: "@Url.Content("~/CommonModule/Department/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/Post/GridPageListJson")",
+            datatype: "json",
+            height: $(window).height() - 132,
+            autowidth: true,
+            colModel: [
+                { label: "主键", name: "postid", index: "postid", hidden: true },
+                { label: "编码", name: "code", index: "code", width: 80 },
+                { label: "岗位", name: "fullname", width: 150 },
+                { label: "所属公司", name: "companyname", index: "companyname", width: 150 },
+                { label: "所属部门Id", name: "departmentid", index: "departmentid", hidden: true },
+                { label: "所属部门", name: "departmentname", index: "departmentname", width: 150 },
+                {
+                    label: '有效', name: 'enabled', index: 'enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                { label: "描述", name: "remark", index: "remark", width: 500 }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+        columnModelData("#gridTable");
+    }
+    //新增
+    function btn_add() {
+        if (!!DepartmentId) {
+            var url = "/CommonModule/Post/Form?CompanyId=" + CompanyId + "&DepartmentId=" + DepartmentId + "&DepartmentName=" + escape(DepartmentName);
+            openDialog(url, "Form", "新增岗位", 450, 220, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        } else {
+            alertDialog("请选择左边部门", 0);
+        }
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "postid");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Post/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑岗位", 450, 220, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "postid");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Post/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "岗位明细", 700, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "postid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/Post/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //岗位用户
+    function btn_Member() {
+        var PostId = GetJqGridRowValue("#gridTable", "postid");
+        var PostName = GetJqGridRowValue("#gridTable", "fullname");
+        var DepartmentId = GetJqGridRowValue("#gridTable", "departmentid");
+        if (IsChecked(DepartmentId)) {
+            var url = "/CommonModule/Permission/AllotUser?ObjectId=" + PostId + '&DepartmentId=' + DepartmentId + '&Category=3';
+            openDialog(url, "AllotMember", "岗位用户 - " + PostName, 630, 300, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //岗位权限
+    function btn_AllotPermission() {
+        var PostId = GetJqGridRowValue("#gridTable", "postid");
+        var PostName = GetJqGridRowValue("#gridTable", "fullname");
+        if (IsChecked(PostId)) {
+            var url = "/CommonModule/Permission/AllotPermission?ObjectId=" + PostId + '&Category=3';
+            openDialog(url, "AllotPermission", "岗位权限 - " + PostName, 830, 480, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //数据范围
+    function btn_ScopePermission() {
+        var PostId = GetJqGridRowValue("#gridTable", "postid");
+        var PostName = GetJqGridRowValue("#gridTable", "fullname");
+        if (IsChecked(PostId)) {
+            var url = "/CommonModule/Permission/ScopePermission?ObjectId=" + PostId + '&Category=3';
+            openDialog(url, "AllotPermission", "数据范围 - " + PostName, 830, 480, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                部门信息
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                岗位列表 <span id="CenterTitle"></span>
+            </div>
+        </div>
+        <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+            <div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>

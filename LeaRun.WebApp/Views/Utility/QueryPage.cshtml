@@ -1,0 +1,511 @@
+﻿@{
+    ViewBag.Title = "查询过滤";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<link href="~/Content/Styles/learunui-startmenu.css" rel="stylesheet" />
+<script>
+    //初始化
+    $(function () {
+        $("#layoutA").splitter({
+            type: "v",
+            outline: true,
+            minLeft: 160, sizeLeft: 160, maxLeft: 160,
+            anchorToWindow: true,
+            accessKey: "L"
+        });
+        CreateTableRow();
+        GridTdEvent();
+        LoadProject();
+    })
+    //获取条件表格JSON
+    function GetConditionJson() {
+        var JsonData = [];
+        $("#grid_Condition tbody tr").each(function () {
+            var LeftBrace = $(this).find('td:eq(1)').find('select').val();
+            var FieldName = $(this).find('td:eq(2)').find('select').val();
+            var CompareValue = $(this).find('td:eq(3)').find('select').val();
+            var FilterValue = $(this).find('td:eq(4)').find('input,select').val();
+            var RightBrace = $(this).find('td:eq(5)').find('select').val();
+            var Logic = $(this).find('td:eq(6)').find('select').val();
+            if (FieldName) {
+                var tdData = {
+                    LeftBrace: LeftBrace,
+                    ParamName: FieldName,
+                    Operation: CompareValue,
+                    ParamValue: FilterValue,
+                    RightBrace: RightBrace,
+                    Logic: Logic,
+                }
+                JsonData.push(tdData);
+            }
+        });
+        return JsonData;
+    }
+    //回调查询确认事件
+    function QueryClick(callBack) {
+        callBack(JSON.stringify(GetConditionJson()));
+        closeDialog();
+    }
+    /*条件设置begin=========================================================*/
+    //获取项目名称 返回JSON
+    var DataViewColumnJson = "";
+    function ViewColumnJson() {
+        var ModuleId = top.$("#ModuleId").val();
+        var DataJson = "";
+        getAjax('/CommonModule/View/GetViewWhereJson', { ModuleId: ModuleId }, function (data) {
+            DataJson = data;
+        });
+        DataViewColumnJson = DataJson;
+        return DataJson;
+    }
+    //绑定项目名称 下拉框
+    function BindDropFieldName(index) {
+        var id = $("#FieldName➩" + index);
+        var DataJson = "";
+        if (DataViewColumnJson != "") {
+            var DataJson = eval("(" + DataViewColumnJson + ")");
+        } else {
+            DataJson = eval("(" + ViewColumnJson() + ")");
+        }
+        id.append("<option value=''></option>");
+        $.each(DataJson, function (i) {
+            id.append($("<option ControlType=" + DataJson[i].ControlType + " ControlDefault=" + DataJson[i].ControlDefault + " ControlSource=" + DataJson[i].ControlSource + "></option>").val(DataJson[i].FieldName).html(DataJson[i].FullName));
+        });
+    }
+    //项目名称选择事件
+    function ViewColumnOnChange(index) {
+        var ControlType = $("#FieldName➩" + index).find('option:selected').attr('ControlType');//控件类型
+        var ControlDefault = $("#FieldName➩" + index).find('option:selected').attr('ControlDefault');//默认值
+        var ControlSource = $("#FieldName➩" + index).find('option:selected').attr('ControlSource');//数据源
+        var CompareValue = $("#CompareValue➩" + index); CompareValue.html(""); CompareValue.parent().trigger("click");//比较
+        var FilterValue = $("#FilterValue➩" + index);//比较值
+        if (ControlType == 1) {//文本框
+            CompareValue.append($("<option></option>").val("Equal").html("等于"));
+            CompareValue.append($("<option></option>").val("NotEqual").html("不等于"));
+            CompareValue.append($("<option></option>").val("Greater").html("大于"));
+            CompareValue.append($("<option></option>").val("GreaterThan").html("大于等于"));
+            CompareValue.append($("<option></option>").val("Less").html("小于"));
+            CompareValue.append($("<option></option>").val("LessThan").html("小于等于"));
+            CompareValue.append($("<option></option>").val("Null").html("为空"));
+            CompareValue.append($("<option></option>").val("NotNull").html("不为空"));
+            CompareValue.append($("<option></option>").val("Like").html("包含"));
+            CompareValue.append($("<option></option>").val("NotLike").html("不包含"));
+            CompareValue.append($("<option></option>").val("LeftLike").html("左包含"));
+            CompareValue.append($("<option></option>").val("RightLike").html("右包含"));
+            var tdobj = FilterValue.parent();
+            tdobj.html('<div></div><input id="FilterValue➩' + index + '" type="text" class="txt" />');////更改比较值 控件
+        } else if (ControlType == 2) {//下拉框
+            CompareValue.append($("<option></option>").val("Equal").html("等于"));
+            CompareValue.append($("<option></option>").val("NotEqual").html("不等于"));
+            var tdobj = FilterValue.parent();
+            tdobj.html('<div></div><select id="FilterValue➩' + index + '" class="txtselect"></select>');//更改比较值 控件
+            if (ControlSource) {
+                BindDropItem("#FilterValue➩" + index, ControlSource, ControlDefault);
+            }
+            $("#FilterValue➩" + index).parent().trigger("click");
+        } else if (ControlType == 3) {//日期框
+            //allowInput='false' 意思就是 项目值不可以输入
+            CompareValue.append($("<option allowInput='false'></option>").val("Yesterday").html("昨天"));
+            CompareValue.append($("<option allowInput='false'></option>").val("Today").html("今天"));
+            CompareValue.append($("<option allowInput='false'></option>").val("Tomorrow").html("明天"));
+            CompareValue.append($("<option allowInput='false'></option>").val("LastWeek").html("上周"));
+            CompareValue.append($("<option allowInput='false'></option>").val("ThisWeek").html("本周"));
+            CompareValue.append($("<option allowInput='false'></option>").val("NextWeek").html("下周"));
+            CompareValue.append($("<option allowInput='false'></option>").val("LastMonth").html("上月"));
+            CompareValue.append($("<option allowInput='false'></option>").val("ThisMonth").html("本月"));
+            CompareValue.append($("<option allowInput='false'></option>").val("NextMonth").html("下月"));
+            CompareValue.append($("<option></option>").val("BeforeDay").html("今天之前(天)"));
+            CompareValue.append($("<option></option>").val("AfterDay").html("今天之后(天)"));
+            CompareValue.append($("<option></option>").val("Equal").html("等于"));
+            CompareValue.append($("<option></option>").val("NotEqual").html("不等于"));
+            CompareValue.append($("<option></option>").val("Greater").html("大于"));
+            CompareValue.append($("<option></option>").val("GreaterThan").html("大于等于"));
+            CompareValue.append($("<option></option>").val("Less").html("小于"));
+            CompareValue.append($("<option></option>").val("Lessthan").html("小于等于"));
+            CompareValue.append($("<option></option>").val("Null").html("为空"));
+            CompareValue.append($("<option></option>").val("NotNull").html("不为空"));
+            FilterValue.parent().html('<div></div><input Wdate="true" disabled id="FilterValue➩' + index + '" type="text" class="txt disabled" />');//更改比较值 控件
+        }
+        $("#grid_Condition tbody tr:eq(" + index + ")").find('input,select').removeAttr('disabled');
+        if (index > 1) {
+            $("#grid_Condition tbody tr:eq(" + (index - 2) + ")").find('td:eq("6")').html('<div>并且</div><select id="Logic➩' + index + '" class="txtselect"><option value="AND">并且</option><option value="OR">或</option></select>').find('select').hide();
+        }
+    }
+    //比较值选择事件
+    function CompareValueOnChange(index) {
+        var FilterValue = $("#FilterValue➩" + index);
+        var ControlType = $("#FieldName➩" + index).find('option:selected').attr('ControlType');//控件类型
+        if (ControlType == 1) {//文本框
+
+        } else if (ControlType == 2) {//下拉框
+
+        } else if (ControlType == 3) {//日期框
+            FilterValue.val("");
+            FilterValue.removeAttr('disabled');
+            FilterValue.removeClass('disabled');
+            FilterValue.removeClass('Wdate');
+            FilterValue.removeAttr('onfocus');
+            FilterValue.removeAttr('onclick');
+            FilterValue.removeAttr('onblur');
+            var allowInput = $("#CompareValue➩" + index).find('option:selected').attr('allowInput');
+            var CompareValue = $("#CompareValue➩" + index).find('option:selected').val();
+            if (allowInput == 'false') {
+                FilterValue.attr('disabled');
+                FilterValue.addClass('disabled');
+            } else {
+                if (CompareValue == 'BeforeDay' || CompareValue == 'AfterDay') {
+                    FilterValue.addClass('');
+                    FilterValue.attr('onfocus', "IsNumber(this.id)");
+                    FilterValue.parent().trigger("click");
+                    FilterValue.focus();
+                } else {
+                    FilterValue.addClass('Wdate');
+                    FilterValue.attr('onclick', "WdatePicker()");
+                    FilterValue.parent().trigger("click");
+                    FilterValue.focus();
+                }
+            }
+        }
+    }
+    //表格默认添加20行
+    function CreateTableRow() {
+        var TableRowIndex = ($('#grid_Condition tbody tr').length + 1);
+        for (var i = 0; i < 20; i++) {
+            var tr = '';
+            tr += '<tr>';
+            tr += '<td class="td-div" style="width: 30px; text-align: center;border-left: none;">' + TableRowIndex + '</td>'
+            tr += '<td style="width: 30px;text-align: center;"><div></div><select id="LeftBrace➩' + TableRowIndex + '" class="txtselect"><option value=""></option><option value="(">(</option><option value="((">((</option><option value="(((">(((</option></select></td>'
+            tr += '<td style="width: 150px;"><div></div><select id="FieldName➩' + TableRowIndex + '" onchange="ViewColumnOnChange(' + TableRowIndex + ')" class="txtselect"></select></td>'
+            tr += '<td style="width: 80px;text-align: center;"><div></div><select id="CompareValue➩' + TableRowIndex + '" onchange="CompareValueOnChange(' + TableRowIndex + ')" class="txtselect"></select</td>'
+            tr += '<td style="width: 205px;"><div></div><input id="FilterValue➩' + TableRowIndex + '" type="text" class="txt" /></td>'
+            tr += '<td style="width: 30px;text-align: center;"><div></div><select id="RightBrace➩' + TableRowIndex + '" class="txtselect"><option value=""></option><option value=")">)</option><option value="))">))</option><option value=")))">)))</option></select></td>'
+            tr += '<td style="width: 60px;text-align: center;"></td>'
+            tr += '</tr>';
+            $("#grid_Condition tbody").append(tr);
+            BindDropFieldName(TableRowIndex);
+            TableRowIndex++;
+        }
+        $("#grid_Condition tbody tr").find('input,select').attr('disabled', 'disabled');
+        $("#grid_Condition tbody tr").find('input,select').hide();
+        $("#grid_Condition tbody tr:eq(0)").find('input,select').removeAttr('disabled');
+    }
+    //查询表单点击事件
+    function GridTdEvent() {
+        $("#grid_Condition tbody tr .td-div").click(function () {
+            $(".grid tbody tr").removeClass("tdhover"); $(".grid tbody tr").removeClass("selected"); $(this).parent().addClass("selected"); //添加选中样式   
+        })
+        $("#grid_Condition tbody tr td").click(function () {
+            //取出当前td>div的文本内容保存起来
+            var oldText = $(this).find('div').text();
+            //文本框、下拉框对象
+            var obj = $(this).find('input,select');
+            if (obj.attr('disabled')) {
+                return false;
+            }
+            var type = obj.attr('class');
+            obj.show();
+            obj.parent().find('div').html("");
+            //设置文本框的点击事件失效
+            obj.click(function () {
+                return false;
+            });
+            //当文本框得到焦点时触发全选事件  
+            obj.trigger("focus"); obj.select();
+            //当文本框离开事件
+            obj.blur(function () {
+                if (!obj.attr('Wdate')) {
+                    //保存当前文本框的内容
+                    var newText = "";
+                    if (type == 'txtselect') {
+                        newText = obj.find('option:selected').html();
+                    } else {
+                        newText = obj.val();
+                    }
+                    obj.hide();
+                    obj.parent().find('div').html(newText);
+                }
+            });
+        })
+        document.onselectstart = function () {
+            return false;
+        }
+    }
+    //清空表格当前行
+    function EmptyGridRow() {
+        $("#grid_Condition tbody .selected").find('td').find('div').html('');
+        $("#grid_Condition tbody .selected").find('td:eq(1)').find('select').hide();
+        $("#grid_Condition tbody .selected").find('td:eq(2)').find('select').val("").hide();
+        $("#grid_Condition tbody .selected").find('td:eq(3)').find('select').html("").hide();
+        $("#grid_Condition tbody .selected").find('td:eq(4)').find('input,select').val('').html("").removeAttr('disabled').removeClass('disabled').removeClass('Wdate').hide();
+        $("#grid_Condition tbody .selected").find('td:eq(5)').find('select').hide();
+        $("#grid_Condition tbody .selected").find('td:eq(6)').find('select').hide();
+        $("#grid_Condition tbody .selected").removeClass('selected');
+    }
+    //插入一个空行
+    function InsetGridRow() {
+        var trobj = $("#grid_Condition tbody .selected");
+        var TableRowIndex = $('#grid_Condition tbody tr').length + Number(1);
+        var tr = '';
+        tr += '<tr>';
+        tr += '<td class="td-div" style="width: 30px; text-align: center;border-left: none;">' + TableRowIndex + '</td>'
+        tr += '<td style="width: 30px;text-align: center;"><div></div><select id="LeftBrace➩' + TableRowIndex + '" class="txtselect"><option value=""></option><option value="(">(</option><option value="((">((</option><option value="(((">(((</option></select></td>'
+        tr += '<td style="width: 150px;"><div></div><select id="FieldName➩' + TableRowIndex + '" onchange="ViewColumnOnChange(' + TableRowIndex + ')" class="txtselect"></select></td>'
+        tr += '<td style="width: 80px;text-align: center;"><div></div><select id="CompareValue➩' + TableRowIndex + '" onchange="CompareValueOnChange(' + TableRowIndex + ')" class="txtselect"></select</td>'
+        tr += '<td style="width: 205px;"><div></div><input id="FilterValue➩' + TableRowIndex + '" type="text" class="txt" /></td>'
+        tr += '<td style="width: 30px;text-align: center;"><div></div><select id="RightBrace➩' + TableRowIndex + '" class="txtselect"><option value=""></option><option value=")">)</option><option value="))">))</option><option value=")))">)))</option></select></td>'
+        tr += '<td style="width: 60px;text-align: center;"><div></div><select id="Logic➩' + TableRowIndex + '" class="txtselect"><option value="AND">并且</option><option value="OR">或</option></select></td>'
+        tr += '</tr>';
+        trobj.before(tr);
+        BindDropFieldName(TableRowIndex);
+        $("#grid_Condition tbody tr").find('#LeftBrace➩' + TableRowIndex).hide();
+        $("#grid_Condition tbody tr").find('#FieldName➩' + TableRowIndex).hide();
+        $("#grid_Condition tbody tr").find('#CompareValue➩' + TableRowIndex).hide();
+        $("#grid_Condition tbody tr").find('#FilterValue➩' + TableRowIndex).hide();
+        $("#grid_Condition tbody tr").find('#RightBrace➩' + TableRowIndex).hide();
+        $("#grid_Condition tbody tr").find('#Logic➩' + TableRowIndex).hide();
+        //更新表格序列号
+        var indexrow = 1;
+        $("#grid_Condition tbody tr").each(function () { $(this).find('td:eq(0)').html(indexrow); indexrow++; });
+        GridTdEvent();
+    }
+    /*条件设置end=========================================================*/
+
+    /*左边方案设置begin=======================================================*/
+    //加载方案列表
+    function LoadProject() {
+        var ModuleId = top.$("#ModuleId").val();
+        AjaxJson("/Utility/QueryListProject?ModuleId=" + ModuleId, {}, function (JsonData) {
+            $.each(JsonData, function (i) {
+                var QueryRecordId = JsonData[i].QueryRecordId;
+                var FullName = JsonData[i].FullName;
+                var ConditionJson = JsonData[i].ConditionJson;
+                var NextDefault = JsonData[i].NextDefault;
+                if (NextDefault) {
+                    $("#Project_Menu li div").removeClass('leftselected');
+                    NextDefault = "leftselected";
+                    if (ConditionJson) {
+                        var ConditionJsonData = eval(ConditionJson);
+                        var RowIndex = 1;
+                        $.each(ConditionJsonData, function (i) {
+                            var LeftBrace = ConditionJsonData[i].LeftBrace;
+                            var FieldName = ConditionJsonData[i].FieldName;
+                            var CompareValue = ConditionJsonData[i].CompareValue;
+                            var FilterValue = ConditionJsonData[i].FilterValue;
+                            var RightBrace = ConditionJsonData[i].RightBrace;
+                            var Logic = ConditionJsonData[i].Logic;
+                            $("#LeftBrace➩" + RowIndex).val(LeftBrace);
+                            $("#LeftBrace➩" + RowIndex).parent().trigger("click");
+                            $("#FieldName➩" + RowIndex).val(FieldName);
+                            $("#FieldName➩" + RowIndex).parent().trigger("click");
+                            ViewColumnOnChange(RowIndex);
+
+                            $("#CompareValue➩" + RowIndex).val(CompareValue);
+                            $("#FilterValue➩" + RowIndex).val(FilterValue);
+                            $("#RightBrace➩" + RowIndex).val(RightBrace);
+                            $("#RightBrace➩" + RowIndex).parent().trigger("click");
+                            $("#Logic➩" + (RowIndex + 1)).val(Logic);
+                            RowIndex++;
+                        });
+                        $('.icon-botton').focus();
+                    }
+                } else {
+                    NextDefault = "";
+                }
+                $("#Project_Menu ul").append('<li id=' + QueryRecordId + ' ConditionJson=' + ConditionJson + '><div class="main_menu ' + NextDefault + '" ><img src="@Url.Content("~/Content/Images/Icon16/application_form_magnify.png")">' + FullName + '</div></li>');
+            });
+        });
+        readyIndex();
+        //点击方案名称 字段加载查询条件列表
+        $("#Project_Menu li div").click(function () {
+            Loading(true);
+            $("#grid_Condition tbody tr").find('td').find('div').html('');
+            $("#grid_Condition tbody tr").find('td:eq(1)').find('select').hide();
+            $("#grid_Condition tbody tr").find('td:eq(2)').find('select').val("").hide();
+            $("#grid_Condition tbody tr").find('td:eq(3)').find('select').html("").hide();
+            $("#grid_Condition tbody tr").find('td:eq(4)').find('input,select').val('').html("").removeAttr('disabled').removeClass('disabled').removeClass('Wdate').hide();
+            $("#grid_Condition tbody tr").find('td:eq(5)').find('select').hide();
+            $("#grid_Condition tbody tr").find('td:eq(6)').find('select').hide();
+            $("#grid_Condition tbody tr").removeClass('selected');
+            var ConditionJson = $(this).parent().attr('ConditionJson');
+            if (ConditionJson) {
+                var JsonData = eval(ConditionJson);
+                var RowIndex = 1;
+                $.each(JsonData, function (i) {
+                    var LeftBrace = JsonData[i].LeftBrace;
+                    var FieldName = JsonData[i].FieldName;
+                    var CompareValue = JsonData[i].CompareValue;
+                    var FilterValue = JsonData[i].FilterValue;
+                    var RightBrace = JsonData[i].RightBrace;
+                    var Logic = JsonData[i].Logic;
+                    $("#LeftBrace➩" + RowIndex).val(LeftBrace);
+                    $("#LeftBrace➩" + RowIndex).parent().trigger("click");
+                    $("#FieldName➩" + RowIndex).val(FieldName);
+                    $("#FieldName➩" + RowIndex).parent().trigger("click");
+                    ViewColumnOnChange(RowIndex);
+
+                    $("#CompareValue➩" + RowIndex).val(CompareValue);
+                    $("#FilterValue➩" + RowIndex).val(FilterValue);
+                    $("#RightBrace➩" + RowIndex).val(RightBrace);
+                    $("#RightBrace➩" + RowIndex).parent().trigger("click");
+                    $("#Logic➩" + (RowIndex + 1)).val(Logic);
+                    RowIndex++;
+                });
+                $('.icon-botton').focus();
+            }
+            window.setTimeout(function () {
+                Loading(false);
+            }, 200);
+
+        })
+    }
+    //保存方案
+    function SaveProject() {
+        var html = '<div style="margin: 1px"><table class="form" id="Project">';
+        html += '<tr>'
+        html += '<th class="formTitle">方案名称：</th>'
+        html += '<td class="formValue">'
+        html += '<input id="FullName" type="text" class="txt"  />'
+        html += '</td>'
+        html += '</tr>'
+        html += '<tr>';
+        html += '<th class="formTitle">方案共享：</th>'
+        html += '<td class="formValue">'
+        html += '<input type="checkbox" name="checkbox" id="ResourceShare" /><label for="ResourceShare">方案共享给其他用户(只读)</label>'
+        html += '</td>'
+        html += '</tr></div>';
+        MessageDialog(html, "Project", "保存方案", 350, 80, function (JsonData) {
+            var QueryRecordId = "";
+            JsonData["ModuleId"] = top.$("#ModuleId").val();
+            JsonData["ConditionJson"] = JSON.stringify(GetConditionJson());
+            AjaxJson("/Utility/QuerySaveProject?QueryRecordId=" + QueryRecordId, JsonData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                windowload();
+            });
+        });
+    }
+    //删除方案
+    function DeleteProject() {
+        var QueryRecordId = $("#Project_Menu li .leftselected").parent().attr('id');
+        if (IsDelData(QueryRecordId)) {
+            var delparm = 'QueryRecordId=' + QueryRecordId;
+            delConfig('/Utility/QueryDeleteProject', delparm, QueryRecordId.split(",").length);
+        }
+    }
+    //设置初始化默认方案
+    function DefaultProject() {
+        var ModuleId = top.$("#ModuleId").val();
+        var QueryRecordId = $("#Project_Menu li .leftselected").parent().attr('id');
+        AjaxJson("/Utility/QueryDefaultProject", { ModuleId: ModuleId, QueryRecordId: QueryRecordId }, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            windowload();
+        });
+    }
+    function windowload() {
+        Replace();
+    }
+    /*左边方案设置end=========================================================*/
+</script>
+<div id="layoutA" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west" style="overflow: hidden">
+        <div class="tools_bar_icon" style="margin-bottom: 1px;">
+            <div class="icon-botton" title="保存" onclick="SaveProject();">
+                <img src="~/Content/Images/Icon16/save_as.png" />
+            </div>
+            <div class="icon-botton" title="删除" onclick="DeleteProject();">
+                <img src="~/Content/Images/Icon16/DeleteRed.png" />
+            </div>
+            <div class="icon-botton" title="默认下次已本方案自动进入" onclick="DefaultProject()">
+                <img src="~/Content/Images/Icon16/color_picker_default.png" />
+            </div>
+        </div>
+        <div id="Project_Menu" class="main_menu topline" style="float: left;">
+            <ul>
+                <li>
+                    <div class="main_menu leftselected">
+                        <img src="~/Content/Images/Icon16/application_form_magnify.png">默认方案
+                    </div>
+                </li>
+            </ul>
+            <style>
+                .main_menu {
+                    width: 100%;
+                    height: 100%;
+                    border-right: none;
+                    margin-right: 0;
+                    background: #f5f5f5;
+                }
+
+                    .main_menu li div {
+                        height: 29px;
+                        line-height: 29px;
+                    }
+
+                    .main_menu img {
+                        margin-bottom: 3px;
+                        margin-right: 0px;
+                    }
+            </style>
+        </div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="ToolbaAarea">
+            <div class="bd" style="border: none;">
+                <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                    <div class="tab_list_top" style="position: absolute">
+                        <div id="TabCondition" class="tab_list bd actived" onclick="Tabchange('Condition')">条件设置</div>
+                        <div id="TabSort" class="tab_list bd " onclick="Tabchange('Sort');">排序设置</div>
+                    </div>
+                    <div style="float: right;">
+                        <div class="tools_bar_icon">
+                            <div class="icon-botton" title="插入行" onclick="InsetGridRow()">
+                                <img src="~/Content/Images/Icon16/table_row_insert.png" />
+                            </div>
+                            <div class="icon-botton" title="清空行" onclick="EmptyGridRow()">
+                                <img src="~/Content/Images/Icon16/table_row_delete.png" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ScrollBar" style="margin-top: 1px;">
+            @*条件设置*@
+            <div id="Condition" class="tabPanel">
+                <table id="grid_Condition" class="grid">
+                    <thead>
+                        <tr>
+                            <td style="width: 30px; text-align: center; border-left: none;">
+                                <div class="table-header">序号</div>
+                            </td>
+                            <td style="width: 30px; text-align: center;">
+                                <div class="table-header">（</div>
+                            </td>
+                            <td style="width: 150px; text-align: center;">
+                                <div class="table-header">项目名称</div>
+                            </td>
+                            <td style="width: 80px; text-align: center;">
+                                <div class="table-header">比较</div>
+                            </td>
+                            <td style="width: 205px; text-align: center;">
+                                <div class="table-header">比较值</div>
+                            </td>
+                            <td style="width: 30px; text-align: center;">
+                                <div class="table-header">）</div>
+                            </td>
+                            <td style="width: 60px; text-align: center;">
+                                <div class="table-header">逻辑</div>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            @*排序设置*@
+            <div id="Sort" class="tabPanel" style="display: none;">
+            </div>
+        </div>
+    </div>
+</div>

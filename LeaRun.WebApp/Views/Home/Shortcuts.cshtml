@@ -1,0 +1,39 @@
+﻿@{
+    ViewBag.Title = "快捷方式设置";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script>
+    $(function () {
+        GetTree();
+    });
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            showcheck: true,
+            url: "@Url.Content("~/Home/ShortcutsModuleTreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //保存事件
+    function AcceptClick() {
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var ModuleId = $("#ItemsTree").getCheckedNodes();
+            AjaxJson("/Home/SubmitShortcuts?ModuleId=" + ModuleId, {}, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.ShortcutsList();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 10px">
+    <div style="height: 29px;">
+        <div style="line-height: 26px; font-size: 14px;">
+            菜单导航
+        </div>
+    </div>
+    <div id="ItemsTree" class="border" style="height: 248px; overflow: auto;">
+    </div>
+</form>
+

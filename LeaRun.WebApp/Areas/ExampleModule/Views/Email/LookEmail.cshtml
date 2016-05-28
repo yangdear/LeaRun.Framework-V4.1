@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "电子邮件/查询邮件";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script>
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        var KeyValue = GetQuery('EmailId');
+        if (!!KeyValue) {
+            AjaxJson("/ExampleModule/Email/SetEmailControl", { KeyValue: KeyValue }, function (data) {
+                $("#Theme").text(data.Email.Theme).css('color', data.Email.ThemeColour);
+                $("#Content").html(data.Email.Content);
+                $("#SendDate").text(formatDate(data.Email.SendDate, 'yyyy-MM-dd hh:mm:ss'));
+                $("#Addresser").text(data.Email.Addresser);
+                //收件人
+                var AddresseeNameText = "";
+                var AddresseeJson = data.EmailAddressee;
+                $.each(AddresseeJson, function (i) {
+                    AddresseeNameText += AddresseeJson[i].AddresseeName;
+                });
+                $("#AddresseeName").text(AddresseeNameText);
+                //附件
+                var AccessoryJson = data.EmailAccessory;
+                $.each(AccessoryJson, function (i) {
+                    //$("#FileUpList").append('<p style="padding-bottom: 5px;">' + index_uploadify + '、' + AccessoryJson[i].FileName + ' (' + AccessoryJson[i].FileSize + ')<a id="' + AccessoryJson[i].EmailAccessoryId + '" FileName="' + AccessoryJson[i].FileName + '" FileSize="' + AccessoryJson[i].FileSize + '" path="' + AccessoryJson[i].FilePath + '" class="nui-txt-link" onclick="DeleteFile(this.id)">删除</a></p>');
+                });
+            });
+        }
+    }
+</script>
+<form id="form1" style="">
+    <div class="background bottomline" style="padding: 15px; padding-top: 6px; padding-bottom: 6px;">
+        <div style="position: absolute; right: 32px; top: 32px;">
+            <img class="border" src="~/Content/Images/male.gif" />
+        </div>
+        <div>
+            <table border="0" cellspacing="0" style="height: 20px; width: 100%">
+                <tr>
+                    <td>
+                        <label id="Theme" style="font-weight: bold; font-size: 10pt;">标题</label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <table border="0" cellspacing="0" style="height: 20px; width: 100%">
+                <tr>
+                    <td style="width: 60px;">
+                        <label>发件人 ：</label>
+                    </td>
+                    <td>
+                        <label id="Addresser" ></label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <table border="0" cellspacing="0" style="height: 20px; width: 100%">
+                <tr>
+                    <td style="width: 60px;">
+                        <label>时　间 ：</label>
+                    </td>
+                    <td>
+                        <label id="SendDate" ></label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <table border="0" cellspacing="0" style="height: 20px; width: 100%">
+                <tr>
+                    <td style="width: 60px;">
+                        <label>收件人 ：</label>
+                    </td>
+                    <td>
+                        <label id="AddresseeName"></label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <table border="0" cellspacing="0" style="height: 20px; width: 100%">
+                <tr>
+                    <td style="width: 60px;">
+                        <label>附　件 ：</label>
+                    </td>
+                    <td>0 个（<a style="cursor: pointer;">点击查看</a>）
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div  id="Content" style="padding: 15px;">
+        内容
+    </div>
+</form>

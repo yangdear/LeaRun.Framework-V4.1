@@ -1,0 +1,122 @@
+﻿@{
+    ViewBag.Title = "模块管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetTree();
+        GetGrid();
+    });
+    var ModuleId = "0", ModuleName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                ModuleId = item.id;            //ID
+                ModuleName = item.text;        //名称
+                var Parameter = [{
+                    paramName: "ParentId",
+                    paramValue: ModuleId,
+                    Operation: "Equal",
+                }]
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/CommonModule/Module/GridJson")?ParameterJson=" + escape(JSON.stringify(Parameter))
+                }).trigger('reloadGrid');
+            },
+            url: "@Url.Content("~/CommonModule/Module/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //加载表格
+    function GetGrid() {
+        var Parameter = [{
+            paramName: "ParentId",
+            paramValue: ModuleId,
+            Operation: "Equal"
+        }]
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/Module/GridJson")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 105,
+            autowidth: true,
+            colModel: [
+                { label: "主键", name: "ModuleId", index: "ModuleId", hidden: true },
+                { label: "编码", name: "Code", index: "Code", width: 76 },
+                { label: "名称", name: "FullName", index: "FullName", width: 100 },
+                { label: "分类", name: "Category", index: "Category", width: 45, align: "center" },
+                { label: "访问地址", name: "Location", index: "Location", width: 350 },
+                { label: "目标", name: "Target", index: "Target", width: 45, align: "center" },
+                { label: "层次", name: "Level", index: "Level", width: 45, align: "center" },
+                {
+                    label: '有效', name: 'Enabled', index: 'enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                { label: "说明", name: "Remark", index: "Remark", width: 400 }
+            ],
+            pager: false,
+            rowNum: 1000,
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/Module/Form?ModuleId=" + ModuleId + "&ModuleName=" + escape(ModuleName);
+        openDialog(url, "Form", "新增模块信息", 650, 300, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "ModuleId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Module/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑模块信息", 650, 300, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "ModuleId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue + '&ParentId=' + KeyValue;
+            delConfig('/CommonModule/Module/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                导航目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                模块信息
+            </div>
+        </div>
+        <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+            <div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>
+        </div>
+        <table id="gridTable"></table>
+    </div>
+</div>

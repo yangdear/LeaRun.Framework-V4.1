@@ -1,0 +1,109 @@
+﻿@{
+    ViewBag.Title = "文件中心管理/文件上传";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<!--上传文件组件start-->
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<!--上传文件组件end-->
+<script>
+    $(function () {
+        uploadify();
+    });
+    //上传文件
+    var index_uploadify = 1;
+    function uploadify() {
+        $("#uploadify").uploadify({
+            uploader: '/ExampleModule/Document/SubmitUploadify?FolderId=' + GetQuery('FolderId'),
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                $('.drag-tip').remove();
+                var DataJson = JSON.parse(data);
+                var html = "";
+                html += '<tr>';
+                if (DataJson.NetworkFile.Icon == "new") {
+                    html += '<td style="width: 16px;"><img src="@Url.Content("~/Content/Images/Icon32/page_white.png")" /></td>';
+                } else {
+                    html += '<td style="width: 16px;"><img src="../../Content/Images/Icon32/file_extension_' + DataJson.NetworkFile.Icon + '.png" /></td>';
+                }
+                html += '<td style="width: 320px;"><div id="divFileName">' + DataJson.NetworkFile.FileName + '</div></td>';
+                html += '<td style="width: 70px;">' + DataJson.NetworkFile.FileSize + '</td>';
+                if (DataJson.Status > 0) {
+                    html += '<td title="上传成功" style="width: 26px;"><img src="@Url.Content("~/Content/Images/Icon16/accept.png")" /></td>';
+                } else {
+                    html += '<td title=' + DataJson.Status + ' style="width: 26px;"><img src="@Url.Content("~/Content/Images/Icon16/delete.png")" /></td>';
+                }
+                html += '</tr>';
+                $("#grid tbody").prepend(html);
+                top.frames[tabiframeId()].windowload();
+            }
+        });
+    }
+</script>
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+</style>
+<form id="form1" style="margin: 10px">
+    <div style="height: 29px;">
+        <div style="float: left;">
+            <input id="uploadify" name="uploadify" type="file" />
+        </div>
+        <div style="float: right; line-height: 26px; color: #3083eb; cursor: pointer;">
+            上传必知
+        </div>
+    </div>
+    <div class="border background" style="height: 298px; overflow: auto; overflow-y: hidden">
+        <div class="upload-item">
+            <table id="grid" style="width: 100%; border-collapse: collapse;">
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="drag-tip" style="text-align: center; padding-top: 100px;">
+            <h1 style="color: #666; font-size: 20px; font-family: Microsoft Yahei; padding-bottom: 2px;">试试将电脑里的文件拖拽到此上传</h1>
+            <p style="color: #666; font-size: 12px;">
+                （您的浏览器不支持此拖拽功能）
+            </p>
+        </div>
+    </div>
+</form>
+

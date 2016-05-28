@@ -1,0 +1,178 @@
+﻿@{
+    ViewBag.Title = "系统表单》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var ModuleId = GetQuery('ModuleId');//模块Id
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!KeyValue) {
+            AjaxJson("/CommonModule/FormLayout/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        } else {
+            //显示顺序
+            AjaxJson("/CommonModule/FormLayout/SortCode", {}, function (Data) {
+                $("#SortCode").val(Data);
+            });
+        }
+    }
+    //绑定数据源
+    function BindControlSource() {
+        var DataSourceType = $("#DataSourceType").val();
+        if (DataSourceType == 1) {
+            var objId = "DataSource";
+            comboBoxTree(objId, "160px");
+            var itemtree = {
+                onnodeclick: function (item) {
+                    $("#" + objId).val(item.value);
+                },
+                url: "@Url.Content("~/CommonModule/DataDictionary/TreeJson")"
+            };
+            $("#comboBoxTree" + objId).treeview(itemtree);
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            if (KeyValue == "") {
+                postData["ModuleId"] = ModuleId;
+            }
+            AjaxJson("/CommonModule/FormLayout/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none;"></div>
+    <table class="form">
+        <tr>
+            <th class="formTitle">属性名称：</th>
+            <td class="formValue">
+                <input id="PropertyName" maxlength="50" type="text" class="txt required" datacol="yes" err="属性名称" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">控件名称：</th>
+            <td class="formValue">
+                <input id="ControlId" maxlength="50" type="text" class="txt required" datacol="yes" err="控件名称" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">控件类型：</th>
+            <td class="formValue">
+                <select id="ControlType" class="txtselect" datacol="yes" err="控件类型" checkexpession="NotNull">
+                    <option value="">==请选择==</option>
+                    <option value="1">文本框</option>
+                    <option value="2">下拉框</option>
+                    <option value="3">日期框</option>
+                    <option value="4">标  签</option>
+                    <option value="5">多行文本框</option>
+                </select>
+            </td>
+            <th class="formTitle">控件样式：</th>
+            <td class="formValue">
+                <select id="ControlStyle" class="txtselect">
+                    <option value="txt">txt</option>
+                    <option value="txt required">txt required</option>
+                    <option value="txt Wdate">txt Wdate</option>
+                    <option value="txtselect">txtselect</option>
+                    <option value="txtArea">txtArea</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">控件验证：</th>
+            <td class="formValue">
+                <select id="ControlValidator" class="txtselect">
+                    <option value="">==请选择==</option>
+                    <option value="NotNull">NotNull - 不能为空</option>
+                    <option value="Num">Num - 必须为数字</option>
+                    <option value="NumOrNull">NumOrNull - 必须为数字</option>
+                    <option value="Phone">Phone - 必须电话格式！</option>
+                    <option value="PhoneOrNull">PhoneOrNull - 必须电话格式！</option>
+                    <option value="Mobile">Mobile - 必须为手机格式！</option>
+                    <option value="MobileOrNull">MobileOrNull - 必须为手机格式！</option>
+                    <option value="MobileOrPhoneOrNull">必须为电话格式或手机格式！</option>
+                    <option value="Email">Email - 必须为E-mail格式！</option>
+                    <option value="isEmailOrNull">EmailOrNull - 必须为E-mail格式！</option>
+                    <option value="Date">Date - 必须为日期格式！</option>
+                    <option value="DateOrNull">DateOrNull - 必须为日期格式！</option>
+                    <option value="IDCard">IDCard - 必须为身份证格式！</option>
+                    <option value="IDCardOrNull">IDCardOrNull - 必须为身份证格式！</option>
+                    <option value="Double">Double - 必须为小数！</option>
+                    <option value="DoubleOrNull">DoubleOrNull - 必须为小数！</option>
+                </select>
+            </td>
+            <th class="formTitle">输入长度：</th>
+            <td class="formValue">
+                <input id="ImportLength" onfocus="IsNumber(this.id)" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">数据源类型：</th>
+            <td class="formValue">
+                <select id="DataSourceType" class="txtselect">
+                    <option value="0">固定</option>
+                    <option value="1">数据字典</option>
+                </select>
+            </td>
+            <th class="formTitle">控件默认值：</th>
+            <td class="formValue">
+                <input id="DefaultVlaue" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">数据源：</th>
+            <td class="formValue" colspan="3">
+                <input id="DataSource" type="text" onfocus="BindControlSource()"  class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">自定义属性：</th>
+            <td class="formValue" colspan="3">
+                <input id="AttributesProperty" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">显示顺序：</th>
+            <td class="formValue">
+                <input id="SortCode" type="text" onkeyup="IsNumber(this.id)" class="txt required" datacol="yes" err="显示顺序" checkexpession="Num" />
+            </td>
+            <th class="formTitle">合并列：</th>
+            <td class="formValue">
+                <input id="ControlColspan" type="text" onkeyup="IsNumber(this.id)" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">选项：</th>
+            <td class="formValue" colspan="3">
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                    <label for="Enabled">有效</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">说明：</th>
+            <td class="formValue" colspan="3">
+                <textarea id="Remark" name="Description" maxlength="200" class="txtArea" rows="4"></textarea>
+            </td>
+        </tr>
+    </table>
+    <style>
+        .form .formValue {
+            width: 34%;
+        }
+    </style>
+</form>

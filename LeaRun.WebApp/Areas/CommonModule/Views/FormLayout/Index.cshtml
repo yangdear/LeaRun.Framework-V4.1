@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "系统表单";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetTree();
+        GetGrid();
+    });
+    var ModuleId = "", ModuleName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                ModuleId = item.id;            //ID
+                ModuleName = item.text;        //名称
+                $("#titleinfo").text(ModuleName);
+                var Parameter = [{
+                    paramName: "ModuleId",
+                    paramValue: ModuleId,
+                    Operation: "Equal",
+                }]
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/CommonModule/FormLayout/GridJson")?ParameterJson=" + escape(JSON.stringify(Parameter))
+                }).trigger('reloadGrid');
+            },
+            url: "@Url.Content("~/CommonModule/FormLayout/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //加载表格
+    function GetGrid() {
+        var Parameter = [{
+            paramName: "ModuleId",
+            paramValue: ModuleId,
+            Operation: "Equal"
+        }]
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/FormLayout/GridJson")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 105,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'FormAttributeId', hidden: true },
+                { label: '属性名称', name: 'PropertyName', index: 'PropertyName', width: 100 },
+                { label: "控件名称", name: "ControlId", index: "ControlId", width: 150 },
+                {
+                    label: "控件类型", name: "ControlType", index: "ControlType", width: 65, align: "center",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "文本框";
+                        if (cellvalue == '2') return "下拉框";
+                        if (cellvalue == '3') return "日期框";
+                        if (cellvalue == '4') return "标  签";
+                        if (cellvalue == '5') return "多行文本框";
+                    }
+                },
+                { label: "控件样式", name: "ControlStyle", index: "ControlStyle", width: 65, align: "center" },
+                { label: "输入长度", name: "ImportLength", index: "ImportLength", width: 65, align: "center" },
+                { label: "默认值", name: "DefaultVlaue", index: "DefaultVlaue", width: 100 },
+                { label: "控件验证", name: "ControlValidator", index: "ControlValidator", width: 200 },
+                {
+                    label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                { label: '描述', name: 'Remark', index: 'Remark', width: 200 }
+            ],
+            pager: false,
+            rowNum: 1000,
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false
+        });
+    }
+    //表单设计
+    function btn_FormLayout() {
+        if (!!ModuleId) {
+            var url = "/CommonModule/FormLayout/Layout?ModuleId=" + ModuleId;
+            openDialog(url, "Form", "表单设计", 1000, 500, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        } else {
+            tipDialog('请选择左边导航目录。', 4, 'warning');
+        }
+    }
+    //新增
+    function btn_add() {
+        if (!!ModuleId) {
+            var url = "/CommonModule/FormLayout/Form?ModuleId=" + ModuleId
+            openDialog(url, "Form", "新增表单属性", 650, 300, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        } else {
+            tipDialog('请选择左边导航目录。', 4, 'warning');
+        }
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "FormAttributeId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/FormLayout/Form?KeyValue=" + KeyValue
+            openDialog(url, "Form", "编辑表单属性", 650, 300, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "FormAttributeId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/FormLayout/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新表格
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                导航目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="ToolbaAarea">
+            <div class="btnbartitle">
+                <div>
+                    附加属性 - <span id="titleinfo">未选择</span>
+                </div>
+            </div>
+            <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+                <div class="PartialButton">
+                    @Html.Partial("_PartialButton")
+                </div>
+            </div>
+        </div>
+        <table id="gridTable"></table>
+    </div>
+</div>

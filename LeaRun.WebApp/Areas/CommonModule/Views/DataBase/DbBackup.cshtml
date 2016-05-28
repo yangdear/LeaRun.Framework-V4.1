@@ -1,0 +1,165 @@
+﻿@{
+    ViewBag.Title = "数据库备份设置";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    /*备份管理Begin*/
+    var DbName = GetQuery('DbName');//数据库名称
+    $(function () {
+        $(".ScrollBar").height($(window).height() - 34);
+        GetGrid();
+        GetGrid_File();
+    });
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/DataBase/DbBackupList")",
+            datatype: "json",
+            height: $(window).height() - 110,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'BackupId', index: 'BackupId', hidden: true },
+                { label: "计划名称", name: "JobName", index: "JobName", width: 200 },
+                { label: "执行方式", name: "Mode", index: "Mode", width: 80 },
+                { label: "执行时间", name: "StartTime", index: "StartTime", width: 80 },
+                { label: "备份路径", name: "FilePath", index: "FilePath", width: 275 },
+                { label: '状态', name: 'Enabled', index: 'Enabled', width: 45, align: 'center' }
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+        //新增一行
+        $("#lr-add").click(function () {
+            if (!$(this).hasClass('disabled')) {
+                $("#lr-save,#lr-cancel").show()
+                $("#lr-add").hide()
+                var rowdata = {
+                    DbName: DbName,
+                    JobName: '<input id="JobName" class="editable" type="text" datacol="yes" err="计划名称" checkexpession="NotNull" />',
+                    Mode: '<select id="Mode" class="editable"><option value="0">每天</option><option value="1">每周 一</option><option value="2">每周 二</option><option value="3">每周 三</option><option value="4">每周 四</option><option value="5">每周 五</option><option value="6">每周 六</option><option value="7">每周 日</option></select>',
+                    StartTime: '<select id="StartTime"  class="editable"><option value="000000">00:00</option><option value="010000">01:00</option><option value="030000">03:00</option><option value="040000">04:00</option><option value="050000">05:00</option><option value="060000">06:00</option><option value="070000">07:00</option><option value="080000">08:00</option><option value="090000">09:00</option><option value="100000">10:00</option><option value="110000">11:00</option><option value="120000">12:00</option><option value="130000">13:00</option><option value="140000">14:00</option><option value="150000">15:00</option><option value="160000">16:00</option><option value="170000">17:00</option><option value="180000">18:00</option><option value="190000">19:00</option><option value="200000">20:00</option><option value="210000">21:00</option><option value="220000">22:00</option><option value="230000">23:00</option></select>',
+                    FilePath: '<input id="FilePath" class="editable" type="text" datacol="yes" err="备份路径" checkexpession="NotNull" />',
+                    Enabled: '<select id="Enabled" class="editable"><option value="启动">启动</option><option value="停用">停用</option></select>',
+                }
+                var index = jQuery("#gridTable").jqGrid('getDataIDs').length + 1;
+                $('#gridTable').jqGrid('addRowData', index, rowdata, "first");
+                $("#gridTable").setSelection(index);
+            }
+        });
+        //保存
+        $("#lr-save").click(function () {
+            if (!CheckDataValid('#gridTable')) {
+                return false;
+            }
+            Loading(true, "正在提交数据...");
+            window.setTimeout(function () {
+                var postData = {
+                    DbName: DbName,
+                    JobName: $("#JobName").val(),
+                    Mode: $("#Mode").find("option:selected").text(),
+                    _Mode: $("#Mode").val(),
+                    StartTime: $("#StartTime").find("option:selected").text(),
+                    _StartTime: $("#StartTime").val(),
+                    FilePath: $("#FilePath").val(),
+                    Enabled: $("#Enabled").val(),
+                }
+                AjaxJson("/CommonModule/DataBase/AddDbBackup", postData, function (Data) {
+                    $("#gridTable").trigger("reloadGrid");
+                    $("#lr-save,#lr-cancel").hide();
+                    $("#lr-add").show();
+                });
+            }, 200);
+        });
+        //取消
+        $("#lr-cancel").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable");
+            $("#gridTable").jqGrid("delRowData", Index);
+            $("#lr-save,#lr-cancel").hide();
+            $("#lr-add").show();
+        });
+        //删除计划
+        $("#lr-delete").click(function () {
+            var KeyValue = GetJqGridRowValue("#gridTable", "BackupId");
+            var JobName = GetJqGridRowValue("#gridTable", "JobName");
+            if (IsDelData(KeyValue)) {
+                if (confirm("注：您确定要删除备份计划？")) {
+                    Loading(true, "正在删除数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/CommonModule/DataBase/DeleteDbBackup", { KeyValue: KeyValue, JobName: JobName }, function (data) {
+                            $("#gridTable").trigger("reloadGrid");
+                        });
+                    }, 200);
+                }
+            }
+        });
+    }
+    /*备份管理end*/
+
+    /*备份附件begin*/
+    //加载附件列表表格
+    function GetGrid_File() {
+        $("#gridTable_File").jqGrid({
+            url: "@Url.Content("~/CommonModule/Module/GridJson1")",
+            datatype: "json",
+            height: $(window).height() - 137,
+            width: $(window).width() - 4,
+            colModel: [
+                { label: "名称", name: "ModuleId", index: "ModuleId", width: 200 },
+                { label: "修改时间", name: "FullName", index: "FullName", width: 120 },
+                { label: "类型", name: "FullName", index: "FullName", width: 80, align: 'center' },
+                { label: "大小", name: "FullName", index: "FullName", width: 80, align: 'center' }
+            ],
+            viewrecords: true,
+            pager: "#gridPager_File",
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+        });
+    }
+    /*备份附件end*/
+</script>
+<div class="bd" style="border: none;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="TabBackup" class="tab_list bd actived" onclick="Tabchange('Backup')">备份管理</div>
+            <div id="TabFile" class="tab_list bd " onclick="Tabchange('File')">备份附件</div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; margin-bottom: 0px;">
+        @*备份管理*@
+        <div id="Backup" class="tabPanel">
+            <div class="tools_bar leftline rightline" style="margin-bottom: 0px;">
+                <div style="float: left;">
+                    <a class="tools_btn" title="刷新当前" onclick="Replace()"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/arrow_refresh.png")) no-repeat 50% 4px;'>刷新</b></span></a>
+                    <div class="tools_separator"></div>
+                    <a id="lr-add" class="tools_btn" title="新增备份计划"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/table_add.png")) no-repeat 50% 4px;'>新增计划</b></span></a>
+                    <a id="lr-save" class="tools_btn" title="保存" style="display: none;"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/table_save.png")) no-repeat 50% 4px;'>保存</b></span></a>
+                    <a id="lr-cancel" class="tools_btn" title="取消" style="display: none;"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/cancel.png")) no-repeat 50% 4px;'>取消</b></span></a>
+                    <div class="tools_separator"></div>
+                    <a id="lr-delete" class="tools_btn" title="删除备份计划"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/table_row_delete.png")) no-repeat 50% 4px;'>删除计划</b></span></a>
+                </div>
+                <div style="float: right; padding-top: 6px; padding-right: 6px; color: red;">
+                    注意：1、使用备份功能的用户需要有数据库的dbo权限<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2、备份路径必需是在数据库服务器中存在的路径
+                </div>
+            </div>
+            <div class="rightline">
+                <table id="gridTable"></table>
+            </div>
+        </div>
+        @*备份附件*@
+        <div id="File" class="tabPanel" style="display: none;">
+            <div class="tools_bar leftline rightline" style="margin-bottom: 0px;">
+                <a id="lr-restore" class="tools_btn" title="还原数据库"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/site_backup_and_restore.png")) no-repeat 50% 4px;'>还原</b></span></a>
+                <a id="lr-download" class="tools_btn" title="下载备份文件"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/inbox_download.png")) no-repeat 50% 4px;'>下载</b></span></a>
+            </div>
+            <div class="rightline">
+                <table id="gridTable_File"></table>
+                <div id="gridPager_File"></div>
+            </div>
+        </div>
+    </div>
+</div>
+

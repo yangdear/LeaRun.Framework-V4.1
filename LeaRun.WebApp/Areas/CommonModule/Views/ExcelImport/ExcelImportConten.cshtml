@@ -1,0 +1,234 @@
+﻿@{
+    ViewBag.Title = "数据导入模板设置";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var tableCode = GetQuery('tableCode');            //表名
+    var tableName = unescape(GetQuery('tableName'));  //表备注
+    $(function () {
+      //  window.parent.test('Base_ViewDetail');
+        $('#FieldTree').height($(window).height() - 33);
+        $('#FieldGrid').height($(window).height() - 33);
+        $("#ImportTableName").val(tableName);
+        $("#ImportTable").val(tableCode);
+        GetFieldTreeList();
+       // SetForm();
+        LoadModule();
+    })
+    //上移
+    function up(obj) {
+        var objParentTR = $(obj).parent().parent();
+        var prevTR = objParentTR.prev();
+        if (prevTR.length > 0) {
+            prevTR.insertAfter(objParentTR);
+        } else {
+            return;
+        }
+    }
+    //下移
+    function down(obj) {
+        var objParentTR = $(obj).parent().parent();
+        var nextTR = objParentTR.next();
+        if (nextTR.length > 0) {
+            nextTR.insertBefore(objParentTR);
+        } else {
+            return;
+        }
+    }
+    function GetDelTrForm(id) {
+        $('#FieldGrid').find("#tr" + id).remove();
+    }
+    //处理外表关联
+    function DeathForeignTable(ele, rowindex) {
+        if ($(ele).val() == 3) {
+            //将外联表相关栏位设为可编辑
+            $("#ForeignTable➩" + rowindex).removeAttr("disabled");
+            $("#BackField➩" + rowindex).removeAttr("disabled");
+            $("#CompareField➩" + rowindex).removeAttr("disabled");
+            $("#AttachCondition➩" + rowindex).removeAttr("disabled");
+            //给外联表选择框绑定所有表
+            //  $('#FieldGrid').find("#ForeignTable➩" + rowindex).html("");
+            AjaxJson("/CodeMaticModule/CodeMatic/GetTableNameTreeJson", {}, function (DataJson) {
+                $("#ForeignTable➩" + rowindex).html("");
+                $.each(DataJson, function (i) {
+                    $("#ForeignTable➩" + rowindex).append($("<option></option>").val(DataJson[i].id).html(DataJson[i].text));
+                });
+            })
+        }
+    }
+    //绑定下拉框表字段
+    function BindDropField(ele, rowindex) {
+        $("#CompareField➩" + rowindex).removeAttr("disabled");
+        //给外联表选择框绑定所有表
+        //  $('#FieldGrid').find("#ForeignTable➩" + rowindex).html("");
+        AjaxJson("/CommonModule/ExcelImport/GetFieldJson", { tableCode: $(ele).val() }, function (DataJson) {
+            $("#BackField➩" + rowindex).html("");
+            $("#CompareField➩" + rowindex).html("");
+            $.each(DataJson, function (i) {
+                $("#BackField➩" + rowindex).append($("<option></option>").val(DataJson[i].id).html(DataJson[i].text));
+                $("#CompareField➩" + rowindex).append($("<option></option>").val(DataJson[i].id).html(DataJson[i].text));
+            });
+        })
+    }
+    //列表标题字段操作
+    function GetFieldTreeList() {
+        var item = {
+            showcheck: true,
+            oncheckboxclick: function (item, status) {
+                var rowindex = $('#FieldGrid .grid tr').length
+                var column = item.value;                                         //字段
+                var remark = item.text;                                          //说明
+                if (status == 1) {
+                    var tr = '<tr id="tr' + column + '">';
+                    tr += '<td class="td-div" style="width: 30px; text-align: center;border-left:none">' + rowindex + '</td>'
+                    tr += '<td style="width: 80px;"><input value=' + remark + ' id="RemarkList➩' + rowindex + '" type="text" class="txt" /></td>'
+                    tr += '<td style="width: 80px;"><input value=' + column + ' id="FieldName➩' + rowindex + '" type="text" class="txt" /></td>'
+                    tr += '<td style="width: 80px;"><input id="ColumnName➩' + rowindex + '" type="text" class="txt" /></td>'
+                    tr += '<td style="width: 80px;"><select id="DataType➩' + rowindex + '" class="txtselect" onchange="DeathForeignTable(this,' + rowindex + ')"><option value="0">字符串</option><option value="1">数字</option><option value="2">日期</option><option value="3">外键</option><option value="4">唯一约束</option></select></td>'
+                    tr += '<td style="width: 80px;"><select id="ForeignTable➩' + rowindex + '" class="txtselect" onchange="BindDropField(this,' + rowindex + ')" disabled="disabled" ></select></td>'
+                    tr += '<td style="width: 80px;"><select id="BackField➩' + rowindex + '" class="txtselect" disabled="disabled" ></select></td>'
+                    tr += '<td style="width: 80px;"><select id="CompareField➩' + rowindex + '" class="txtselect" disabled="disabled" ></select></td>'
+                    tr += '<td style="width: 300px;"><input id="AttachCondition➩' + rowindex + '" type="text" class="txt" disabled="disabled" /></td>'
+                    tr += '<td style="width: 70px; text-align: center;"><a style="text-decoration:underline;cursor: pointer;" onclick="up(this);">上移</a style="text-decoration:underline;cursor: pointer;">&nbsp;&nbsp;<a style="text-decoration:underline;cursor: pointer;" onclick="down(this)">下移</a></td>'
+                    tr += '</tr>';
+                    $(tr).appendTo("#Temp_List");
+                } else {
+                    GetDelTrForm(column);
+                }
+            },
+            url: "@Url.Content("~/CommonModule/ExcelImport/GetFieldJson")?tableCode=" + tableCode
+        };
+        $("#FieldTree").treeview(item);
+    }
+    //提交表单
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var KeyValue = GetQuery('KeyValue');
+            var postData = GetWebControls("#form1");
+            postData["ExcelImportDetailJson"] = GetTableDataJson("#grid");
+            AjaxJson("/CommonModule/ExcelImport/SubmitForm_ExcelImport?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 1000);
+    }
+
+    /*编辑加载begin=========================================================*/
+    //根据数据库表名字加载字段
+    function SetForm() {
+        var ImportId = GetQuery('KeyValue');
+        if (ImportId == "") {
+            AjaxJson("/CommonModule/ExcelImport/GetEntityJson", { ImportId: ImportId }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //加载模块
+    function LoadModule() {
+        $("#ModuleName").focus(function () {
+            var objId = this.id;
+            comboBoxTree(objId, "200px");
+            var itemtree = {
+                onnodeclick: function (item) {
+                    $("#ModuleId").val(item.id);
+                    $('#ModuleName').val(item.text);
+                },
+                url: "@Url.Content("~/CommonModule/Module/TreeJson")"
+            };
+            $("#comboBoxTree" + objId).treeview(itemtree);
+        })
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div class="btnbartitle">
+        <div>
+            字段名：<span id="adCmdTable"></span>
+        </div>
+    </div>
+    <div>
+        <div id="FieldTree" class="contenTree rightline" style="width: 250px; float: left; overflow: auto;">
+        </div>
+        <div id="FieldGrid" style="overflow: auto;">
+            <div style="height: 30px; line-height: 30px;">
+                <table class="form">
+                    <tr>
+                        <th class="formTitle">导入名称<font face="宋体">*</font>：
+                        </th>
+                        <td class="formValue">
+                            <input id="ImportName" maxlength="50" type="text" class="txt" datacol="yes" err="导入名称" checkexpession="NotNull" />
+                            <input id="ImportTable" type="hidden" />
+                            <input id="ImportTableName" type="hidden" />
+                        </td>
+                        <th class="formTitle">对应模块<font face="宋体">*</font>：
+                        </th>
+                        <td class="formValue">
+                            <input id="ModuleId" type="hidden" />
+                            <input id="ModuleName" maxlength="50" type="text" class="txt required" datacol="yes" err="对应模块" checkexpession="NotNull" />
+                        </td>
+                        <th class="formTitle">Excel文件名<font face="宋体">*</font>：
+                        </th>
+                        <td class="formValue">
+                            <input id="ImportFileName" maxlength="50" type="text" class="txt" datacol="yes" err="Excel文件名" checkexpession="NotNull" />
+                        </td>
+                        <th class="formTitle">错误处理机制<font face="宋体">*</font>：
+                        </th>
+                        <td class="formValue">
+                            <select id="ErrorHanding" class="txtselect">
+                                <option value="0">中止</option>
+                                <option value="1">跳过</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <table id="grid" class="grid" style="width: 100%">
+                <thead>
+                    <tr>
+                        <td style="width: 30px; text-align: center; border-left: none;">
+                            <div class="table-header">行号</div>
+                        </td>
+                        <td style="width: 80px;">
+                            <div class="table-header">后台字段名</div>
+                        </td>
+                        <td style="width: 80px;">
+                            <div class="table-header">字段</div>
+                        </td>
+                        <td style="width: 80px;">
+                            <div class="table-header">Excel列名</div>
+                        </td>
+                        <td style="width: 80px;">
+                            <div class="table-header">数据类型</div>
+                        </td>
+                        <td style="width: 80px;">
+                            <div class="table-header">关联的外表</div>
+                        </td>
+                        <td style="width: 80px;">
+                            <div class="table-header">外键字段</div>
+                        </td>
+                        <td style="width: 80px;">
+                            <div class="table-header">对比字段</div>
+                        </td>
+                        <td style="width: 300px;">
+                            <div class="table-header">附加条件</div>
+                        </td>
+                        <td style="width: 70px; text-align: center;">
+                            <div class="table-header">操作</div>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody id="Temp_List">
+                </tbody>
+            </table>
+        </div>
+        <style>
+            .grid thead td .table-header {
+                padding-left: 2px;
+            }
+        </style>
+    </div>
+</form>

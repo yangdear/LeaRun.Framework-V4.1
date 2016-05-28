@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "手机短信";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        GetGrid();
+    })
+    //搜索
+    function btn_Search() {
+        var PhonenNumber = $("#PhonenNumber").val();
+        var StartTime = $("#StartTime").val();
+        var EndTime = $("#EndTime").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/ExampleModule/PhoneNote/GridPageListJson")?StartTime=" + StartTime + '&EndTime=' + EndTime + '&PhonenNumber=' + PhonenNumber, page: 1
+        }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        var StartTime = $("#StartTime").val();
+        var EndTime = $("#EndTime").val();
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ExampleModule/PhoneNote/GridPageListJson")?StartTime=" + StartTime + '&EndTime=' + EndTime,
+            datatype: "json",
+            height: $(window).height() - 150,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'PhoneNoteId', index: 'PhoneNoteId', width: 80, align: 'left', hidden: true },
+                { label: '手机号码', name: 'PhonenNumber', index: 'PhonenNumber', width: 80, align: 'center' },
+                { label: '发送内容', name: 'SendContent', index: 'SendContent', width: 500, align: 'left' },
+                {
+                    label: '发送时间', name: 'SendTime', index: 'SendTime', width: 120, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm:ss');
+                    }
+                },
+                {
+                    label: '发送状态', name: 'SendStatus', index: 'SendStatus', width: 60, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == 1) {
+                            return "<span style='color:blue'>成功</span>";
+                        }
+                    }
+                }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+        columnModelData("#gridTable");
+    }
+    //发送短信
+    function btn_SendNote() {
+        Loading(true);
+        top.$.dialog({
+            id: "SendNote", width: 550, height: 300, lock: true, max: false, resize: false, extendDrag: true,
+            title: "发送短信",
+            content: 'url:/ExampleModule/PhoneNote/Form',
+            button: [
+                {
+                    name: '发 送',
+                    className: 'green',
+                    callback: function () {
+                        top.frames['SendNote'].AcceptClick()
+                        return false;
+                    }
+                },
+                {
+                    name: '关 闭'
+                }
+            ]
+        });
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "PhoneNoteId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/ExampleModule/PhoneNote/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+    <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <div class="QueryArea">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>手机号码：</th>
+                <td>
+                    <input id="PhonenNumber" type="text" class="txt" style="width: 150px" />
+                </td>
+                <th>发送时间：</th>
+                <td>
+                    <input id="StartTime" type="text" class="txt Wdate" value="@LeaRun.Utilities.DateTimeHelper.GetDate(-7)" style="width: 120px" onfocus="var endDate=$dp.$('EndTime');WdatePicker({onpicked:function(){EndTime.focus();},maxDate:'#F{$dp.$D(\'EndTime\')}'})" />
+                </td>
+                <td>-</td>
+                <td>
+                    <input id="EndTime" type="text" class="txt Wdate" value="@LeaRun.Utilities.DateTimeHelper.GetToday()" style="width: 120px" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'StartTime\')}'})" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="grid_List" class="topline">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+<style>
+    .ui-widget-content {
+        border-left: none;
+    }
+</style>

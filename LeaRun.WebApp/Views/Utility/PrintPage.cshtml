@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head >
+    <meta name="viewport" content="width=device-width" />
+    <title>打印</title>
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/jqprint/jquery.jqprint-0.3.js"></script>
+    <script>
+        $(function () {
+            var DataSource = top.frames[tabiframeId()].PrintDataSource();
+            var colModel = DataSource.columnModel;   //表头
+            var dataModel = DataSource.dataModel;       // 数据
+            var footerData = DataSource.footerData;       // 合计
+            var html = "<tr>";
+            $.each(colModel, function (i) {
+                var title = colModel[i].label;
+                if (title) {
+                    var width = colModel[i].width;
+                    var align = colModel[i].align;
+                    var hidden = colModel[i].hidden;
+                    if (hidden == false) {
+                        html += "<td style=\"width:" + (width - 5) + "px;text-align:" + align + ";\">" + title + "</td>";
+                    }
+                }
+            });
+            html += "</tr>";
+            for (var i = 0; i < dataModel.length; i++) {
+                html += "<tr>";
+                $.each(colModel, function (j) {
+                    var title = colModel[j].label;
+                    if (title) {
+                        var width = colModel[j].width;
+                        var align = colModel[j].align;
+                        var hidden = colModel[j].hidden;
+                        if (hidden == false) {
+                            html += "<td style=\"width:" + (width - 5) + "px;text-align:" + align + ";\">" + dataModel[i]["" + colModel[j].name + ""] + "</td>";
+                        }
+                    }
+                });
+                html += "</tr>";
+            }
+            if (footerData) {
+                html += "<tr>";
+                $.each(colModel, function (j) {
+                    var title = colModel[j].label;
+                    if (title) {
+                        var width = colModel[j].width;
+                        var align = colModel[j].align;
+                        var hidden = colModel[j].hidden;
+                        if (hidden == false) {
+                            html += "<td style=\"width:" + (width - 5) + "px;text-align:" + align + ";\">" + footerData["" + colModel[j].name + ""] + "</td>";
+                        }
+                    }
+                });
+                html += "</tr>";
+            }
+            $("#tablePrint").html(html);
+        });
+        //提交打印
+        function SubmitPrint() {
+            $("#my_area").jqprint();
+        }
+    </script>
+    <style type="text/css">
+        body {
+            margin: 1px;
+            font-size: 12px;
+        }
+        td{border:1px solid #000;}
+    </style>
+
+</head>
+<body>
+    <div id="my_area">
+        <table id="tablePrint" border=1 width="100%" style="border:solid 1px black;border-collapse:collapse">
+        </table>
+    </div>
+</body>
+</html>

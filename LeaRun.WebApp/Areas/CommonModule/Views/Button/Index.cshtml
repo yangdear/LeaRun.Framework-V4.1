@@ -1,0 +1,169 @@
+﻿@{
+    ViewBag.Title = "系统按钮";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<!--复制/粘贴组件start-->
+<script src="~/Content/Scripts/ZeroClipboard/ZeroClipboard.js"></script>
+<!--复制/粘贴组件end-->
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetTree();
+        GetGrid();
+    });
+    var ModuleId = "", ModuleName = "", Category = "1";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                ModuleId = item.id;            //ID
+                ModuleName = item.text;        //名称
+                $("#titleinfo").text(ModuleName);
+                $("#TabToolbar").trigger("click");
+            },
+            url: "@Url.Content("~/CommonModule/Button/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //点击tab切换（工具栏、右击栏）
+    function TabSwitch(_Category) {
+        Category = _Category;
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/CommonModule/Button/TreeGridListJson")?ModuleId=" + ModuleId + "&Category=" + Category
+        }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/Button/TreeGridListJson")",
+            datatype: "json",
+            treeGrid: true,
+            treeGridModel: "nested",
+            ExpandColumn: "Code",
+            height: $(window).height() - 142,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'ButtonId', index: 'ButtonId', hidden: true },
+                { label: '名称', name: 'ButtonName', index: 'ButtonName', hidden: true },
+                {
+                    label: "按钮", name: "FullName", index: "FullName", width: 150,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return "<img src='../../Content/Images/Icon16/" + rowObject.Icon + "'/>&nbsp;" + cellvalue;
+                    }
+                },
+                { label: "编码", name: "Code", index: "Code", width: 150 },
+                { label: "Js事件", name: "JsEvent", index: "JsEvent", width: 150 },
+                { label: "Action地址", name: "ActionEvent", index: "ActionEvent", width: 350 },
+                {
+                    label: "分开线", name: "Split", index: "Split", width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                {
+                    label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                { label: '描述', name: 'Remark', index: 'Remark', width: 200 }
+            ],
+            pager: "false",
+            rowNum: 1000,
+            rownumbers: true,
+            shrinkToFit: false
+        });
+    }
+    //新增
+    function btn_add() {
+        var ButtonId = GetJqGridRowValue("#gridTable", "ButtonId");
+        if (!ButtonId) { ButtonId = 0; }
+        var ButtonName = GetJqGridRowValue("#gridTable", "ButtonName");
+        if (!!ModuleId) {
+            var url = "/CommonModule/Button/Form?ModuleId=" + ModuleId + "&Category=" + Category + "&ButtonId=" + ButtonId + "&ButtonName=" + escape(ButtonName)
+            openDialog(url, "Form", "新增模块按钮", 650, 250, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        } else {
+            tipDialog('请选择左边导航目录。', 4, 'warning');
+        }
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "ButtonId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Button/Form?KeyValue=" + KeyValue + "&ModuleId=" + ModuleId + "&Category=" + Category;
+            openDialog(url, "Form", "编辑模块按钮", 650, 250, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "ButtonId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/Button/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //复制
+    function btn_copy() {
+        var txt = "测试复制";
+        ZeroClipboard.setMoviePath("@Url.Content("~/Content/Scripts/ZeroClipboard/ZeroClipboard.swf")");
+        //新建对象   
+        clip = new ZeroClipboard.Client();
+        //设置指向光标为手型   
+        clip.setHandCursor(true);
+        //通过传入的参数设置剪贴板内容   
+        clip.setText(txt);
+        //添加监听器，完成点击复制后弹出警告   
+        clip.addEventListener("complete", function (client, text) {
+            alert("您复制了本文URL地址为：\n" + text);
+        });
+        //绑定触发对象按钮ID   
+        clip.glue("lr-copy");
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                导航目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="ToolbaAarea">
+            <div class="btnbartitle">
+                <div>
+                    按钮列表 - <span id="titleinfo">未选择</span>
+                </div>
+            </div>
+            <div class="tools_bar" style="border-top: none; margin-bottom: 1px;">
+                <div class="PartialButton">
+                    @Html.Partial("_PartialButton")
+                </div>
+            </div>
+            <div class="line"></div>
+            <div class="bd" style="border: none; margin-bottom: 1px;">
+                <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                    <div class="tab_list_top" style="position: absolute">
+                        <div id="TabToolbar" class="tab_list bd actived" onclick="Tabchange('Toolbar');TabSwitch(1)">工具栏</div>
+                        <div id="TabRightToolbar" class="tab_list bd " onclick="Tabchange('RightToolbar');TabSwitch(2)">右击栏</div>
+                    </div>
+                </div>
+            </div>
+            <div class="line"></div>
+        </div>
+        <table id="gridTable"></table>
+    </div>
+</div>

@@ -1,0 +1,93 @@
+﻿@{
+    ViewBag.Title = "Excel导入模板管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetGrid();
+    });
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/ExcelImport/ListJson")",
+            datatype: "json",
+            height: $(window).height() - 106,
+            autowidth: true,
+            colModel: [
+                { label: "主键", name: "ImportId", index: "ImportId", hidden: true },
+                { label: "导入名称", name: "ImportName", index: "ImportName", width: 150 },
+                { label: "要导入的表", name: "ImportTable", index: "ImportTable", width: 150 },
+                { label: "Excel文件名", name: "ImportFileName", index: "ImportFileName", width: 150 },
+                {
+                    label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == 1) return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == 0) return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                {
+                    label: '错误处理机制', name: 'ErrorHanding', index: 'ErrorHanding', width: 150, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "跳过";
+                        if (cellvalue == '0') return "中止";
+                    }
+                }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/ExcelImport/ExcelImportIndex";
+        FullopenDialog(url, "Form", "新增导入模板信息", function (iframe) {
+            top.frames[iframe].frames['iframe_ExcelImportConten'].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "ImportId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/ExcelImport/EditExcelImportConten?KeyValue=" + KeyValue;
+            FullopenDialog(url, "Form", "编辑导入模板信息", function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "ImportId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/ExcelImport/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新表格
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+    <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <div id="grid_List" class="topline" style="margin-top: 1px;">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+<style>
+    .ui-widget-content {
+        border-left: none;
+    }
+</style>
+

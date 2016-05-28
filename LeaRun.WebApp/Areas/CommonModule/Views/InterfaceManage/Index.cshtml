@@ -1,0 +1,154 @@
+﻿@{
+    ViewBag.Title = "接口管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        GetGrid();
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/InterfaceManage/GridPageListJson")",
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'InterfaceId', hidden: true },
+                { label: "接口编码", name: "Code", index: "Code", width: 100 },
+                { label: "接口名称", name: "FullName", index: "FullName", width: 500 },
+                { label: "动作类型", name: "Action", index: "Action", width: 200 },
+                {
+                    label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                { label: "创建用户", name: "CreateUserName", index: "CreateUserName", width: 100, align: 'center' },
+                {
+                    label: '创建时间', name: 'CreateDate', index: 'ModifyDate', width: 110, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm');
+                    }
+                },
+                { label: "修改用户", name: "ModifyUserName", index: "ModifyUserName", width: 100, align: 'center' },
+                {
+                    label: '修改日期', name: 'ModifyDate', index: 'ModifyDate', width: 110, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm');
+                    }
+                }
+            ],
+            loadonce: true,
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            shrinkToFit: false,
+            subGrid: true,
+            subGridRowExpanded: function (subgrid_id, row_id) {
+                var InterfaceId = GetJqGridValue("#gridTable", row_id, "InterfaceId");
+                var subgrid_table_id = subgrid_id + "_t";
+                $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "'></table>");
+                $("#" + subgrid_table_id).jqGrid({
+                    url: "@Url.Content("~/CommonModule/InterfaceManage/GridInterfaceParameterListJson")?InterfaceId=" + escape(InterfaceId),
+                    datatype: "json",
+                    colModel: [
+                        { label: '输入参数', name: "Field", width: 210, sortable: false },
+                        { label: '数据类型', name: "FieldType", width: 60, sortable: false, align: 'center' },
+                        { label: '长度', name: "FieldMaxLength", width: 45, sortable: false, align: 'center' },
+                        {
+                            label: '允许空', name: 'AllowNull', index: 'Enabled', width: 45, align: 'center',
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                                if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                            }
+                        },
+                        { label: '顺序', name: 'SortCode', width: 45, sortable: false, align: 'center' },
+                        {
+                            label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center',
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                                if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                            }
+                        },
+                        { label: '说明', name: 'FieldMemo', width: 220, sortable: false }
+                    ],
+                    width: "1227",
+                    rowNum: "all"
+                });
+            }
+        });
+    }
+    //搜索
+    function btn_Search() {
+        var tableName = $("#keywords").val();
+        var DbName = $("#DbName").val();
+        AjaxJson("/CommonModule/DataBase/GridListJson", { tableName: tableName, DbName: DbName }, function (data) {
+            $("#gridTable").jqGrid("clearGridData", true).trigger("reloadGrid");
+            $("#gridTable").jqGrid('setGridParam', {
+                datatype: "jsonstring",
+                datastr: data
+            }).trigger("reloadGrid");
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/InterfaceManage/Form"
+        openDialog(url, "Form", "新增接口", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "InterfaceId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/InterfaceManage/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑接口", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "InterfaceId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/InterfaceManage/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新
+    function windowload() {
+        Replace();
+    }
+    $(document).keypress(function (e) {
+        // 回车键事件  
+        if (e.which == 13) {
+            btn_Search();
+        }
+    });
+</script>
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：
+            </th>
+            <td>
+                <input id="keywords"  type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

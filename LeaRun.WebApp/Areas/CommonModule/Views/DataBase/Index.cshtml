@@ -1,0 +1,179 @@
+﻿@{
+    ViewBag.Title = "数据库管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        GetGrid();
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/DataBase/GridListJson")",
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'pk', index: 'pk', hidden: true },
+                { label: "数据库表名", name: "name", index: "name", width: 300 },
+                {
+                    label: "记录数", name: "sumrows", index: "rows", width: 120, align: "center",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue + "条";
+                    }
+                },
+                { label: "使用大小", name: "reserved", index: "reserved", width: 120, align: "center" },
+                { label: "索引所使使用大小", name: "index_size", index: "index_size", width: 120, align: "center" },
+                { label: "未用的空间量", name: "unused", index: "unused", width: 120, align: "center" },
+                { label: "说明", name: "tdescription", index: "tdescription", width: 500 }
+            ],
+            loadonce: true,
+            viewrecords: true,
+            pager: "#gridPager",
+            rowNum: "1000",
+            shrinkToFit: false,
+            subGrid: true,
+            subGridRowExpanded: function (subgrid_id, row_id) {
+                var tableName = GetJqGridValue("#gridTable", row_id, "name");
+                var subgrid_table_id = subgrid_id + "_t";
+                $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "'></table>");
+                $("#" + subgrid_table_id).jqGrid({
+                    url: "@Url.Content("~/CommonModule/DataBase/GridColumnListJson")?tableName=" + escape(tableName),
+                    datatype: "json",
+                    colModel: [
+                        { label: "列名", name: "column", index: "column", width: 300, sortable: false },
+                        { label: "数据类型", name: "datatype", index: "datatype", width: 120, align: "center", sortable: false },
+                        { label: "长度", name: "length", index: "length", width: 57, align: "center", sortable: false },
+                        { label: "允许空", name: "isnullable", index: "isnullable", width: 58, align: "center", sortable: false },
+                        { label: "标识", name: "identity", index: "identity", width: 58, align: "center", sortable: false },
+                        { label: "主键", name: "key", index: "key", width: 57, align: "center", sortable: false },
+                        { label: "默认值", name: "default", index: "default", width: 120, align: "center", sortable: false },
+                        { label: "说明", name: "remark", index: "remark", width: 400, sortable: false }
+                    ],
+                    width: "1227",
+                    rowNum: "all"
+                });
+            }
+        });
+    }
+    //搜索
+    function btn_Search() {
+        var tableName = $("#keywords").val();
+        var DbName = $("#DbName").val();
+        AjaxJson("/CommonModule/DataBase/GridListJson", { tableName: tableName, DbName: DbName }, function (data) {
+            $("#gridTable").jqGrid("clearGridData", true).trigger("reloadGrid");
+            $("#gridTable").jqGrid('setGridParam', {
+                datatype: "jsonstring",
+                datastr: data
+            }).trigger("reloadGrid");
+        });
+    }
+    //新增
+    function btn_add() {
+        var DbName = $("#DbName").val();
+        var url = "/CommonModule/DataBase/Form?DbName=" + escape(DbName)
+        openDialog(url, "Form", "新增数据库表", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var DbName = $("#DbName").val();
+        var tableName = GetJqGridRowValue("#gridTable", "name");
+        var Description = GetJqGridRowValue("#gridTable", "tdescription");
+        var sumrows = GetJqGridRowValue("#gridTable", "sumrows");
+        if (IsChecked(tableName)) {
+            if (sumrows == "0条") {
+                var url = "/CommonModule/DataBase/Form?KeyValue=" + tableName + "&tableRemark=" + escape(Description) + "&DbName=" + escape(DbName)
+                openDialog(url, "Form", "编辑数据库表", 770, 395, function (iframe) {
+                    top.frames[iframe].AcceptClick();
+                });
+            } else {
+                alertDialog("表已存在数据记录，为了保证数据完整性，请在数据库软件里面编辑表", -1);
+            }
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "name");
+        var sumrows = GetJqGridRowValue("#gridTable", "sumrows");
+        if (IsDelData(KeyValue)) {
+            if (sumrows == "0条") {
+                var delparm = 'KeyValue=' + KeyValue;
+                delConfig('/CommonModule/DataBase/DeleteTable', delparm);
+            } else {
+                alertDialog("表已存在数据记录，为了保证数据完整性，请在数据库软件里面删除表", -1);
+            }
+        }
+    }
+    //打开表
+    function btn_select() {
+        var tableName = GetJqGridRowValue("#gridTable", "name");
+        var Description = GetJqGridRowValue("#gridTable", "tdescription");
+        var pk = GetJqGridRowValue("#gridTable", "pk");
+        if (IsChecked(tableName)) {
+            var url = "/CommonModule/DataBase/Detail?tableName=" + tableName + "&pk=" + pk;
+            FullDialog(url, "Detail", "查询表数据 - " + tableName + "(" + Description + ")", function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //sql命令
+    function btn_DataBaseSql() {
+        alert("正在开发中...");
+    }
+    //sql视图
+    function btn_sqlview() {
+        alert("正在开发中...");
+    }
+    //存储过程
+    function btn_procedure() {
+        alert("正在开发中...");
+    }
+    //数据库备份
+    function btn_backup() {
+        var DbName = $("#DbName").val();
+        var url = "/CommonModule/DataBase/DbBackup?DbName=" + escape(DbName);
+        Dialog(url, "DbBackup", "数据库备份管理", 770, 420);
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+    $(document).keypress(function (e) {
+        // 回车键事件  
+        if (e.which == 13) {
+            btn_Search();
+        }
+    });
+</script>
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>数据库名：
+            </th>
+            <td>
+                <select id="DbName" class="select" style="width: 200px">
+                    <option value="kskf">kskf</option>
+                </select>
+            </td>
+            <th>关键字：
+            </th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

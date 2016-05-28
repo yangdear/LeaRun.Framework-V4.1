@@ -1,0 +1,115 @@
+﻿@{
+    ViewBag.Title = "模块管理》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        BindCombobox();
+        InitControl();
+    })
+    //初始化绑定下拉框
+    function BindCombobox() {
+        //部门性质
+        BindDropItem("#Nature", "DepartmentNature", "==请选择=");
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/Department/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        } else {
+            //显示顺序
+            AjaxJson("/CommonModule/Department/SortCode", {}, function (Data) {
+                $("#SortCode").val(Data);
+            })
+            $("#CompanyId").val(GetQuery('CompanyId'));
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            AjaxJson("/CommonModule/Department/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class="formTitle">部门编码：
+            </th>
+            <td class="formValue">
+                <input id="ParentId" type="hidden" value="0" />
+                <input id="CompanyId" type="hidden" />
+                <input id="Code" type="text" class="txt required" datacol="yes" err="部门编码" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">部门名称：
+            </th>
+            <td class="formValue">
+                <input id="FullName" type="text" class="txt required" datacol="yes" err="部门名称" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">部门简称：
+            </th>
+            <td class="formValue">
+                <input id="ShortName" type="text" class="txt" />
+            </td>
+            <th class="formTitle">部门性质：
+            </th>
+            <td class="formValue">
+                <select id="Nature" class="txtselect" datacol="yes" err="部门性质" checkexpession="NotNull"></select>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">负责人：</th>
+            <td class="formValue">
+                <input id="Manager" type="text" class="txt" />
+            </td>
+            <th class="formTitle">联系电话：</th>
+            <td class="formValue">
+                <input id="Phone" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">电子邮件：</th>
+            <td class="formValue">
+                <input id="Email" type="text" class="txt" />
+            </td>
+            <th class="formTitle">传真：</th>
+            <td class="formValue">
+                <input id="Fax" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">显示顺序：</th>
+            <td class="formValue">
+                <input id="SortCode" type="text" onkeyup="IsNumber(this.id)" class="txt required" datacol="yes" err="显示顺序" checkexpession="Num" />
+            </td>
+            <th class="formTitle">选项：</th>
+            <td class="formValue">
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                    <label for="Enabled">有效</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">说明：
+            </th>
+            <td class="formValue" colspan="3">
+                <textarea id="Remark" name="Description" maxlength="200" class="txtArea" rows="6"></textarea>
+            </td>
+        </tr>
+    </table>
+</form>

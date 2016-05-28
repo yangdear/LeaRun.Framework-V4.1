@@ -1,0 +1,113 @@
+﻿@{
+    ViewBag.Title = "岗位管理》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        $(".ScrollBar").height($(window).height() - 137);
+        InitControl();
+        RoleUserTree();
+        ModulePermissionTree();
+        ButtonePermissionTree();
+        ViewPermissionTree();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            getAjax("/CommonModule/Post/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                var data = eval("(" + data + ")");
+                SetWebLable(data);
+            });
+        }
+    }
+    //岗位用户
+    function RoleUserTree() {
+        getAjax("/CommonModule/Permission/LookObjectUserList", { ObjectId: GetQuery('KeyValue') }, function (data) {
+            $(".sys_spec_text").html(data);
+        });
+    }
+    //模块权限
+    function ModulePermissionTree() {
+        var itemtree = {
+            url: "@Url.Content("~/CommonModule/Permission/LookModulePermission")?ObjectId=" + GetQuery('KeyValue')
+        };
+        $("#ModulePermission").treeview(itemtree);
+    }
+    //按钮权限
+    function ButtonePermissionTree() {
+        var itemtree = {
+            url: "@Url.Content("~/CommonModule/Permission/LookButtonePermission")?ObjectId=" + GetQuery('KeyValue')
+        };
+        $("#ButtonePermission").treeview(itemtree);
+    }
+    //视图权限
+    function ViewPermissionTree() {
+        var itemtree = {
+            url: "@Url.Content("~/CommonModule/Permission/LookViewPermission")?ObjectId=" + GetQuery('KeyValue')
+        };
+        $("#ViewPermission").treeview(itemtree);
+    }
+</script>
+<div style="margin: 1px; margin-bottom: 0px;">
+    <table class="form">
+        <tr>
+            <th class="formTitle">岗位编码：</th>
+            <td class="formValue">
+                <label id="Code"></label>
+            </td>
+            <th class="formTitle">岗位名称：</th>
+            <td class="formValue">
+                <label id="FullName"></label>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">岗位描述：
+            </th>
+            <td class="formValue" colspan="3">
+                <label id="Remark"></label>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">创建用户：</th>
+            <td class="formValue">
+                <label id="CreateUserName"></label>
+            </td>
+            <th class="formTitle">创建时间：</th>
+            <td class="formValue">
+                <label id="CreateDate"></label>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">修改用户：</th>
+            <td class="formValue">
+                <label id="ModifyUserName"></label>
+            </td>
+            <th class="formTitle">修改时间：</th>
+            <td class="formValue">
+                <label id="ModifyDate"></label>
+            </td>
+        </tr>
+    </table>
+    <div class="bd" style="border-top: none; margin-bottom: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="TabPostUser" class="tab_list bd actived" onclick="Tabchange('PostUser')">岗位用户</div>
+                <div id="TabModulePermission" class="tab_list bd" onclick="Tabchange('ModulePermission')">模块权限</div>
+                <div id="TabButtonePermission" class="tab_list bd" onclick="Tabchange('ButtonePermission')">按钮权限</div>
+                <div id="TabViewPermission" class="tab_list bd" onclick="Tabchange('ViewPermission')">视图权限</div>
+            </div>
+        </div>
+        <div class="ScrollBar">
+            <div id="PostUser" class="tabPanel">
+                <ul class="sys_spec_text">
+                </ul>
+            </div>
+            <div id="ModulePermission" class="tabPanel" style="display: none;">
+            </div>
+            <div id="ButtonePermission" class="tabPanel" style="display: none;">
+            </div>
+            <div id="ViewPermission" class="tabPanel" style="display: none;">
+            </div>
+        </div>
+    </div>
+</div>

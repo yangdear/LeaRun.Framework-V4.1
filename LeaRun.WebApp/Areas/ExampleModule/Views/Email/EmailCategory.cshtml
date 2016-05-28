@@ -1,0 +1,42 @@
+﻿@{
+    ViewBag.Title = "电子邮件/新建文件夹";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/ExampleModule/Email/SetFormEmailCategory", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = {
+                KeyValue: GetQuery('KeyValue'),
+                FullName: $("#FullName").val(),
+            }
+            AjaxJson("/ExampleModule/Email/SubmitFormEmailCategory", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 25px; margin-left: 40px; margin-right: 40px;">
+    <div style="padding-bottom: 5px;">请您输入文件夹名称</div>
+    <div>
+        <input id="FullName" type="text" class="keyword" datacol="yes" err="文件夹名称" checkexpession="NotNull" style="width: 100%" />
+    </div>
+</form>
+

@@ -1,0 +1,474 @@
+﻿@{
+    ViewBag.Title = "Lodop打印控件测试";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>
+<style type="text/css">
+    td{border:1px solid #000;}
+</style>
+<div class="tools_bar leftline rightline" style="margin-top: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        <a id="lr-replace" class="tools_btn" title="刷新当前(Ctrl+Q)" onclick="Replace()"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/arrow_refresh.png")) no-repeat 50% 4px;'>刷新</b></span></a><div class="tools_separator"></div>
+        <a class="tools_btn" title="打印预览" onclick="prn1_preview()"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/printer.png")) no-repeat 50% 4px;'>打印预览</b></span></a>
+        <a class="tools_btn" title="直接打印" onclick="prn1_print()"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/printer.png")) no-repeat 50% 4px;'>直接打印</b></span></a>
+        <a class="tools_btn" title="选择打印机" onclick="prn1_printA()"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/printer.png")) no-repeat 50% 4px;'>选择打印机</b></span></a>
+        <div class="tools_separator"></div>
+        <a id="lr-leave" class="tools_btn" title="关闭当前窗口(Esc)" onclick="btn_back()"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/back.png")) no-repeat 50% 4px;'>离开</b></span></a>
+    </div>
+</div>
+<div class="btnbartitle leftline rightline">
+    <div>
+        打印测试数据
+    </div>
+</div>
+<div id="my_area">
+    <table border=1 width="100%" style="border:solid 1px black;border-collapse:collapse">        <thead>
+            <tr>
+                <td style="width: 95px;">物料代码</td>
+                <td style="width: 195px;">物料名称</td>
+                <td style="width: 75px; text-align: center;">规格型号</td>
+                <td style="width: 65px; text-align: center;">单位</td>
+                <td style="width: 65px; text-align: center;">数量</td>
+                <td style="width: 65px; text-align: center;">单价</td>
+                <td style="width: 65px; text-align: center;">金额</td>
+                <td style="width: 65px; text-align: center;">含税单价</td>
+                <td style="width: 65px; text-align: center;">税率(%)</td>
+                <td style="width: 65px; text-align: center;">税额</td>
+                <td style="width: 65px; text-align: center;">含税金额</td>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td style="width: 95px;">6281006070</td>
+                <td style="width: 195px;">双氧水30%AR</td>
+                <td style="width: 75px; text-align: center;">20瓶/箱</td>
+                <td style="width: 65px; text-align: center;">瓶</td>
+                <td style="width: 65px; text-align: center;">100.00</td>
+                <td style="width: 65px; text-align: center;">123.00</td>
+                <td style="width: 65px; text-align: center;">12300.00</td>
+                <td style="width: 65px; text-align: center;">143.91</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">2091.00</td>
+                <td style="width: 65px; text-align: center;">14391.00</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">5607357261</td>
+                <td style="width: 195px;">银保护粉</td>
+                <td style="width: 75px; text-align: center;">25kg/桶</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">90.00</td>
+                <td style="width: 65px; text-align: center;">12.00</td>
+                <td style="width: 65px; text-align: center;">1080.00</td>
+                <td style="width: 65px; text-align: center;">14.04</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">183.60</td>
+                <td style="width: 65px; text-align: center;">1263.60</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">8321558260</td>
+                <td style="width: 195px;">380电解保护粉</td>
+                <td style="width: 75px; text-align: center;">30kg/桶</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">12.00</td>
+                <td style="width: 65px; text-align: center;">14.00</td>
+                <td style="width: 65px; text-align: center;">168.00</td>
+                <td style="width: 65px; text-align: center;">16.38</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">28.56</td>
+                <td style="width: 65px; text-align: center;">196.56</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">8334777812</td>
+                <td style="width: 195px;">910B</td>
+                <td style="width: 75px; text-align: center;">15kg/桶</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">5.50</td>
+                <td style="width: 65px; text-align: center;">93.50</td>
+                <td style="width: 65px; text-align: center;">6.44</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">15.98</td>
+                <td style="width: 65px; text-align: center;">109.48</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">3653174607</td>
+                <td style="width: 195px;">NI-318镍单一补给</td>
+                <td style="width: 75px; text-align: center;">20L/桶</td>
+                <td style="width: 65px; text-align: center;">L</td>
+                <td style="width: 65px; text-align: center;">24.00</td>
+                <td style="width: 65px; text-align: center;">22.00</td>
+                <td style="width: 65px; text-align: center;">528.00</td>
+                <td style="width: 65px; text-align: center;">25.74</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">89.76</td>
+                <td style="width: 65px; text-align: center;">617.76</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">6314188078</td>
+                <td style="width: 195px;">水性封闭漆</td>
+                <td style="width: 75px; text-align: center;">2kg*9瓶/箱</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">46.00</td>
+                <td style="width: 65px; text-align: center;">54.00</td>
+                <td style="width: 65px; text-align: center;">2484.00</td>
+                <td style="width: 65px; text-align: center;">63.18</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">422.28</td>
+                <td style="width: 65px; text-align: center;">2906.28</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">6718581651</td>
+                <td style="width: 195px;">保险粉</td>
+                <td style="width: 75px; text-align: center;">20瓶/箱</td>
+                <td style="width: 65px; text-align: center;">瓶</td>
+                <td style="width: 65px; text-align: center;">76.00</td>
+                <td style="width: 65px; text-align: center;">1.00</td>
+                <td style="width: 65px; text-align: center;">76.00</td>
+                <td style="width: 65px; text-align: center;">1.17</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">12.92</td>
+                <td style="width: 65px; text-align: center;">88.92</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">7874500245</td>
+                <td style="width: 195px;">比重计</td>
+                <td style="width: 75px; text-align: center;">0-70</td>
+                <td style="width: 65px; text-align: center;">支</td>
+                <td style="width: 65px; text-align: center;">235.00</td>
+                <td style="width: 65px; text-align: center;">5.00</td>
+                <td style="width: 65px; text-align: center;">1175.00</td>
+                <td style="width: 65px; text-align: center;">5.85</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">199.75</td>
+                <td style="width: 65px; text-align: center;">1374.75</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">5731728303</td>
+                <td style="width: 195px;">铅板（铬阳极）</td>
+                <td style="width: 75px; text-align: center;">85cm</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">789.00</td>
+                <td style="width: 65px; text-align: center;">6.00</td>
+                <td style="width: 65px; text-align: center;">4734.00</td>
+                <td style="width: 65px; text-align: center;">7.02</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">804.78</td>
+                <td style="width: 65px; text-align: center;">5538.78</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">0063736461</td>
+                <td style="width: 195px;">HN-M92半光亮镍填平剂</td>
+                <td style="width: 75px; text-align: center;">25KG/桶</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">1900.00</td>
+                <td style="width: 65px; text-align: center;">78.00</td>
+                <td style="width: 65px; text-align: center;">148200.00</td>
+                <td style="width: 65px; text-align: center;">91.26</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">25194.00</td>
+                <td style="width: 65px; text-align: center;">173394.00</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">6435824100</td>
+                <td style="width: 195px;">聚丙烯铣铵SG</td>
+                <td style="width: 75px; text-align: center;">250g*20瓶/箱</td>
+                <td style="width: 65px; text-align: center;">瓶</td>
+                <td style="width: 65px; text-align: center;">56.00</td>
+                <td style="width: 65px; text-align: center;">44.00</td>
+                <td style="width: 65px; text-align: center;">2464.00</td>
+                <td style="width: 65px; text-align: center;">51.48</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">418.88</td>
+                <td style="width: 65px; text-align: center;">2882.88</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">1140126188</td>
+                <td style="width: 195px;">*镍板</td>
+                <td style="width: 75px; text-align: center;">15*60</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">34.00</td>
+                <td style="width: 65px; text-align: center;">9.00</td>
+                <td style="width: 65px; text-align: center;">306.00</td>
+                <td style="width: 65px; text-align: center;">10.53</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">52.02</td>
+                <td style="width: 65px; text-align: center;">358.02</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">6674138518</td>
+                <td style="width: 195px;">重铬酸钾</td>
+                <td style="width: 75px; text-align: center;">50kg/包</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">876.00</td>
+                <td style="width: 65px; text-align: center;">0.80</td>
+                <td style="width: 65px; text-align: center;">700.80</td>
+                <td style="width: 65px; text-align: center;">0.94</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">122.64</td>
+                <td style="width: 65px; text-align: center;">823.44</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">6267768327</td>
+                <td style="width: 195px;">茶籽粉</td>
+                <td style="width: 75px; text-align: center;">25kg/包</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">986.00</td>
+                <td style="width: 65px; text-align: center;">6.00</td>
+                <td style="width: 65px; text-align: center;">5916.00</td>
+                <td style="width: 65px; text-align: center;">7.02</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">1005.72</td>
+                <td style="width: 65px; text-align: center;">6921.72</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">7806727887</td>
+                <td style="width: 195px;">HN-DCR除蜡水</td>
+                <td style="width: 75px; text-align: center;">25KG/桶</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">567.00</td>
+                <td style="width: 65px; text-align: center;">45.00</td>
+                <td style="width: 65px; text-align: center;">25515.00</td>
+                <td style="width: 65px; text-align: center;">52.65</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">4337.55</td>
+                <td style="width: 65px; text-align: center;">29852.55</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">1521020886</td>
+                <td style="width: 195px;">除蜡粉</td>
+                <td style="width: 75px; text-align: center;">25KG/包</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">34.00</td>
+                <td style="width: 65px; text-align: center;">23.00</td>
+                <td style="width: 65px; text-align: center;">782.00</td>
+                <td style="width: 65px; text-align: center;">26.91</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">132.94</td>
+                <td style="width: 65px; text-align: center;">914.94</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">2623485764</td>
+                <td style="width: 195px;">次亚磷酸钠</td>
+                <td style="width: 75px; text-align: center;">25kg/包</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">2.00</td>
+                <td style="width: 65px; text-align: center;">67.00</td>
+                <td style="width: 65px; text-align: center;">134.00</td>
+                <td style="width: 65px; text-align: center;">78.39</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">22.78</td>
+                <td style="width: 65px; text-align: center;">156.78</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">1137887446</td>
+                <td style="width: 195px;">聚乙二醇</td>
+                <td style="width: 75px; text-align: center;">20瓶/箱</td>
+                <td style="width: 65px; text-align: center;">瓶</td>
+                <td style="width: 65px; text-align: center;">65.00</td>
+                <td style="width: 65px; text-align: center;">87.00</td>
+                <td style="width: 65px; text-align: center;">5655.00</td>
+                <td style="width: 65px; text-align: center;">101.79</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">961.35</td>
+                <td style="width: 65px; text-align: center;">6616.35</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">4518120034</td>
+                <td style="width: 195px;">*酒石酸钾钠</td>
+                <td style="width: 75px; text-align: center;">25kg/包</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">98.00</td>
+                <td style="width: 65px; text-align: center;">56.00</td>
+                <td style="width: 65px; text-align: center;">5488.00</td>
+                <td style="width: 65px; text-align: center;">65.52</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">932.96</td>
+                <td style="width: 65px; text-align: center;">6420.96</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">0556476270</td>
+                <td style="width: 195px;">电解铜</td>
+                <td style="width: 75px; text-align: center;">30*60</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">67.00</td>
+                <td style="width: 65px; text-align: center;">34.00</td>
+                <td style="width: 65px; text-align: center;">2278.00</td>
+                <td style="width: 65px; text-align: center;">39.78</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">387.26</td>
+                <td style="width: 65px; text-align: center;">2665.26</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">2072663531</td>
+                <td style="width: 195px;">铜上脱镍粉</td>
+                <td style="width: 75px; text-align: center;">15kg/包</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">86.00</td>
+                <td style="width: 65px; text-align: center;">2.00</td>
+                <td style="width: 65px; text-align: center;">172.00</td>
+                <td style="width: 65px; text-align: center;">2.34</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">29.24</td>
+                <td style="width: 65px; text-align: center;">201.24</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">3687038460</td>
+                <td style="width: 195px;">HN-8光亮挂镍主光剂</td>
+                <td style="width: 75px; text-align: center;">25KG/桶</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">55.00</td>
+                <td style="width: 65px; text-align: center;">5.00</td>
+                <td style="width: 65px; text-align: center;">275.00</td>
+                <td style="width: 65px; text-align: center;">5.85</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">46.75</td>
+                <td style="width: 65px; text-align: center;">321.75</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">5114617352</td>
+                <td style="width: 195px;">防染盐</td>
+                <td style="width: 75px; text-align: center;">25kg/包</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">66.00</td>
+                <td style="width: 65px; text-align: center;">4.00</td>
+                <td style="width: 65px; text-align: center;">264.00</td>
+                <td style="width: 65px; text-align: center;">4.68</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">44.88</td>
+                <td style="width: 65px; text-align: center;">308.88</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">0345243880</td>
+                <td style="width: 195px;">氨基乙酸AR(甘氨酸)</td>
+                <td style="width: 75px; text-align: center;">20瓶/箱</td>
+                <td style="width: 65px; text-align: center;">瓶</td>
+                <td style="width: 65px; text-align: center;">45.00</td>
+                <td style="width: 65px; text-align: center;">77.00</td>
+                <td style="width: 65px; text-align: center;">3465.00</td>
+                <td style="width: 65px; text-align: center;">90.09</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">589.05</td>
+                <td style="width: 65px; text-align: center;">4054.05</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">1400786486</td>
+                <td style="width: 195px;">*硫酸AR（涂料）</td>
+                <td style="width: 75px; text-align: center;">4瓶/箱</td>
+                <td style="width: 65px; text-align: center;">箱</td>
+                <td style="width: 65px; text-align: center;">64.00</td>
+                <td style="width: 65px; text-align: center;">23.00</td>
+                <td style="width: 65px; text-align: center;">1472.00</td>
+                <td style="width: 65px; text-align: center;">26.91</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">250.24</td>
+                <td style="width: 65px; text-align: center;">1722.24</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">0816146677</td>
+                <td style="width: 195px;">氢氧化钾（工业）</td>
+                <td style="width: 75px; text-align: center;">25kg/包</td>
+                <td style="width: 65px; text-align: center;">kg</td>
+                <td style="width: 65px; text-align: center;">76.00</td>
+                <td style="width: 65px; text-align: center;">87.00</td>
+                <td style="width: 65px; text-align: center;">6612.00</td>
+                <td style="width: 65px; text-align: center;">101.79</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">1124.04</td>
+                <td style="width: 65px; text-align: center;">7736.04</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">5320478507</td>
+                <td style="width: 195px;">二甲酚橙IND</td>
+                <td style="width: 75px; text-align: center;">5g*20瓶/箱</td>
+                <td style="width: 65px; text-align: center;">瓶</td>
+                <td style="width: 65px; text-align: center;">12.00</td>
+                <td style="width: 65px; text-align: center;">65.50</td>
+                <td style="width: 65px; text-align: center;">786.00</td>
+                <td style="width: 65px; text-align: center;">76.64</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">133.68</td>
+                <td style="width: 65px; text-align: center;">919.68</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">5682874026</td>
+                <td style="width: 195px;">OP乳化剂CP</td>
+                <td style="width: 75px; text-align: center;">20瓶/箱</td>
+                <td style="width: 65px; text-align: center;">瓶</td>
+                <td style="width: 65px; text-align: center;">500.00</td>
+                <td style="width: 65px; text-align: center;">3.00</td>
+                <td style="width: 65px; text-align: center;">1500.00</td>
+                <td style="width: 65px; text-align: center;">3.51</td>
+                <td style="width: 65px; text-align: center;">17.00</td>
+                <td style="width: 65px; text-align: center;">255.00</td>
+                <td style="width: 65px; text-align: center;">1755.00</td>
+                
+            </tr>
+            <tr>
+                <td style="width: 95px;">合计</td>
+                <td style="width: 195px;">&nbsp;</td>
+                <td style="width: 75px; text-align: center;">&nbsp;</td>
+                <td style="width: 65px; text-align: center;">&nbsp;</td>
+                <td style="width: 65px; text-align: center;">6978</td>
+                <td style="width: 65px; text-align: center;">958.8</td>
+                <td style="width: 65px; text-align: center;">234623.3</td>
+                <td style="width: 65px; text-align: center;">1121.81</td>
+                <td style="width: 65px; text-align: center;">&nbsp;</td>
+                <td style="width: 65px; text-align: center;">39889.61</td>
+                <td style="width: 65px; text-align: center;">274512.91</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<script language="javascript" type="text/javascript">
+    var LODOP; //声明为全局变量 
+    function prn1_preview() {
+        CreateOneFormPage();
+        LODOP.PREVIEW();
+    };
+    function prn1_print() {
+        CreateOneFormPage();
+        LODOP.PRINT();
+    };
+    function prn1_printA() {
+        CreateOneFormPage();
+        LODOP.PRINTA();
+    };
+    function CreateOneFormPage() {
+        LODOP = getLodop();
+        LODOP.ADD_PRINT_HTM("2%", "1%", "96%", "98%", document.getElementById("my_area").innerHTML);
+
+
+    };
+    function prn2_preview() {
+        CreateTwoFormPage();
+        LODOP.PREVIEW();
+    };
+</script>

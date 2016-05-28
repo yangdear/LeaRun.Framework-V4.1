@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "系统日志》清空数据页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = {
+            KeepTime: $("#KeepTime").val()
+        }
+        AjaxJson("/CommonModule/SysLog/SubmitRemoveLog", postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            closeDialog();
+        });
+    }
+</script>
+<form id="form1" style="margin: 25px; margin-left: 40px; margin-right: 40px;">
+    <div style="padding-bottom: 5px;">
+        日志保留时间：<select id="KeepTime"  class="keyword">
+            <option value="7">保留近一周</option>
+            <option value="1">保留近一个月</option>
+            <option value="3">保留近三个月</option>
+            <option value="0">不保留，全部删除</option>
+        </select>
+    </div>
+</form>

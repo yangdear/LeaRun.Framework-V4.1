@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "文件中心管理/文件夹表单";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!KeyValue) {
+            AjaxJson("/ExampleModule/Document/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+                $("#FolderName").focus();
+                $("#FolderName").select();
+            });
+        } else {
+            //显示顺序
+            AjaxJson("/ExampleModule/Document/SortCode", {}, function (Data) {
+                $("#SortCode").val(Data);
+            });
+            $("#ParentId").val(GetQuery('FolderId'));
+            $("#IsPublic").val(GetQuery('IsPublic'));
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            AjaxJson("/ExampleModule/Document/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 25px; margin-left: 40px; margin-right: 40px;">
+    <div style="padding-bottom: 5px;">请您输入文件夹名称</div>
+    <div>
+        <input id="IsPublic" type="hidden" />
+        <input id="SortCode" type="hidden" />
+        <input id="ParentId" type="hidden" />
+        <input id="FolderName" type="text" class="keyword" datacol="yes" err="文件夹名称" checkexpession="NotNull" style="width: 100%" />
+    </div>
+</form>
+
+

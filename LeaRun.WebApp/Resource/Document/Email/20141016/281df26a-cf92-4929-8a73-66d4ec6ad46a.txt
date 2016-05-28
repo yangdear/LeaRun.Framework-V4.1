@@ -1,0 +1,360 @@
+
+                                              
+                                              --收件
+                                              SELECT    CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN '今天'
+                                                          WHEN 1 THEN '昨天'
+                                                          ELSE '更早'
+                                                        END AS DateArea ,
+                                                        CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN 0
+                                                          WHEN 1 THEN 1
+                                                          ELSE 2
+                                                        END AS sort ,
+                                                        e.EmailId ,
+                                                        '2' AS datatype ,
+                                                        e.Theme ,
+                                                        e.ThemeColour ,
+                                                        e.Addresser ,
+                                                        e.SendDate ,
+                                                        ISNULL(e.IsAccessory,
+                                                              0) AS IsAccessory ,
+                                                        1 AS IsRead ,
+                                                        0 AS EmailCnt ,
+                                                        0 AS UnRead ,
+                                                        e.Priority ,
+                                                        e.State
+                                              FROM      Base_Email e
+                                                        INNER JOIN dbo.Base_EmailAddressee a ON e.EmailId = a.EmailId
+                                              WHERE     1 = 1
+                                                        AND a.AddresseeId = @UserId
+                                                        AND a.DeleteMark = 0
+                                              UNION
+                                              SELECT    DateArea ,
+                                                        sort ,
+                                                        '' AS EmailId ,
+                                                        '1' AS datatype ,
+                                                        '' AS Theme ,
+                                                        '' AS ThemeColour ,
+                                                        '' AS Addresser ,
+                                                        '' AS SendDate ,
+                                                        0 AS IsAccessory ,
+                                                        0 AS IsRead ,
+                                                        COUNT(1) AS EmailCnt ,
+                                                        SUM(1
+                                                            - ISNULL(IsReaded,
+                                                              0)) AS UnRead ,
+                                                        0 AS Priority ,
+                                                        0 AS State
+                                              FROM      ( SELECT
+                                                              CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN '今天'
+                                                              WHEN 1 THEN '昨天'
+                                                              ELSE '更早'
+                                                              END AS DateArea ,
+                                                              CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN 0
+                                                              WHEN 1 THEN 1
+                                                              ELSE 2
+                                                              END AS sort ,
+                                                              1 AS IsReaded
+                                                          FROM
+                                                              Base_Email e
+                                                              INNER JOIN dbo.Base_EmailAddressee a ON e.EmailId = a.EmailId
+                                                          WHERE
+                                                              1 = 1
+                                                              AND a.AddresseeId = @UserId
+                                                              AND e.DeleteMark = 0
+                                                        ) Gorup
+                                              GROUP BY  DateArea ,
+                                                        sort
+                                             -- 已发送
+                                              SELECT    CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN '今天'
+                                                          WHEN 1 THEN '昨天'
+                                                          ELSE '更早'
+                                                        END AS DateArea ,
+                                                        CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN 0
+                                                          WHEN 1 THEN 1
+                                                          ELSE 2
+                                                        END AS sort ,
+                                                        e.EmailId ,
+                                                        '2' AS datatype ,
+                                                        e.Theme ,
+                                                        e.ThemeColour ,
+                                                        e.Addresser ,
+                                                        e.SendDate ,
+                                                        ISNULL(e.IsAccessory,
+                                                              0) AS IsAccessory ,
+                                                        1 AS IsRead ,
+                                                        0 AS EmailCnt ,
+                                                        0 AS UnRead ,
+                                                        e.Priority ,
+                                                        e.State
+                                              FROM      Base_Email e
+                                              WHERE     1 = 1
+                                                        AND e.CreateUserId = @UserId
+                                                        AND e.DeleteMark = 0
+                                                        AND e.State = 1
+                                              UNION
+                                              SELECT    DateArea ,
+                                                        sort ,
+                                                        '' AS EmailId ,
+                                                        '1' AS datatype ,
+                                                        '' AS Theme ,
+                                                        '' AS ThemeColour ,
+                                                        '' AS Addresser ,
+                                                        '' AS SendDate ,
+                                                        0 AS IsAccessory ,
+                                                        0 AS IsRead ,
+                                                        COUNT(1) AS EmailCnt ,
+                                                        SUM(1
+                                                            - ISNULL(IsReaded,
+                                                              0)) AS UnRead ,
+                                                        0 AS Priority ,
+                                                        0 AS State
+                                              FROM      ( SELECT
+                                                              CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN '今天'
+                                                              WHEN 1 THEN '昨天'
+                                                              ELSE '更早'
+                                                              END AS DateArea ,
+                                                              CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN 0
+                                                              WHEN 1 THEN 1
+                                                              ELSE 2
+                                                              END AS sort ,
+                                                              1 AS IsReaded
+                                                          FROM
+                                                              Base_Email e
+                                                          WHERE
+                                                              1 = 1
+                                                              AND e.CreateUserId = @UserId
+                                                              AND e.DeleteMark = 0
+                                                              AND e.State = 1
+                                                        ) Gorup
+                                              GROUP BY  DateArea ,
+                                                        sort
+                                            --  草稿
+                                              SELECT    CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN '今天'
+                                                          WHEN 1 THEN '昨天'
+                                                          ELSE '更早'
+                                                        END AS DateArea ,
+                                                        CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN 0
+                                                          WHEN 1 THEN 1
+                                                          ELSE 2
+                                                        END AS sort ,
+                                                        e.EmailId ,
+                                                        '2' AS datatype ,
+                                                        e.Theme ,
+                                                        e.ThemeColour ,
+                                                        e.Addresser ,
+                                                        e.SendDate ,
+                                                        ISNULL(e.IsAccessory,
+                                                              0) AS IsAccessory ,
+                                                        1 AS IsRead ,
+                                                        0 AS EmailCnt ,
+                                                        0 AS UnRead ,
+                                                        e.Priority ,
+                                                        e.State
+                                              FROM      Base_Email e
+                                              WHERE     1 = 1
+                                                        AND e.CreateUserId = '149c1ae5-f4b0-4d88-b26b-0c84c4507ec6'
+                                                        AND e.DeleteMark = 0
+                                                        AND e.State = 0
+                                              UNION
+                                              SELECT    DateArea ,
+                                                        sort ,
+                                                        '' AS EmailId ,
+                                                        '1' AS datatype ,
+                                                        '' AS Theme ,
+                                                        '' AS ThemeColour ,
+                                                        '' AS Addresser ,
+                                                        '' AS SendDate ,
+                                                        0 AS IsAccessory ,
+                                                        0 AS IsRead ,
+                                                        COUNT(1) AS EmailCnt ,
+                                                        SUM(1
+                                                            - ISNULL(IsReaded,
+                                                              0)) AS UnRead ,
+                                                        0 AS Priority ,
+                                                        0 AS State
+                                              FROM      ( SELECT
+                                                              CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN '今天'
+                                                              WHEN 1 THEN '昨天'
+                                                              ELSE '更早'
+                                                              END AS DateArea ,
+                                                              CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN 0
+                                                              WHEN 1 THEN 1
+                                                              ELSE 2
+                                                              END AS sort ,
+                                                              1 AS IsReaded
+                                                          FROM
+                                                              Base_Email e
+                                                          WHERE
+                                                              1 = 1
+                                                              AND e.CreateUserId = '149c1ae5-f4b0-4d88-b26b-0c84c4507ec6'
+                                                              AND e.DeleteMark = 0
+                                                              AND e.State = 0
+                                                        ) Gorup
+                                              GROUP BY  DateArea ,
+                                                        sort
+--  已删除
+                                              SELECT    CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN '今天'
+                                                          WHEN 1 THEN '昨天'
+                                                          ELSE '更早'
+                                                        END AS DateArea ,
+                                                        CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN 0
+                                                          WHEN 1 THEN 1
+                                                          ELSE 2
+                                                        END AS sort ,
+                                                        e.EmailId ,
+                                                        '2' AS datatype ,
+                                                        e.Theme ,
+                                                        e.ThemeColour ,
+                                                        e.Addresser ,
+                                                        e.SendDate ,
+                                                        ISNULL(e.IsAccessory,
+                                                              0) AS IsAccessory ,
+                                                        1 AS IsRead ,
+                                                        0 AS EmailCnt ,
+                                                        0 AS UnRead ,
+                                                        e.Priority ,
+                                                        e.State
+                                              FROM      Base_Email e
+                                              WHERE     1 = 1
+                                                        AND e.CreateUserId = @UserId
+                                                        AND e.DeleteMark = 1
+                                              UNION
+                                              SELECT    CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN '今天'
+                                                          WHEN 1 THEN '昨天'
+                                                          ELSE '更早'
+                                                        END AS DateArea ,
+                                                        CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                          WHEN 0 THEN 0
+                                                          WHEN 1 THEN 1
+                                                          ELSE 2
+                                                        END AS sort ,
+                                                        e.EmailId ,
+                                                        '2' AS datatype ,
+                                                        e.Theme ,
+                                                        e.ThemeColour ,
+                                                        e.Addresser ,
+                                                        e.SendDate ,
+                                                        ISNULL(e.IsAccessory,
+                                                              0) AS IsAccessory ,
+                                                        1 AS IsRead ,
+                                                        0 AS EmailCnt ,
+                                                        0 AS UnRead ,
+                                                        e.Priority ,
+                                                        e.State
+                                              FROM      Base_Email e
+                                                        INNER JOIN dbo.Base_EmailAddressee a ON e.EmailId = a.EmailId
+                                              WHERE     1 = 1
+                                                        AND a.AddresseeId = @UserId
+                                                        AND a.DeleteMark = 1
+                                              UNION
+                                              SELECT    DateArea ,
+                                                        sort ,
+                                                        '' AS EmailId ,
+                                                        '1' AS datatype ,
+                                                        '' AS Theme ,
+                                                        '' AS ThemeColour ,
+                                                        '' AS Addresser ,
+                                                        '' AS SendDate ,
+                                                        0 AS IsAccessory ,
+                                                        0 AS IsRead ,
+                                                        COUNT(1) AS EmailCnt ,
+                                                        SUM(1
+                                                            - ISNULL(IsReaded,
+                                                              0)) AS UnRead ,
+                                                        0 AS Priority ,
+                                                        0 AS State
+                                              FROM      ( SELECT
+                                                              CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN '今天'
+                                                              WHEN 1 THEN '昨天'
+                                                              ELSE '更早'
+                                                              END AS DateArea ,
+                                                              CASE DATEDIFF(day,
+                                                              SendDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN 0
+                                                              WHEN 1 THEN 1
+                                                              ELSE 2
+                                                              END AS sort ,
+                                                              1 AS IsReaded
+                                                          FROM
+                                                              Base_Email e
+                                                          WHERE
+                                                              1 = 1
+                                                              AND e.CreateUserId = '149c1ae5-f4b0-4d88-b26b-0c84c4507ec6'
+                                                              AND e.DeleteMark = 1
+                                                          UNION
+                                                          SELECT
+                                                              CASE DATEDIFF(day,
+                                                              CreateDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN '今天'
+                                                              WHEN 1 THEN '昨天'
+                                                              ELSE '更早'
+                                                              END AS DateArea ,
+                                                              CASE DATEDIFF(day,
+                                                              CreateDate,
+                                                              GETDATE())
+                                                              WHEN 0 THEN 0
+                                                              WHEN 1 THEN 1
+                                                              ELSE 2
+                                                              END AS sort ,
+                                                              1 AS IsReaded
+                                                          FROM
+                                                              dbo.Base_EmailAddressee a
+                                                          WHERE
+                                                              1 = 1
+                                                              AND a.AddresseeId = @UserId
+                                                              AND a.DeleteMark = 1
+                                                        ) Gorup
+                                              GROUP BY  DateArea ,
+                                                        sort

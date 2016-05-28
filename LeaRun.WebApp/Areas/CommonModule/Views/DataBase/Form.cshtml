@@ -1,0 +1,362 @@
+﻿@{
+    ViewBag.Title = "数据库管理》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<!--代码高亮start-->
+<link type="text/css" rel="stylesheet" href="~/Content/Scripts/SyntaxHighlighter/Styles/SyntaxHighlighter.css" />
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shCore.js" type="text/javascript" charset="GBK"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushCpp.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushCSharp.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushCss.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushDelphi.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushJava.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushJScript.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushPhp.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushPython.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushRuby.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushSql.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushVb.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushXml.js" type="text/javascript"></script>
+<!--代码高亮end-->
+<script type="text/javascript">
+    var DbName = GetQuery('DbName');//数据库名称
+    $(function () {
+        $("#DbName").val(DbName);
+        CreateTable();
+        TableTdEvent();
+        SetControl();
+        PrimaryKeyEvent();
+    });
+    //默认添加表格20行
+    function CreateTable() {
+        var RowIndex = ($('#grid_Field tbody tr').length + 1);
+        for (var i = 0; i < 20; i++) {
+            $("#grid_Field tbody").append(CreateTableRow(RowIndex));
+            RowIndex++;
+        };
+        $("#grid_Field tbody tr").find('input,select').attr('disabled', 'disabled').hide();
+        $("#grid_Field tbody tr:eq(0)").find('input,select').removeAttr('disabled');
+        $("#Column➩1").attr('datacol', 'yes');
+    };
+    //创建行
+    function CreateTableRow(index) {
+        var tr = '';
+        tr += '<tr>';
+        tr += '<td class="td-div" style="width: 30px; text-align: center;border-left: none;">' + index + '</td>';
+        tr += '<td style="width: 150px;"><div></div><input id="Column➩' + index + '" onblur="ColumnInputEvent(' + index + ')" type="text" class="txt" datacol="no" err="列名" checkexpession="NotNull" /></td>';
+        tr += '<td style="width: 100px; text-align: center;"><div></div>' + DataBaseType(index) + '</td>';
+        tr += '<td style="width: 50px; text-align: center;"><input id="AllowNull➩' + index + '" name="checkbox" type="checkbox"/></td>';
+        tr += '<td style="width: 50px; text-align: center;"><input id="Identify➩' + index + '" name="checkbox" type="checkbox"/></td>';
+        tr += '<td style="width: 50px; text-align: center;"><input id="PrimaryKey➩' + index + '" class="PrimaryKey" name="checkbox" type="checkbox"/></td>';
+        tr += '<td style="width: 120px;"><div></div><input id="DefaultValue➩' + index + '" type="text" class="txt" /></td>';
+        tr += '<td><div></div><input id="Description➩' + index + '" type="text" class="txt" /></td>';
+        tr += '</tr>';
+        return tr;
+    }
+    //数据类型
+    function DataBaseType(index) {
+        var html = '<select id="DataBaseType➩' + index + '" class="txtselect" datacol="no" err="数据类型" checkexpession="NotNull">';
+        html += '<option value=""></option>';
+        html += '<option value="datetime">datetime</option>';
+        html += '<option value="decimal">decimal</option>';
+        html += '<option value="int">int</option>';
+        html += '<option value="text">text</option>';
+        html += '<option value="varchar(5)">varchar(5)</option>';
+        html += '<option value="varchar(20)">varchar(20)</option>';
+        html += '<option value="varchar(50)">varchar(50)</option>';
+        html += '<option value="varchar(200)">varchar(200)</option>';
+        html += '<option value="varchar(max)">varchar(max)</option>';
+        html += '</select>';
+        return html;
+    }
+    //表格点击事件
+    function TableTdEvent() {
+        $("#grid_Field tbody tr .td-div").toggle(function () {
+            $(".grid tbody tr").removeClass("tdhover");
+            $(".grid tbody tr").removeClass("selected");
+            $(this).parent().addClass("selected");
+        }, function () {
+            $(this).parent().removeClass("selected");
+        });
+        $("#grid_Field tbody tr td").click(function () {
+            if ($(this).find('div').length > 0) {
+                var oldText = $(this).find('div').text();
+                var obj = $(this).find('input,select');
+                if (obj.attr('disabled')) {
+                    return false;
+                }
+                var type = obj.attr('class');
+                obj.show();
+                obj.parent().find('div').html("");
+                obj.trigger("focus");
+                obj.blur(function () {
+                    if (obj.parent().find('div').length > 0) {
+                        var newText = obj.val();
+                        obj.hide();
+                        obj.parent().find('div').html(newText);
+                    }
+                });
+            }
+        })
+    }
+    //清空表格当前行
+    function EmptyTableRow() {
+        var trobj = $("#grid_Field tbody .selected");
+        var selectedindex = (trobj.find('td:eq(0)').html()) - 1; $("#grid_Field tbody tr:eq(" + selectedindex + ")").find('input,select').hide();
+        $("#grid_Field tbody tr:eq(" + selectedindex + ")").find('td').find('div').html('');
+        $("#grid_Field tbody tr:eq(" + selectedindex + ")").find('input,select').val("").hide();
+        $("#grid_Field tbody tr:eq(" + selectedindex + ")").find('input[name="checkbox"]').attr("checked", false);
+        trobj.removeClass("selected");
+    }
+    //插入一个空行
+    function InsetTableRow() {
+        var RowIndex = $('#grid_Field tbody tr').length + Number(1);
+        var trobj = $("#grid_Field tbody .selected");
+        if (trobj.length) {
+            trobj.before(CreateTableRow(RowIndex));
+            var selectedindex = (trobj.find('td:eq(0)').html()) - 1; $("#grid_Field tbody tr:eq(" + selectedindex + ")").find('input,select').hide();
+            //更新表格序列号
+            var indexrow = 1; $("#grid_Field tbody tr").each(function () { $(this).find('td:eq(0)').html(indexrow); indexrow++; });
+        } else {
+            $("#grid_Field tbody").append(CreateTableRow(RowIndex));
+            $("#grid_Field tbody tr:eq(" + (RowIndex-1) + ")").find('input,select').hide();
+        }
+        TableTdEvent();
+    }
+    //列名输入事件
+    function ColumnInputEvent(index) {
+        if ($("#Column➩" + index).val() != "") {
+            $("#AllowNull➩" + index).removeAttr('disabled').show();
+            $("#Identify➩" + index).removeAttr('disabled').show();
+            $("#PrimaryKey➩" + index).removeAttr('disabled').show();
+            //$("#DataBaseType➩" + index).parent().trigger("click");
+            if ($("#DataBaseType➩" + index).val() == "") {
+                $("#DataBaseType➩" + index).parent().trigger("click");
+                $("#DataBaseType➩" + index).val('varchar(50)');
+            }
+            $("#grid_Field tbody tr:eq(" + index + ")").find('input,select').removeAttr('disabled');
+            $("#DataBaseType➩" + index).attr('datacol', 'yes');
+        }
+    }
+    //主键复选框事件
+    function PrimaryKeyEvent() {
+        $('.PrimaryKey').click(function () {
+            $('.PrimaryKey').attr("checked", false);
+            $(this).attr("checked", true);
+        })
+    }
+    //表格tr上移
+    function Gridup() {
+        var objParentTR = $("#grid_Field tbody .selected");
+        var prevTR = objParentTR.prev();
+        if (prevTR.length > 0) {
+            prevTR.insertAfter(objParentTR);
+            //更新表格序列号
+            var indexrow = 1; $("#grid_Field tbody tr").each(function () { $(this).find('td:eq(0)').html(indexrow); indexrow++; });
+        } else {
+            return;
+        }
+    }
+    //表格tr下移
+    function Griddown(obj) {
+        var objParentTR = $("#grid_Field tbody .selected");
+        var nextTR = objParentTR.next();
+        if (nextTR.length > 0) {
+            nextTR.insertBefore(objParentTR);
+            //更新表格序列号
+            var indexrow = 1; $("#grid_Field tbody tr").each(function () { $(this).find('td:eq(0)').html(indexrow); indexrow++; });
+        } else {
+            return;
+        }
+    }
+
+    //编辑的时候给对象赋值
+    function SetControl() {
+        if (!!GetQuery('KeyValue')) {
+            var RowIndex = 1;
+            $("#TableName").val(GetQuery('KeyValue'));
+            $("#TableDescription").val(GetQuery('tableRemark'));
+            AjaxJson("/CommonModule/DataBase/GridColumnListJson", { tableName: GetQuery('KeyValue') }, function (Data) {
+                var JsonData = Data.rows;
+                $.each(JsonData, function (i) {
+                    if (RowIndex > 20) {
+                        InsetTableRow();
+                    }
+                    SetControls("Column➩" + RowIndex, JsonData[i].column);
+                    if (JsonData[i].datatype == "varchar") {
+                        var length = JsonData[i].length;
+                        if (length < 0) {
+                            length = "max";
+                        }
+                        SetControls("DataBaseType➩" + RowIndex, JsonData[i].datatype + "(" + length + ")");
+                    } else {
+                        SetControls("DataBaseType➩" + RowIndex, JsonData[i].datatype);
+                    }
+                    SetControls("AllowNull➩" + RowIndex, JsonData[i].isnullable);
+                    SetControls("Identify➩" + RowIndex, JsonData[i].identity);
+                    SetControls("PrimaryKey➩" + RowIndex, JsonData[i].key);
+                    SetControls("DefaultValue➩" + RowIndex, JsonData[i].default);
+                    SetControls("Description➩" + RowIndex, JsonData[i].remark);
+                    $("#grid_Field tbody tr:eq(" + RowIndex + ")").find('input,select').removeAttr('disabled');
+                    RowIndex++;
+                });
+            });
+            if (RowIndex > 20) {
+                InsetTableRow();
+            }
+            function SetControls(key, value) {
+                var id = $('#' + key);
+                var type = id.attr('type');
+                switch (type) {
+                    case "checkbox":
+                        id.show();
+                        if (value == "√") {
+                            id.attr("checked", 'checked');
+                        } else {
+                            id.removeAttr("checked");
+                        }
+                        break;
+                    default:
+                        id.parent().find('div').html(value);
+                        id.val(value);
+                        break;
+                }
+            }
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#TableProperty");
+            postData["TableFieldJson"] = GetTableDataJson("#grid_Field");
+            AjaxJson("/CommonModule/DataBase/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+    //查看Sql
+    function LookSql() {
+        $('.dp-highlighter').remove();
+        $("#SQLCode").val("");
+        Loading(true);
+        window.setTimeout(function () {
+            var postData = GetWebControls("#TableProperty");
+            postData["TableFieldJson"] = GetTableDataJson("#grid_Field");
+            getAjax("/CommonModule/DataBase/LookSql", postData, function (data) {
+                $("#SQLCode").val(data);
+                dp.SyntaxHighlighter.HighlightAll('SQLCode');
+                Loading(false);
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div class="bd">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="TabTableField" class="tab_list bd actived" onclick="Tabchange('TableField');$('.tools_bar_icon').show()">表字段</div>
+                <div id="TabTableProperty" class="tab_list bd " onclick="Tabchange('TableProperty');$('.tools_bar_icon').hide()">表属性</div>
+                <div id="TabSQL" class="tab_list bd " onclick="Tabchange('SQL');$('.tools_bar_icon').hide();LookSql()">查看 SQL</div>
+            </div>
+            <div style="float: right;">
+                <div class="tools_bar_icon">
+                    <div class="icon-botton" title="上移" onclick="Gridup()">
+                        <img src="~/Content/Images/Icon16/resultset_top.png" />
+                    </div>
+                    <div class="icon-botton" title="下移" onclick="Griddown()">
+                        <img src="~/Content/Images/Icon16/resultset_bottom.png" />
+                    </div>
+                    <div class="tools_separator" style="height: 23px; margin-right: 5px;"></div>
+                    <div class="icon-botton" title="插入行" onclick="InsetTableRow()">
+                        <img src="~/Content/Images/Icon16/table_row_insert.png" />
+                    </div>
+                    <div class="icon-botton" title="清空行" onclick="EmptyTableRow()">
+                        <img src="~/Content/Images/Icon16/table_row_delete.png" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ScrollBar" style="margin-top: 1px; height: 357px;">
+            @*表字段*@
+            <div id="TableField" class="tabPanel">
+                <table id="grid_Field" class="grid" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <td style="width: 30px; text-align: center; border-left: none;">
+                                <div class="table-header">&nbsp;</div>
+                            </td>
+                            <td style="width: 150px;">
+                                <div class="table-header">列名</div>
+                            </td>
+                            <td style="width: 100px; text-align: center;">
+                                <div class="table-header">数据类型</div>
+                            </td>
+                            <td style="width: 50px; text-align: center;">
+                                <div class="table-header">允许空</div>
+                            </td>
+                            <td style="width: 50px; text-align: center;">
+                                <div class="table-header">标识</div>
+                            </td>
+                            <td style="width: 50px; text-align: center;">
+                                <div class="table-header">主键</div>
+                            </td>
+                            <td style="width: 120px;">
+                                <div class="table-header">默认值</div>
+                            </td>
+                            <td>
+                                <div class="table-header">说明</div>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            @*表属性*@
+            <div id="TableProperty" class="tabPanel" style="display: none;">
+                <table class="form" style="border-right: none;">
+                    <tr>
+                        <th class="formTitle">表名称：
+                        </th>
+                        <td class="formValue">
+                            <input id="TableName" maxlength="50" type="text" class="txt required" datacol="yes" err="表名称" checkexpession="NotNull" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">表说明：
+                        </th>
+                        <td class="formValue">
+                            <input id="TableDescription" type="text" class="txt" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">数据库名称：
+                        </th>
+                        <td class="formValue">
+                            <input id="DbName" readonly type="text" class="txt" />
+                        </td>
+                    </tr>
+                </table>
+                <style>
+                    .form .formTitle {
+                        border-left: none;
+                    }
+
+                    .form .formValue {
+                        border-right: none;
+                    }
+                </style>
+            </div>
+            <div id="SQL" class="tabPanel" style="display: none;">
+                <textarea id="SQLCode" name="SQLCode" class="Sql" style="display: none;">
+                </textarea>
+            </div>
+        </div>
+    </div>
+</form>

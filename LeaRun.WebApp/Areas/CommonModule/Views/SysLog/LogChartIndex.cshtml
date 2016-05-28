@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "LogChartIndex";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<!--第三方统计图start-->
+<script src="~/Content/Scripts/highcharts/highcharts.js"></script>
+<script src="~/Content/Scripts/highcharts/highcharts-more.js"></script>
+<script src="~/Content/Scripts/highcharts/modules/exporting.js"></script>
+<!--第三方统计图end-->
+<script>
+    $(function () {
+        $('.ScrollBar').height($(window).height() - 351);
+        GridList();
+        LodaChartData();
+    });
+    function LodaChartData() {
+        var cntData = [];
+        var ipData = [];
+        var NewipData = [];
+        getAjax("/CommonModule/SysLog/LoginChart", {}, function (data) {
+            var DataJson = eval("(" + data + ")");
+            for (var i = 1; i < 31; i++) {
+                cntData.push(DataJson[0][i]);
+                ipData.push(DataJson[1][i]);
+                NewipData.push(DataJson[2][i]);
+            }
+        })
+        $('#container').highcharts({
+            chart: {
+                zoomType: 'x'
+            },
+            title: {
+                text: '',
+            },
+            xAxis: {
+                categories: ['1号', '2号', '3号', '4号', '5号', '6号', '7号', '8号', '9号', '10号', '11号', '12号', '13号', '14号', '15号', '16号', '17号', '18号', '19号', '20号', '21号', '22号', '23号', '24号', '25号', '26号', '27号', '28号', '29号', '30号', '31号']
+            },
+            yAxis: {
+                title: {
+                    text: '登录次数统计'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    events: {
+                        click: function (e) {
+                            var day = e.point.category;
+                            GridList(day.substr(0, day.length - 1))
+                        }
+                    }
+                }
+            },
+            series: [{
+                name: '总登录数',
+                data: cntData
+            }, {
+                name: 'IP登录数',
+                data: ipData
+            }, {
+                name: '新IP登录数',
+                data: NewipData
+            }]
+        });
+    }
+    function GridList(day) {
+        Loading(true, "正在加载数据...");
+        window.setTimeout(function () {
+            $("#grid tbody").html("");
+            var html = "";
+            getAjax("/CommonModule/SysLog/LoginList", { day: day }, function (data) {
+                var DataJson = eval("(" + data + ")");
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center;\">" + (i + 1) + "</td>"
+                    html += "<td>" + DataJson[i].createdate + "</td>"
+                    html += "<td>" + DataJson[i].ipaddress + "</td>"
+                    html += "<td>" + DataJson[i].ipaddressname + "</td>"
+                    html += "</tr>";
+                });
+            })
+            $("#grid tbody").append(html);
+            Loading(false);
+        }, 200);
+    }
+</script>
+<div id="container" style="min-width: 310px; height: 750px; margin: 0 auto"></div>
+<div class="ScrollBar">
+    <table id="grid" class="grid" style="width: 100%">
+        <thead>
+            <tr>
+                <td style="width: 50px; text-align: center;">
+                    <div class="table-header">序号</div>
+                </td>
+                <td style="width: 140px;">
+                    <div class="table-header">时间</div>
+                </td>
+                <td style="width: 150px;">
+                    <div class="table-header">IP地址</div>
+                </td>
+                <td>
+                    <div class="table-header">IP地址所在城市</div>
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>

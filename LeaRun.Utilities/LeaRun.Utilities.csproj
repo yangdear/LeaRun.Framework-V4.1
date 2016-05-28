@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7A9E54B1-D54D-4AF2-99E9-06E9BAFF4846}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LeaRun.Utilities</RootNamespace>
+    <AssemblyName>LeaRun.Utilities</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\Lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpZipLib">
+      <HintPath>..\Lib\SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Base.Common\CmdHelper.cs" />
+    <Compile Include="Base.Common\CommonHelper.cs" />
+    <Compile Include="Base.Common\ConvertHelper.cs" />
+    <Compile Include="Base.Common\PinyinHelper.cs" />
+    <Compile Include="Base.Common\RandomHelper.cs" />
+    <Compile Include="Base.Common\RMBHelper.cs" />
+    <Compile Include="Base.Common\SqlChecker.cs" />
+    <Compile Include="Base.Common\SqlFilterHelper.cs" />
+    <Compile Include="Base.Common\StringHelper.cs" />
+    <Compile Include="Base.Common\SysHelper.cs" />
+    <Compile Include="Base.Config\ConfigHelper.cs" />
+    <Compile Include="Base.Data\DataHelper.cs" />
+    <Compile Include="Base.Data\HashtableHelper.cs" />
+    <Compile Include="Base.DateTime\DateTimeHelper.cs" />
+    <Compile Include="Base.Document\Excel\DeriveExcel.cs" />
+    <Compile Include="Base.Document\Excel\ImportExcel.cs" />
+    <Compile Include="Base.Document\Word\DeriveWord.cs" />
+    <Compile Include="Base.Extension\IManageProvider.cs" />
+    <Compile Include="Base.Extension\IManageUser.cs" />
+    <Compile Include="Base.File\FileDateSorter.cs" />
+    <Compile Include="Base.File\DirFileHelper.cs" />
+    <Compile Include="Base.File\FileDownHelper.cs" />
+    <Compile Include="Base.File\GZipHelper.cs" />
+    <Compile Include="Base.File\INIFileHelper.cs" />
+    <Compile Include="Base.File\ReadHelper.cs" />
+    <Compile Include="Base.File\SizeHelper.cs" />
+    <Compile Include="Base.File\UploadHelper.cs" />
+    <Compile Include="Base.Http\HttpHelper.cs" />
+    <Compile Include="Base.Http\NetHelper.cs" />
+    <Compile Include="Base.Http\RequestHelper.cs" />
+    <Compile Include="Base.Json\JsonHelper.cs" />
+    <Compile Include="Base.DebugLog\LogFactory.cs" />
+    <Compile Include="Base.DebugLog\LogHelper.cs" />
+    <Compile Include="Base.Json\JsonMessage.cs" />
+    <Compile Include="Base.Model\Condition.cs" />
+    <Compile Include="Base.Model\GridPage.cs" />
+    <Compile Include="Base.Extension\Permission\PermissionMode.cs" />
+    <Compile Include="Base.Model\JqGridColumn.cs" />
+    <Compile Include="Base.Model\JqGridParam.cs" />
+    <Compile Include="Base.Model\TreeJson.cs" />
+    <Compile Include="Base.Security\DESEncrypt.cs" />
+    <Compile Include="Base.Security\Md5Helper.cs" />
+    <Compile Include="Base.Web\CookieHelper.cs" />
+    <Compile Include="Base.Web\IPScanerHelper.cs" />
+    <Compile Include="Base.Web\SessionHelper.cs" />
+    <Compile Include="Base.Extension\ManageProvider.cs" />
+    <Compile Include="Base.Web\ToState.cs" />
+    <Compile Include="Base.Xml\XMLHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Base.Document\PDF\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LeaRun.DataAccess\LeaRun.DataAccess.csproj">
+      <Project>{7d1a96cf-9b89-443f-ab95-12343f52a1ac}</Project>
+      <Name>LeaRun.DataAccess</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

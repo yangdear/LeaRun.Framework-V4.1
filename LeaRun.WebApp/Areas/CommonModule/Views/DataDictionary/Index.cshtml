@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "数据字典";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetTree();
+        GetGrid();
+    });
+    var DataDictionaryId = "", DataDictionaryCode = "", DataDictionaryName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                DataDictionaryId = item.id;            //ID
+                DataDictionaryName = item.text;        //名称
+                DataDictionaryCode = item.value;       //编码
+                $("#titleinfo").text(DataDictionaryName + "(" + DataDictionaryCode + ")");
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/CommonModule/DataDictionary/TreeGridListJson")?DataDictionaryId=" + DataDictionaryId
+                }).trigger('reloadGrid');
+            },
+            url: "@Url.Content("~/CommonModule/DataDictionary/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/DataDictionary/TreeGridListJson")",
+            datatype: "json",
+            treeGrid: true,
+            treeGridModel: "nested",
+            ExpandColumn: "Code",
+            height: $(window).height() - 105,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'DataDictionaryDetailId', index: 'DataDictionaryDetailId', hidden: true },
+                { label: '名称', name: 'DataDictionaryDetailName', index: 'DataDictionaryDetailName', hidden: true },
+                { label: "项目名称", name: "FullName", index: "FullName", width: 200 },
+                { label: "项目值", name: "Code", index: "Code", width: 150 },
+                {
+                    label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                { label: "创建用户", name: "CreateUserName", index: "CreateUserName", width: 100 },
+                {
+                    label: "创建时间", name: "CreateDate", index: "CreateDate", width: 120,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm:ss');
+                    }
+                },
+                { label: "修改用户", name: "ModifyUserName", index: "ModifyUserName", width: 100 },
+                {
+                    label: "修改时间", name: "ModifyDate", index: "ModifyDate", width: 120,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm:ss');
+                    }
+                }
+            ],
+            pager: "false",
+            rowNum: 1000,
+            rownumbers: true,
+            shrinkToFit: false
+        });
+    }
+    //新增
+    function btn_add() {
+        var DataDictionaryDetailId = GetJqGridRowValue("#gridTable", "DataDictionaryDetailId");
+        var DataDictionaryDetailName = GetJqGridRowValue("#gridTable", "DataDictionaryDetailName");
+        if (!!DataDictionaryId) {
+            var url = "/CommonModule/DataDictionary/Form?DataDictionaryId=" + DataDictionaryId + "&DataDictionaryName=" + escape(DataDictionaryName) + "&DataDictionaryDetailId=" + DataDictionaryDetailId + "&DataDictionaryDetailName=" + escape(DataDictionaryDetailName);
+            openDialog(url, "Form", "新增数据字典", 450, 240, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        } else {
+            tipDialog('请选择分类目录。', 4, 'warning');
+        }
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "DataDictionaryDetailId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/DataDictionary/Form?KeyValue=" + KeyValue + "&DataDictionaryId=" + DataDictionaryId + "&DataDictionaryName=" + escape(DataDictionaryName);
+            openDialog(url, "Form", "编辑数据字典", 450, 240, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "DataDictionaryDetailId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/DataDictionary/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //分类管理
+    function btn_sortmanage() {
+        var url = "/CommonModule/DataDictionary/SortManage";
+        openDialog(url, "SortManage", "分类管理（鼠标右击可操作）", 750, 350, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //刷新表格
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                分类目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                数据字典 - <span id="titleinfo">未选择分类</span>
+            </div>
+        </div>
+        <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+            <div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>
+        </div>
+        <table id="gridTable"></table>
+    </div>
+</div>

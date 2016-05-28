@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "系统日志》明细页面";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        var LogType = GetQuery('LogType');
+        if (LogType == 1 || LogType == 2 || LogType == 3) {
+            GetGrid();
+        } else {
+            AjaxJson("/CommonModule/SysLog/SetForm", { KeyValue: GetQuery('SysLogId') }, function (data) {
+                var html = "";
+                html += "IP地址：" + data.IPAddress + "<br>";
+                html += "IP所在城市：" + data.IPAddressName + "<br>"
+                html += "描述：" + data.Remark;
+                $("#Other").show().html(html);
+                $("#div_table").hide();
+            });
+        }
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/SysLog/GetSysLogDetailJson")?SysLogId=" + GetQuery('SysLogId'),
+            datatype: "json",
+            height: $(window).height() - 31,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'SysLogDetailId', index: 'SysLogDetailId', hidden: true },
+                { label: '属性名称', name: 'PropertyName', index: 'PropertyName', width: 190 },
+                { label: "属性字段", name: "PropertyField", index: "PropertyField", width: 190 },
+                { label: "属性新值", name: "NewValue", index: "NewValue", width: 190 },
+                { label: "属性旧值", name: "OldValue", index: "OldValue", width: 190 }
+            ],
+            pager: "false",
+            rowNum: 1000,
+            rownumbers: true,
+            shrinkToFit: false
+        });
+    }
+</script>
+<div style="margin: 1px; margin-bottom: 0px;">
+    <div id="div_table" class="topline rightline">
+        <table id="gridTable"></table>
+    </div>
+    <div id="Other" style="font-size: 16pt; display: none; border-bottom: none; border-top: none;">
+    </div>
+</div>

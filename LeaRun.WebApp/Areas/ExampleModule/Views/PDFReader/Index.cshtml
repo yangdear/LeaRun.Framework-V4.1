@@ -1,0 +1,93 @@
+﻿@{
+    ViewBag.Title = "PDF阅读器";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        $("#layoutA").splitter({
+            type: "v",
+            outline: true,
+            minLeft: 280, sizeLeft: 280, maxLeft: 280,
+            anchorToWindow: true,
+            accessKey: "L"
+        });
+        GetTree();
+    })
+    //加载Left
+    var filename = "";
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                filename = item.text;
+            },
+            url: "@Url.Content("~/ExampleModule/PDFReader/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+        LoadrightMenu("#ItemsTree");
+    }
+    //查看PDF
+    function btn_detail() {
+        Loading(true, "正在打开PDF文件...");
+        window.setTimeout(function () {
+            iframe_src("iframe_Conten", '/ExampleModule/PDFReader/PDFViewer?filename=' + escape(filename))
+        }, 200);
+    }
+    //上传PDF
+    function btn_upload() {
+        $('.rightMenu').hide();
+        var url = "/ExampleModule/PDFReader/Uploadify"
+        OpenWindow(url, 'PDF文件上传', 500, 350);
+    }
+    //删除PDF
+    function btn_delete() {
+        var KeyValue = filename;
+        if (IsDelData(KeyValue)) {
+            if (confirm('注：您确定要删除吗?'))
+            {
+                Loading(true, "正在删除数据...");
+                window.setTimeout(function () {
+                    AjaxJson("/ExampleModule/PDFReader/DeleteFile", { KeyValue: KeyValue }, function (data) {
+                        alert(data.Message);
+                        windowload();
+                    });
+                }, 200);
+            }
+        }
+    }
+    //刷新
+    function windowload() {
+        GetTree();
+    }
+</script>
+<div id="layoutA" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                PDF目录列表
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+        <div class="rightMenu">
+            <ul>
+                <li onclick="Replace()">
+                    <img src="~/Content/Images/Icon16/arrow_refresh.png" />刷新</li>
+                <li onclick="btn_detail()">
+                    <img src="~/Content/Images/Icon16/application_view_detail.png" />查看PDF</li>
+                <li onclick="btn_upload()">
+                    <img src="~/Content/Images/Icon16/inbox_upload.png" />上传PDF</li>
+                <li onclick="btn_delete()">
+                    <img src="~/Content/Images/Icon16/DeleteRed.png" />删除PDF</li>
+            </ul>
+        </div>
+        <style>
+            .bbit-tree-ec-icon {
+                width: 0px;
+            }
+        </style>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <iframe id="iframe_Conten" src="/ExampleModule/PDFReader/PDFViewer" scrolling="auto" frameborder="0" scrolling="yes" width="100%" height="100%"></iframe>
+    </div>
+</div>

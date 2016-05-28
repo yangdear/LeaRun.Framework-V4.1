@@ -1,0 +1,70 @@
+﻿@{
+    ViewBag.Title = "导出Excel";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script src="~/Content/Scripts/cookie/jquery.cookie.js"></script>
+<script>
+    $(function () {
+        getAjax("/Utility/GetDeriveExcelColumn", {}, function (data) {
+            var JsonData = eval("(" + data + ")");
+            $.each(JsonData, function (i) {
+                var label = JsonData[i].label;
+                var name = JsonData[i].name;
+                var hidden = JsonData[i].hidden;
+                if (!!label && hidden == false) {
+                    $("#AccessView").append("<li title='" + label + "'><a id='" + name + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + label + "</a><i></i></li>");
+                }
+            });
+        });
+        $("#AccessView li").click(function () {
+            if (!$(this).find('a').hasClass('disabled')) {
+                if (!!$(this).hasClass("selected")) {
+                    $(this).removeClass("selected");
+                } else {
+                    $(this).addClass("selected");
+                }
+            }
+        });
+        //自定义复选框 全选/反选
+        $("#CheckView").click(function () {
+            if (!!$(this).hasClass("checkAllOff")) {
+                $(this).attr('title', '反选');
+                $(this).text('反选');
+                $(this).attr('class', 'checkAllOn');
+                $('#AccessView li').addClass('selected');
+            } else {
+                $(this).attr('title', '全选');
+                $(this).text('全选');
+                $(this).attr('class', 'checkAllOff');
+                $('#AccessView li').removeClass('selected');
+            }
+        })
+        $("#CheckView").trigger("click");
+    })
+    //确认导出
+    function AcceptClick() {
+        var SelectedField = ""; $('#AccessView .selected a').each(function () { SelectedField += $(this).attr('id') + ","; });
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel?ExportField=" + escape(SelectedField);
+            Loading(false);
+        }, 200);
+    }
+</script>
+<div class="note-prompt" style="margin: 1px;">
+    温馨提示：选中复选框即可导出相应字段，取消选中则回收相应字段。
+</div>
+<div class="border" style="margin: 1px;">
+    <div class="btnbartitle">
+        <div style="float: left">
+            系统视图 <span class="ModuleName"></span>
+        </div>
+        <div style="float: right">
+            <label id="CheckView" class="checkAllOff" title="全选">全选</label>
+        </div>
+    </div>
+    <div style="height: 225px; overflow: auto;">
+        <ul id="AccessView" class="sys_spec_text">
+        </ul>
+    </div>
+</div>

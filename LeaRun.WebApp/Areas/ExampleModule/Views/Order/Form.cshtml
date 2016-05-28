@@ -1,0 +1,427 @@
+﻿@{
+    ViewBag.Title = "订单管理》表单页面";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');
+    $(function () {
+        GetGrid();
+        SupplierAutocomplete();
+        SalesmanAutocomplete();
+        if (!!KeyValue) {
+            //主表信息
+            AjaxJson("/ExampleModule/Order/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+                $("#ModifyUserName").val("@LeaRun.Utilities.ManageProvider.Provider.Current().UserName");
+                $("#ModifyDate").val("@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")");
+            });
+            var rowindex = 1;
+            //明细信息
+            AjaxJson("/ExampleModule/Order/GetOrderEntryList", { POOrderId: KeyValue }, function (data) {
+                var JsonData = data.rows;
+                $.each(JsonData, function (i) {
+                    var rowData = JsonData[i];
+                    $("#ItemId➩" + rowindex).val(rowData.ItemId);
+                    $("#ItemCode➩" + rowindex).val(rowData.ItemCode);
+                    $("#ItemName➩" + rowindex).val(rowData.ItemName);
+                    $("#ItemModel➩" + rowindex).val(rowData.ItemModel);
+                    $("#UnitId➩" + rowindex).val(rowData.UnitId);
+                    $("#Qty➩" + rowindex).val(rowData.Qty);
+                    $("#Price➩" + rowindex).val(rowData.Price);
+                    $("#PriceAmount➩" + rowindex).val(rowData.PriceAmount);
+                    $("#PlusPrice➩" + rowindex).val(rowData.PlusPrice);
+                    $("#CESS➩" + rowindex).val(rowData.CESS);
+                    $("#CESSAmount➩" + rowindex).val(rowData.CESSAmount);
+                    $("#PlusPriceAmount➩" + rowindex).val(rowData.PlusPriceAmount);
+                    $("#gridTable tbody tr:eq(" + rowindex + ")").find('input').attr("datacol", "yes");
+                    Conversion(rowindex);
+                    rowindex++;
+                    $("#gridTable tbody tr:eq(" + rowindex + ")").find('input').removeAttr('disabled');
+                    $("#gridTable").find('.disabled').attr("disabled", "disabled");
+                    $("#ItemCode➩" + rowindex).focus();
+                });
+            });
+            if (GetQuery("motionType") == 0) {
+                $("#button_Commit_Save").attr({ "disabled": "disabled" }).attr('onclick', '');
+                $('input,select,textarea').attr({ "disabled": "disabled" });
+            }
+        }
+    })
+    //供应商自动补全
+    function SupplierAutocomplete() {
+        var $SupplierId = $("#SupplierId");
+        $SupplierId.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("SupplierId", function (data) {
+            $("#SupplierId").val(data.SupplierName)
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/ExampleModule/Order/GetSupplierListJson", { keywords: $SupplierId.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SupplierId" style="display: none;">' + DataJson[i].SupplierId + '</td>';
+                    html += '<td id="SupplierName" style="width: 100%;">' + DataJson[i].SupplierName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("SupplierId", $SupplierId.width() + "px", "200px", html, function (data) {
+                    $("#SupplierId").val(data.SupplierName)
+                });
+            });
+        }
+    }
+    //采购员自动补全
+    function SalesmanAutocomplete() {
+        var $Salesman = $("#Salesman");
+        $Salesman.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("Salesman", function (data) {
+            $("#Salesman").val(data.RealName)
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/User/Autocomplete", { keywords: $Salesman.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="UserId" style="display: none;">' + DataJson[i].userid + '</td>';
+                    html += '<td id="Code" style="width: 60px;">' + DataJson[i].code + '</td>';
+                    html += '<td id="RealName" style="width: 80px;">' + DataJson[i].realname + '</td>';
+                    html += '<td id="DepartmentName">' + DataJson[i].departmentname + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("Salesman", $Salesman.width() + "px", "200px", html, function (data) {
+                    $("#Salesman").val(data.RealName)
+                });
+            });
+        }
+    }
+    /*明细begin=======================================*/
+    //采购订单分录
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            datatype: "local",
+            height: $(window).height() - 290,
+            autowidth: true,
+            colModel: [
+                { label: '物料代码[<font face="宋体">*</font>]', name: "ItemCode", width: 100, sortable: false },
+                { label: '物料名称', name: "ItemName", width: 200, sortable: false },
+                { label: '规格型号', name: "ItemModel", width: 80, sortable: false, align: 'center' },
+                { label: '单位', name: "UnitId", width: 70, sortable: false, align: 'center' },
+                { label: '数量[<font face="宋体">*</font>]', name: 'Qty', width: 70, sortable: false, align: 'center' },
+                { label: '单价[<font face="宋体">*</font>]', name: 'Price', width: 70, sortable: false, align: 'center' },
+                { label: '金额[<font face="宋体">*</font>]', name: 'PriceAmount', width: 70, sortable: false, align: 'center' },
+                { label: '含税单价[<font face="宋体">*</font>]', name: 'PlusPrice', width: 70, sortable: false, align: 'center' },
+                { label: '税率(%)[<font face="宋体">*</font>]', name: 'CESS', width: 70, sortable: false, align: 'center' },
+                { label: '税额', name: 'CESSAmount', width: 70, sortable: false, align: 'center' },
+                { label: '含税金额[<font face="宋体">*</font>]', name: 'PlusPriceAmount', width: 70, sortable: false, align: 'center' },
+                { label: '说明', name: 'Description', width: 384, sortable: false }
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "ItemCode": "合计",
+                    "Qty": "<span id='TotalQty'>0</span>",
+                    "Price": "<span id='TotalPrice'>0.00</span>",
+                    "PriceAmount": "<span id='TotalPriceAmount'>0.00</span>",
+                    "PlusPrice": "<span id='TotalPlusPrice'>0.00</span>",
+                    "CESSAmount": "<span id='TotalCESSAmount'>0.00</span>",
+                    "PlusPriceAmount": "<span id='TotalPlusPriceAmount'>0.00</span>"
+                });
+            }
+        });
+        //表头合并
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+              { startColumnName: 'ItemCode', numberOfColumns: 4, titleText: '物料信息' },
+              { startColumnName: 'Qty', numberOfColumns: 7, titleText: '价格信息' }
+            ]
+        });
+        //默认添加30行 空行
+        for (var i = 1; i < 31; i++) {
+            var rowdata = {
+                ItemCode: '<input readonly id="ItemCode➩' + i + '" class="editable" type="text" style="cursor:pointer" datacol="no" err="物料编码" checkexpession="NotNull" /><input id="ItemId➩' + i + '" type="hidden" />',
+                ItemName: '<input id="ItemName➩' + i + '" class="editable disabled" type="text" />',
+                ItemModel: '<input id="ItemModel➩' + i + '" class="editable disabled center" type="text" />',
+                UnitId: '<input id="UnitId➩' + i + '" class="editable disabled center" type="text" />',
+                Qty: '<input id="Qty➩' + i + '" class="editable decimal center" type="text" onkeyup="Conversion(' + i + ')" datacol="No" err="数量" checkexpession="Double" />',
+                Price: '<input id="Price➩' + i + '" class="editable decimal center" type="text" onkeyup="Conversion(' + i + ')" datacol="No" err="单价" checkexpession="Double" />',
+                PriceAmount: '<input id="PriceAmount➩' + i + '" class="editable decimal center" type="text" datacol="No" err="金额" checkexpession="Double" />',
+                PlusPrice: '<input id="PlusPrice➩' + i + '" class="editable disabled center" type="text" />',
+                CESS: '<input id="CESS➩' + i + '" class="editable decimal center" type="text" onkeyup="Conversion(' + i + ')" datacol="No" err="税率(%)" checkexpession="Double" />',
+                CESSAmount: '<input id="CESSAmount➩' + i + '" class="editable decimal disabled center" type="text" />',
+                PlusPriceAmount: '<input id="PlusPriceAmount➩' + i + '" class="editable decimal center" type="text" datacol="No" err="含税金额" checkexpession="Double" />',
+                Description: '<input id="Description➩' + i + '" class="editable" type="text" />',
+            }
+            $('#gridTable').jqGrid('addRowData', i, rowdata);
+        }
+        //金额设置居中、设置只能输入金额格式
+        $("#gridTable").find('.decimal').attr('onfocus', 'IsMoney(this.id)');
+        $("#gridTable").find('.center').css('text-align', 'center')
+        $("#gridTable").find('input').attr("disabled", "disabled");
+        $("#gridTable tbody tr:eq(1)").find('input').removeAttr('disabled').attr("datacol", "yes");
+        $("#gridTable").find('.disabled').attr("disabled", "disabled");
+        $('.jqgrid-rownum').attr('title', '双击清空一行');
+        //点击物料编码文本框时间，弹出选择物料信息
+        $("#gridTable tbody tr").find('td:eq(1)').find('input').click(function () {
+            if ($(this).attr('disabled') == 'disabled') {
+                return false;
+            }
+            var index = $(this).attr('id').split('➩')[1];
+            var url = "/ExampleModule/Order/ItemList?index=" + index;
+            Dialog(url, "ItemList", "选取物料信息（双击表格添加）", 900, 400);
+        });
+        //价格信息文本框点击事件
+        $("#gridTable").find('.decimal').click(function () {
+            $(this).select();
+        });
+    }
+    var array = new Array();
+    function IsExistItem(index, code) {
+        if (!ArrayExists(array, code)) {
+            array[index] = code;
+            return false;
+        } else {
+            return true;
+        }
+    }
+    //采购订单明细换算+合计
+    function Conversion(index) {
+        var Qty = $("#Qty➩" + index).val();                                //数量
+        var Price = $("#Price➩" + index).val();                            //单价
+        var PriceAmount = $("#PriceAmount➩" + index).val();                //金额
+        var PlusPrice = $("#PlusPrice➩" + index).val();                    //含税单价
+        var CESS = $("#CESS➩" + index).val();                              //税率(%)
+        var CESSAmount = $("#CESSAmount➩" + index).val();                  //税额
+        var PlusPriceAmount = $("#PlusPriceAmount➩" + index).val();        //含税金额 
+        //数量*单价=金额
+        $("#PriceAmount➩" + index).val(FormatCurrency(Qty * Price));
+        //单价 * (1 + (税率 / 100))=含税单价
+        $("#PlusPrice➩" + index).val(FormatCurrency(Price * (1 + (CESS / 100))));
+        //(含税单价-单价)*数量=税额
+        $("#CESSAmount➩" + index).val(FormatCurrency(($("#PlusPrice➩" + index).val() - Price) * Qty));
+        //数量*含税单价=含税金额
+        $("#PlusPriceAmount➩" + index).val(FormatCurrency(Qty * $("#PlusPrice➩" + index).val()));
+        //统计合计
+        var TotalQty = 0, TotalPrice = 0.00, TotalPriceAmount = 0.00, TotalPlusPrice = 0.00, TotalCESSAmount = 0.00, TotalPlusPriceAmount = 0.00;
+        $("#gridTable tbody tr").each(function (i) {
+            var Qty = $(this).find('td:eq(5)').find('input').val();
+            if (Qty != "" && Qty != undefined) {
+                TotalQty += Number(Qty);
+            }
+            var Price = $(this).find('td:eq(6)').find('input').val();
+            if (Price != "" && Qty != undefined) {
+                TotalPrice += Number(Price);
+            }
+            var PriceAmount = $(this).find('td:eq(7)').find('input').val();
+            if (PriceAmount != "" && Qty != undefined) {
+                TotalPriceAmount += Number(PriceAmount);
+            }
+            var PlusPrice = $(this).find('td:eq(8)').find('input').val();
+            if (PlusPrice != "" && Qty != undefined) {
+                TotalPlusPrice += Number(PlusPrice);
+            }
+            var CESSAmount = $(this).find('td:eq(10)').find('input').val();
+            if (CESSAmount != "" && Qty != undefined) {
+                TotalCESSAmount += Number(CESSAmount);
+            }
+            var PlusPriceAmount = $(this).find('td:eq(11)').find('input').val();
+            if (PlusPriceAmount != "" && Qty != undefined) {
+                TotalPlusPriceAmount += Number(PlusPriceAmount);
+            }
+        });
+        $("#TotalQty").text(TotalQty);
+        $("#TotalPrice").text(FormatCurrency(TotalPrice));
+        $("#TotalPriceAmount").text(FormatCurrency(TotalPriceAmount));
+        $("#TotalPlusPrice").text(FormatCurrency(TotalPlusPrice));
+        $("#TotalCESSAmount").text(FormatCurrency(TotalCESSAmount));
+        $("#TotalPlusPriceAmount").text(FormatCurrency(TotalPlusPriceAmount));
+    }
+    /*明细end=======================================*/
+    //保存事件
+    function SubmitOrderForm() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        confirmDialog('提示', '注：您确认要保存此操作吗？', function (r) {
+            if (r) {
+                Loading(true, "正在提交数据...");
+                window.setTimeout(function () {
+                    var postData = GetWebControls("#tb_POOrderFrom");
+                    postData["POOrderEntryJson"] = GetTableDataJson("#gridTable");
+                    AjaxJson("/ExampleModule/Order/SubmitOrderForm?KeyValue=" + KeyValue, postData, function (data) {
+                        tipDialog(data.Message, 3, data.Code);
+                        ThisCloseTab();
+                    });
+                }, 200);
+            }
+        });
+    }
+</script>
+<form id="form1">
+    <div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+        <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+            <a id="lr-replace" class="tools_btn" title="刷新当前(Ctrl+Q)" onclick="Replace()"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/arrow_refresh.png")) no-repeat 50% 4px;'>刷新</b></span></a>
+            <div class="tools_separator"></div>
+            <a id="button_first_bills" title="最前面单据" onclick="first_bills()" class="tools_btn"><span><b style="background: url(@Url.Content("~/Content/Images/Icon16/resultset_first.png")) 50% 4px no-repeat;">最前</b></span></a>
+            <a id="button_prev_bills" title="前面单单" onclick="prev_bills()" class="tools_btn"><span><b style="background: url(@Url.Content("~/Content/Images/Icon16/resultset_previous.png")) 50% 4px no-repeat;">前单</b></span></a>
+            <a id="button_next_bills" title="后面单单" onclick="next_bills()" class="tools_btn"><span><b style="background: url(@Url.Content("~/Content/Images/Icon16/resultset_next.png")) 50% 4px no-repeat;">后单</b></span></a>
+            <a id="button_last_bills" title="最后面单据" onclick="last_bills()" class="tools_btn"><span><b style="background: url(@Url.Content("~/Content/Images/Icon16/resultset_last.png")) 50% 4px no-repeat;">最后</b></span></a>
+            <a id="button_Commit_Save" title="保存单据" onclick="SubmitOrderForm()" class="tools_btn"><span><b style="background: url(@Url.Content("~/Content/Images/Icon16/disk.png")) 50% 4px no-repeat;">保存</b></span></a>
+            <div class="tools_separator"></div>
+            <a title="关闭当前窗口(Esc)" onclick="ThisCloseTab()" class="tools_btn"><span><b style="background: url(@Url.Content("~/Content/Images/Icon16/back.png")) 50% 4px no-repeat;">离开</b></span></a>
+        </div>
+        <table id="tb_POOrderFrom" class="form-bill">
+            <tr>
+                <td align="center" colspan="8">
+                    <div style="font-family: 华文楷体; font-size: x-large; height: 60px; line-height: 60px;">
+                        采购订单&nbsp;
+                            <img src="~/Content/Images/billstatis1.png" style="vertical-align: middle;" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>供应商[<font face="宋体">*</font>]：
+                </th>
+                <td>
+                    <input id="SupplierId" type="text" class="txt" datacol="yes" err="供应商" checkexpession="NotNull" style="width: 95%" />
+                </td>
+                <th>制单日期[<font face="宋体">*</font>]：
+                </th>
+                <td>
+                    <input id="BillDate" type="text" class="txt" datacol="yes" err="制单日期" checkexpession="NotNull" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss' })" style="width: 95%" />
+                </td>
+                <th>制单编号[<font face="宋体">*</font>]：
+                </th>
+                <td>
+                    <input readonly id="BillNo" type="text" class="txt" datacol="yes" err="制单编号" checkexpession="NotNull" value="@ViewBag.BillNo" style="width: 95%" />
+                </td>
+                <th>采购方式[<font face="宋体">*</font>]：
+                </th>
+                <td>
+                    <select id="Method" class="select" datacol="yes" err="采购方式" checkexpession="NotNull" style="width: 96%">
+                        <option value="">==请选择==</option>
+                        <option value="现购">现购</option>
+                        <option value="赊购">赊购</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>币别[<font face="宋体">*</font>]：
+                </th>
+                <td>
+                    <select id="Currency" class="select" datacol="yes" err="币别" checkexpession="NotNull" style="width: 96%">
+                        <option value="RMB">人民币</option>
+                        <option value="HK">港币</option>
+                        <option value="USD">美元</option>
+                        <option value="EUR">欧元</option>
+                    </select>
+                </td>
+                <th>汇率[<font face="宋体">*</font>]：
+                </th>
+                <td>
+                    <input readonly id="ExchangeRate" type="text" class="txt" value="0.00" style="width: 95%" />
+                </td>
+                <th>结算方式[<font face="宋体">*</font>]：
+                </th>
+                <td>
+                    <select id="Clearing" class="select" style="width: 96%" datacol="yes" err="结算方式" checkexpession="NotNull">
+                        <option selected="selected" value="">==请选择==</option>
+                        <option value="现金">现金</option>
+                        <option value="电汇">电汇</option>
+                        <option value="信汇">信汇</option>
+                        <option value="商业汇票">商业汇票</option>
+                        <option value="银行汇票">银行汇票</option>
+                        <option value="支票">支票</option>
+                        <option value="月结">月结</option>
+                        <option value="3月结">3月结</option>
+                    </select>
+                </td>
+                <th>结算日期：
+                </th>
+                <td>
+                    <input id="ClearingTime" type="text" class="txt" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss' })" style="width: 95%" />
+                </td>
+            </tr>
+            <tr>
+                <th>采购员[<font face="宋体">*</font>]：
+                </th>
+                <td>
+                    <input id="Salesman" type="text" class="txt" style="width: 95%" datacol="yes" err="采购员" checkexpession="NotNull" />
+                </td>
+                <th>制单员[<font face="宋体">*</font>]：
+                </th>
+                <td>
+                    <input readonly id="CreateUserName" type="text" class="txt" style="width: 95%" value="@ViewBag.CreateUserName" />
+                </td>
+                <th>变更员：
+                </th>
+                <td>
+                    <input readonly id="ModifyUserName" type="text" class="txt" style="width: 95%" value="@ViewBag.ModifyUserName" />
+                </td>
+                <th>变更日期：
+                </th>
+                <td>
+                    <input readonly id="ModifyDate" type="text" class="txt" style="width: 95%" value="@ViewBag.ModifyDate" />
+                </td>
+            </tr>
+            <tr>
+                <th>备注：
+                </th>
+                <td colspan="7">
+                    <input id="Remark" type="text" class="txt" style="width: 99%" />
+                </td>
+            </tr>
+        </table>
+        <div id="grid_List">
+            <table id="gridTable"></table>
+            <style>
+                .ui-widget-content {
+                    border-left: none;
+                }
+
+                .ui-jqgrid tr.ui-row-ltr td {
+                    padding: 0px;
+                    border-bottom: 1px solid #ccc;
+                }
+
+                .ui-jqgrid .ui-jqgrid-htable th {
+                    line-height: 15px;
+                }
+
+                    .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+                        background: none;
+                    }
+
+                .editable {
+                    height: 22px;
+                    background-color: #fff;
+                }
+            </style>
+        </div>
+    </div>
+</form>

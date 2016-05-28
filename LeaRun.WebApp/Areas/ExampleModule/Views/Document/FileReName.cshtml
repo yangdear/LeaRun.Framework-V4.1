@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "文件中心管理/文件重命名";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');
+    var Extension = /\.[^\.]+/.exec(GetQuery('FullName'));
+    var FileName = GetQuery('FullName').replace(Extension, '');
+    $(function () {
+        $("#FileName").val(FileName);
+        $("#FileName").focus();
+        $("#FileName").select();
+    })
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = {
+                KeyValue: KeyValue,
+                FileName: $("#FileName").val() + Extension,
+            }
+            AjaxJson("/ExampleModule/Document/SubmitFileReName", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 25px; margin-left: 40px; margin-right: 40px;">
+    <div style="padding-bottom: 5px;">请您输入文件名称</div>
+    <div>
+        <input id="FileName" type="text" class="keyword" datacol="yes" err="文件名称" checkexpession="NotNull" style="width: 100%" />
+    </div>
+</form>
+
+

@@ -1,0 +1,259 @@
+﻿@{
+    ViewBag.Title = "用户管理》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script src="~/Content/Scripts/jquery/jQuery.md5.js"></script>
+<script>
+    var KeyValue = GetQuery('KeyValue');
+    var gender = GetQuery('gender');
+    /*基本信息begin=====================================*/
+    $(function () {
+        if (gender == "男") {
+            $("#imgGender").attr('src', '/Content/Images/man.png')
+        }
+        else {
+            $("#imgGender").attr('src', '/Content/Images/woman.png')
+        }
+        InitControl();
+    })
+    //初始化个人信息
+    function InitControl() {
+        //工作性质
+        BindDropItem("#WorkingProperty", "WorkingProperty", "未填");
+        //职务
+        BindDropItem("#Duty", "Duty", "未填");
+        //学历
+        BindDropItem("#Education", "Education", "未填");
+        //最高学位
+        BindDropItem("#Degree", "Degree", "未填");
+        //职业资格
+        BindDropItem("#Competency", "Professional", "未填");
+        AjaxJson("/CommonModule/User/SetUserForm", { KeyValue: KeyValue }, function (data) {
+            $("#UserName").html(data.RealName + "(" + data.Code + ")");
+            SetWebControls(data);
+            BindDepartment(); $("#DepartmentId").val(data.DepartmentId);
+        });
+        $("#tb_basic tr").each(function () {
+            $(this).find('td').find('input,select,textarea').each(function () {
+                var pk_id = $(this).attr('id');
+                if (pk_id == "DepartmentId") {
+                    $("#" + pk_id).parent().html($("#DepartmentId").find("option:selected").text());
+                } else if (pk_id == "WorkingProperty") {
+                    $("#" + pk_id).parent().html($("#WorkingProperty").find("option:selected").text());
+                } else if (pk_id == "Duty") {
+                    $("#" + pk_id).parent().html($("#Duty").find("option:selected").text());
+                } else if (pk_id == "Education") {
+                    $("#" + pk_id).parent().html($("#Education").find("option:selected").text());
+                } else if (pk_id == "Degree") {
+                    $("#" + pk_id).parent().html($("#Degree").find("option:selected").text());
+                } else if (pk_id == "Competency") {
+                    $("#" + pk_id).parent().html($("#Competency").find("option:selected").text());
+                } else if (pk_id == "IsDimission") {
+                    if ($(this).val() == 1) {
+                        $("#" + pk_id).parent().html("在职");
+                    } else {
+                        $("#" + pk_id).parent().html('离职');
+                    }
+                } else {
+                    $("#" + pk_id).parent().html($(this).val());
+                }
+            })
+        });
+    }
+    //部门下拉框
+    function BindDepartment() {
+        $("#DepartmentId").html("");
+        AjaxJson("/CommonModule/Department/ListJson", { CompanyId: $("#CompanyId").val() }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DepartmentId").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].fullname));
+            });
+        })
+    }
+    /*基本信息end=====================================*/
+
+    /*拥有权限begin=====================================*/
+    $(function () {
+        ModulePermissionTree();
+        ButtonePermissionTree();
+        ViewPermissionTree();
+    })
+    //模块权限
+    function ModulePermissionTree() {
+        var itemtree = {
+            url: "@Url.Content("~/CommonModule/Permission/LookModulePermission")?ObjectId=" + KeyValue
+        };
+        $("#ModulePermission").treeview(itemtree);
+    }
+    //按钮权限
+    function ButtonePermissionTree() {
+        var itemtree = {
+            url: "@Url.Content("~/CommonModule/Permission/LookButtonePermission")?ObjectId=" + KeyValue
+        };
+        $("#ButtonePermission").treeview(itemtree);
+    }
+    //视图权限
+    function ViewPermissionTree() {
+        var itemtree = {
+            url: "@Url.Content("~/CommonModule/Permission/LookViewPermission")?ObjectId=" + KeyValue
+        };
+        $("#ViewPermission").treeview(itemtree);
+    }
+    /*拥有权限end=====================================*/
+
+</script>
+<div class="border" style="margin: 1px; height: 40px; line-height: 40px; padding-left: 5px; background: #FFFDCD;">
+    <img id="imgGender" src="" style="width: 38px; height: 38px;vertical-align: middle; margin-bottom:5px;" />
+    <span id="UserName" style="font-weight: bold; font-family: 'Roboto', sans-serif; color: #666;"></span>
+</div>
+<div class="bd" style="border-bottom: none; margin: 1px;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+            <div id="TabPermissionTree" class="tab_list bd " onclick="Tabchange('PermissionTree')">拥有权限</div>
+        </div>
+    </div>
+</div>
+<div class="ScrollBar" style="margin: 1px">
+    <!--基本信息-->
+    <div id="basic" class="tabPanel">
+        <table id="tb_basic" class="form">
+            <tr>
+                <th class="formTitle">工号：</th>
+                <td class="formValue">
+                    <input id="Code" type="text" class="txt" /></td>
+                <th class="formTitle">姓名：</th>
+                <td class="formValue">
+                    <input id="RealName" type="text" class="txt" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">联系手机：</th>
+                <td class="formValue">
+                    <input id="Mobile" type="text" class="txt" /></td>
+                <th class="formTitle">联系电话：</th>
+                <td class="formValue">
+                    <input id="Telephone" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class="formTitle">电子邮箱：</th>
+                <td class="formValue">
+                    <input id="Email" type="text" class="txt" />
+                </td>
+                <th class="formTitle">QQ号码：</th>
+                <td class="formValue">
+                    <input id="OICQ" type="text" class="txt" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">所在公司：</th>
+                <td class="formValue">
+                    <input id="CompanyName" type="text" class="txt" />
+                </td>
+                <th class="formTitle">所在部门：</th>
+                <td class="formValue">
+                    <select id="DepartmentId" class="txtselect">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">工作性质：</th>
+                <td class="formValue">
+                    <select id="WorkingProperty" class="txtselect">
+                    </select>
+                </td>
+                <th class="formTitle">入职日期：</th>
+                <td class="formValue">
+                    <input id="WorkingDate" type="text" class="txt" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">身份证号：</th>
+                <td class="formValue">
+                    <input id="IDCard" type="text" class="txt" />
+                </td>
+                <th class="formTitle">担任职务：</th>
+                <td class="formValue">
+                    <select id="Duty" class="txtselect">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">最高学历：</th>
+                <td class="formValue">
+                    <select id="Education" class="txtselect">
+                    </select>
+                </td>
+                <th class="formTitle">最高学位：</th>
+                <td class="formValue">
+                    <select id="Degree" class="txtselect">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">所学专业：</th>
+                <td class="formValue">
+                    <input id="Major" type="text" class="txt" />
+                </td>
+                <th class="formTitle">毕业院校：
+                </th>
+                <td class="formValue">
+                    <input id="School" type="text" class="txt" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">毕业时间：</th>
+                <td class="formValue">
+                    <input id="GraduationDate" type="text" class="txt" />
+                </td>
+                <th class="formTitle">职业资格：</th>
+                <td class="formValue">
+                    <select id="Competency" class="txtselect">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">紧急联系：</th>
+                <td class="formValue">
+                    <input id="EmergencyContact" type="text" class="txt" />
+                </td>
+                <th class="formTitle">在职：</th>
+                <td class="formValue">
+                    <input id="IsDimission" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class="formTitle">说明：
+                </th>
+                <td class="formValue" colspan="3">
+                    <input id="Remark" type="text" class="txt" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!--拥有权限-->
+    <div id="PermissionTree" class="tabPanel" style="display: none;">
+        <div class="border" style="float: left; width: 246px; margin-right: 1px; height: 318px;">
+            <div class="btnbartitle">
+                <div>
+                    模块权限
+                </div>
+            </div>
+            <div id="ModulePermission" style="height: 290px; overflow: auto"></div>
+        </div>
+        <div class="border" style="float: left; width: 247px; margin-right: 1px; height: 318px;">
+            <div class="btnbartitle">
+                <div>
+                    按钮权限
+                </div>
+            </div>
+            <div id="ButtonePermission" style="height: 290px; overflow: auto"></div>
+        </div>
+        <div class="border" style="float: left; width: 247px; height: 318px;">
+            <div class="btnbartitle">
+                <div>
+                    视图权限
+                </div>
+            </div>
+            <div id="ViewPermission" style="height: 290px; overflow: auto"></div>
+        </div>
+    </div>
+</div>

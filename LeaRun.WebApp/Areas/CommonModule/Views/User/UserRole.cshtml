@@ -1,0 +1,86 @@
+﻿@{
+    ViewBag.Title = "用户管理》用户角色";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    var CompanyId = GetQuery('CompanyId');                //公司主键
+    var UserId = GetQuery('UserId');                      //用户主键
+    $(function () {
+        GetList();
+    })
+    //加载角色
+    function GetList() {
+        getAjax("/CommonModule/User/UserRoleList", { CompanyId: CompanyId, UserId: UserId }, function (data) {
+            $(".sys_spec_text").html(data);
+        });
+        $("#RoleList li").click(function () {
+            if (!$(this).attr('disabled')) {
+                if (!!$(this).hasClass("selected")) {
+                    $(this).removeClass("selected");
+                } else {
+                    $(this).addClass("selected").siblings("li");
+                }
+            }
+        });
+        //自定义复选框 全选/反选
+        $("#CheckButton").click(function () {
+            if (!!$(this).hasClass("checkAllOff")) {
+                $(this).attr('title', '反选');
+                $(this).text('反选');
+                $(this).attr('class', 'checkAllOn');
+                $('.sys_spec_text li').addClass('selected');
+            } else {
+                $(this).attr('title', '全选');
+                $(this).text('全选');
+                $(this).attr('class', 'checkAllOff');
+                $('.sys_spec_text li').removeClass('selected');
+            }
+        });
+        //模糊查询角色（注：这个方法是理由jquery查询）
+        $("#txt_Search").keyup(function () {
+            if ($(this).val() != "") {
+                var Search = $(this).val();
+                window.setTimeout(function () {
+                    $(".sys_spec_text li")
+                     .hide()
+                     .filter(":contains('" + (Search) + "')")
+                     .show();
+                }, 100);
+            } else {
+                $(".sys_spec_text li").show();
+            }
+        }).keyup();
+    }
+    //保存事件
+    function AcceptClick() {
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var ObjectId = ""; $('.sys_spec_text .selected a').each(function () { ObjectId += $(this).attr('id') + ","; });
+            var postData = { UserId: UserId, ObjectId: ObjectId }
+            AjaxJson("/CommonModule/User/UserRoleSubmit", postData, function (data) {
+                Loading(false);
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<div class="note-prompt" style="margin: 1px;">
+    温馨提示：选中复选框即可授予相应权限，取消选中则回收相应权限。
+</div>
+<div class="border" style="margin: 1px;">
+    <div class="btnbartitle">
+        <div style="float: left">
+            角色查询：
+            <input id="txt_Search" type="text" class="btnbartitleinput" style="width: 120px;" />
+        </div>
+        <div style="float: right">
+            <label id="CheckButton" class="checkAllOff" title="全选">全选</label>
+        </div>
+    </div>
+    <div class="ScrollBar" id="RoleList" style="height: 275px;">
+        <ul class="sys_spec_text">
+        </ul>
+    </div>
+</div>

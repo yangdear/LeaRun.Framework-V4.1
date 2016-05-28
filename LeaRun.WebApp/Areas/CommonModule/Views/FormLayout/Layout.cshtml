@@ -1,0 +1,93 @@
+﻿@{
+    ViewBag.Title = "系统表单》表单设计布局";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script>
+    $(function () {
+        $('.ScrollBar').height($(window).height() - 4);
+        var _move = false;//移动标记  
+        var _x, _y;//鼠标离控件左上角的相对位置  
+        $(".drag").click(function () {
+            //alert("click");//点击（松开后触发）  
+        }).mousedown(function (e) {
+            _move = true;
+            _x = e.pageX - parseInt($(".drag").css("left"));
+            _y = e.pageY - parseInt($(".drag").css("top"));
+            $(".drag").fadeTo(20, 0.5);//点击后开始拖动并透明显示  
+        });
+        $(document).mousemove(function (e) {
+            if (_move) {
+                var x = e.pageX - _x;//移动时根据鼠标位置计算控件左上角的绝对位置  
+                var y = e.pageY - _y;
+                $(".drag").css({ top: y, left: x });//控件新位置  
+            }
+        }).mouseup(function () {
+            _move = false;
+            $(".drag").fadeTo("fast", 1);//松开鼠标后停止移动并恢复成不透明  
+        });
+    })
+</script>
+<style type="text/css">
+    /*模块拖拽*/
+    .drag {
+        position: absolute;
+        width: 100px;
+        height: 20px;
+        line-height: 20px;
+        border: 1px solid red;
+        top: 100px;
+        left: 20px;
+        cursor: move;
+    }
+</style>
+<div class="border" style="margin: 1px;">
+     <input class="drag" type="text"  />
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+        <tr>
+            <td style="width: 20%">
+                <div class="ScrollBar rightline">
+                    <div class="bd" style="border: none;">
+                        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                            <div class="tab_list_top" style="position: absolute">
+                                <div class="tab_list bd actived">表单控件</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 5px;">
+                        <div class="border" style="padding: 5px; margin-bottom: 5px; cursor: pointer;">添加2列表格</div>
+                        <div class="border" style="padding: 5px; margin-bottom: 5px; cursor: pointer;">添加4列表格</div>
+                        <div class="border" style="padding: 5px; margin-bottom: 5px; cursor: pointer;">添加文本框</div>
+                        <div class="border" style="padding: 5px; margin-bottom: 5px; cursor: pointer;">添加日期框</div>
+                        <div class="border" style="padding: 5px; margin-bottom: 5px; cursor: pointer;">添加下拉框</div>
+                        <div class="border" style="padding: 5px; margin-bottom: 5px; cursor: pointer;">添加文本区</div>
+                    </div>
+                </div>
+            </td>
+            <td style="width: 60%">
+                <div class="ScrollBar rightline">
+                    <div class="bd" style="border: none;">
+                        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                            <div class="tab_list_top" style="position: absolute">
+                                <div class="tab_list bd actived">表单设计主窗体</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="MainFormCenter" style="padding: 5px;">
+                        @Html.Raw(ViewBag.BuildFormTable)
+                    </div>
+                </div>
+            </td>
+            <td style="width: 20%">
+                <div class="ScrollBar ">
+                    <div class="bd" style="border: none;">
+                        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                            <div class="tab_list_top" style="position: absolute">
+                                <div class="tab_list bd actived">控件属性</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

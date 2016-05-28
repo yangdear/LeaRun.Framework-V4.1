@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Title = "单据编码管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetGrid();
+    });
+
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/CodeRule/ListJson")",
+            datatype: "json",
+            height: $(window).height() - 106,
+            autowidth: true,
+            colModel: [
+                { label: "主键", name: "CodeRuleId", index: "CodeRuleId", hidden: true },
+                { label: "编码名称", name: "FullName", index: "FullName", width: 150 },
+                { label: "编码代号", name: "Code", index: "Code", width: 150 },
+                {
+                    label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == 1) return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == 0) return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/CodeRule/Form";
+        openDialog(url, "Form", "新增单据编码规则", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "CodeRuleId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/CodeRule/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑单据编码规则", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "CodeRuleId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/CodeRule/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新表格
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+    <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <div id="grid_List" class="topline" style="margin-top: 1px;">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+<style>
+    .ui-widget-content {
+        border-left: none;
+    }
+</style>

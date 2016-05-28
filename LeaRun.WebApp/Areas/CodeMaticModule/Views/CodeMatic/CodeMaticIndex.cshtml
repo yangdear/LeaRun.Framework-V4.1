@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "代码生成初始化";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        GetRepositoryTree();
+        $(".bbit-tree-node-ct li:first div").addClass('bbit-tree-selected');
+        var tableName = $(".bbit-tree-node-ct li:first div a span").text();
+        var tableCode = $(".bbit-tree-node-ct li:first div").attr('title');
+        iframe_src("iframe_CodeMaticConten", '/CodeMaticModule/CodeMatic/CodeMaticConten?tableCode=' + tableCode + '&tableName=' + escape(tableName));
+    })
+    //加载数据库表信息
+    function GetRepositoryTree() {
+        var root = {
+            "id": "0",
+            "text": "kskf",
+            "value": "0",
+            "img": "/Content/Images/Icon16/database_yellow.png",
+            "isexpand": true,
+            "hasChildren": true
+        };
+        var treedata = [];
+        getAjax("/CodeMaticModule/CodeMatic/GetTableNameTreeJson", "", function (data) {
+            treedata = JSON.parse(data);
+        });
+        var itemtree = {
+            onnodeclick: function (item) {
+                $(".bbit-tree-node-ct li:first div").removeClass('bbit-tree-selected');
+                iframe_src("iframe_CodeMaticConten", '/CodeMaticModule/CodeMatic/CodeMaticConten?tableCode=' + item.value + '&tableName=' + escape(item.text))
+            }
+        };
+        root["ChildNodes"] = treedata;
+        itemtree.data = [root];
+        $("#RepositoryTree").treeview(itemtree);
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                资源管理器（@LeaRun.Utilities.ConfigHelper.AppSettings("CodeMaticMode")）
+            </div>
+        </div>
+        <div class="ScrollBar" id="RepositoryTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <iframe id="iframe_CodeMaticConten" src="" scrolling="auto" frameborder="0" scrolling="yes"
+            width="100%" height="100%"></iframe>
+    </div>
+</div>

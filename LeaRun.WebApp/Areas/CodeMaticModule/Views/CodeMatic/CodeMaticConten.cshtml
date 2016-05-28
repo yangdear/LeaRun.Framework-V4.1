@@ -1,0 +1,710 @@
+﻿@{
+    ViewBag.Title = "代码生成设置";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<!--表单智能向导组件start-->
+<link href="~/Content/Scripts/smartwizard/smart_wizard.css" rel="stylesheet" />
+<script src="~/Content/Scripts/smartwizard/jquery.smartWizard-2.0.min.js" charset="GBK"></script>
+<!--表单智能向导组件end-->
+<!--代码高亮start-->
+<link type="text/css" rel="stylesheet" href="~/Content/Scripts/SyntaxHighlighter/Styles/SyntaxHighlighter.css" />
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shCore.js" type="text/javascript" charset="GBK"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushCpp.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushCSharp.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushCss.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushDelphi.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushJava.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushJScript.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushPhp.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushPython.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushRuby.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushSql.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushVb.js" type="text/javascript"></script>
+<script src="~/Content/Scripts/SyntaxHighlighter/Scripts/shBrushXml.js" type="text/javascript"></script>
+<!--代码高亮end-->
+<script type="text/javascript">
+    var tableCode = GetQuery('tableCode');            //表名
+    var tableName = unescape(GetQuery('tableName'));  //表备注
+    $(function () {
+        $("#ClassName").val(tableName)
+        $("#Entity").val(tableCode + "");
+        $("#Business").val(tableCode + "Bll");
+        $("#PageForm").val("Form");
+        $("#PageFormDetail").val("Detail");
+        $("#PageList").val("Index");
+        $("#Controller").val(tableCode + "Controller");
+
+        $("#adCmdTable").text(tableCode + "|" + tableName)
+        $('#wizard').smartWizard({ onFinish: DownloadCodeBuilder });
+        $('#wizard').width($(window).width());
+        $('#wizard .content').width($(window).width());
+        $('.stepContainer').height($(window).height() - 157);
+        $('#BuildSetup').height($(window).height() - 194);
+        $('.ScrollBar').height($(window).height() - 226);
+
+        var thisindex = 1;
+        $('.buttonNext').click(function () {
+            if ($(this).attr('class') == "buttonNext buttonDisabled") {
+                return false;
+            }
+            thisindex++;
+            if (thisindex == 5) {
+                LoadCodeBuilder()
+            }
+        })
+        $('.buttonPrevious').click(function () {
+            if ($(this).attr('class') == "buttonPrevious buttonDisabled") {
+                return false;
+            }
+            thisindex--;
+        });
+        GetFormList();
+        GetDetailList();
+        GetIndexList();
+    });
+    //加载表单
+    function GetFormList() {
+        $("#gridTable_Form").jqGrid({
+            datatype: "local",
+            height: $(window).height() - 220,
+            width: $(window).width(),
+            colModel: [
+                { label: '属性名称', name: 'PropertyName', width: 100, sortable: false },
+                { label: '控件名称', name: 'ControlId', width: 200, sortable: false },
+                { label: '控件类型', name: 'ControlType', width: 100, sortable: false },
+                { label: '控件样式', name: 'ControlStyle', width: 100, sortable: false },
+                { label: '输入长度', name: 'ImportLength', width: 60, sortable: false, align: 'center' },
+                { label: '合并列', name: 'ControlColspan', width: 60, sortable: false, align: 'center' },
+                { label: '控件验证', name: 'ControlValidator', width: 200, sortable: false },
+                { label: '显示顺序', name: 'SortCode', width: 60, sortable: false, align: 'center' },
+                { label: '是否显示', name: 'Enabled', width: 60, sortable: false, align: 'center' }
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            hoverrows: false,
+        });
+        AjaxJson("/CodeMaticModule/CodeMatic/GetFieldTreeJson", { tableCode: tableCode }, function (JsonData) {
+            var RowIndex = 1;
+            $.each(JsonData, function (i) {
+                var rowData = JsonData[i];
+                var ImportLength = 0;
+                if (rowData.char_col_decl_length != "") {
+                    ImportLength = rowData.char_col_decl_length
+                }
+                var rowhtml = {
+                    PropertyName: '<input id="PropertyName➩Form' + RowIndex + '" value="' + rowData.comments + '" type="text" class="editable" />',
+                    ControlId: '<input id="ControlId➩Form' + RowIndex + '" value="' + rowData.column_Name + '" type="text" class="editable"/>',
+                    ControlType: '<select id="ControlType➩Form' + RowIndex + '" class="editable"><option value="1">文本框</option><option value="2">下拉框</option><option value="3">日期框</option><option value="4">标  签</option><option value="5">多行文本框</option></select>',
+                    ControlStyle: '<select id="ControlStyle➩Form' + RowIndex + '" class="editable"><option value="txt">txt</option><option value="txt required">txt required</option><option value="txt Wdate">txt Wdate</option><option value="txtselect">txtselect</option><option value="txtArea">txtArea</option></select>',
+                    ImportLength: '<input id="ImportLength➩Form' + RowIndex + '" value="' + ImportLength + '" onfocus="IsNumber(this.id)" style="text-align: center;" type="text" class="editable" />',
+                    ControlColspan: '<input id="ControlColspan➩Form' + RowIndex + '" type="text" onkeyup="IsNumber(this.id)" class="editable" />',
+                    ControlValidator: '<select id="ControlValidator➩Form' + RowIndex + '" class="editable"><option value="">==请选择==</option><option value="NotNull">NotNull - 不能为空</option><option value="Num">Num - 必须为数字</option><option value="NumOrNull">NumOrNull - 必须为数字</option><option value="Phone">Phone - 必须电话格式！</option><option value="PhoneOrNull">PhoneOrNull - 必须电话格式！</option><option value="Mobile">Mobile - 必须为手机格式！</option><option value="MobileOrNull">MobileOrNull - 必须为手机格式！</option><option value="MobileOrPhoneOrNull">必须为电话格式或手机格式！</option><option value="Email">Email - 必须为E-mail格式！</option><option value="isEmailOrNull">EmailOrNull - 必须为E-mail格式！</option><option value="Date">Date - 必须为日期格式！</option><option value="DateOrNull">DateOrNull - 必须为日期格式！</option><option value="IDCard">IDCard - 必须为身份证格式！</option><option value="IDCardOrNull">IDCardOrNull - 必须为身份证格式！</option><option value="Double">Double - 必须为小数！</option><option value="DoubleOrNull">DoubleOrNull - 必须为小数！</option></select>',
+                    SortCode: '<input id="SortCode➩Form' + RowIndex + '" type="text" onkeyup="IsNumber(this.id)" style="text-align: center;" class="editable" value="' + RowIndex + '" />',
+                    Enabled: '<input id="Enabled➩Form' + RowIndex + '" index="' + RowIndex + '" class="Formchecked" name="checkbox" type="checkbox" checked="checked" />',
+                }
+                $('#gridTable_Form').jqGrid('addRowData', RowIndex, rowhtml);
+                RowIndex++;
+            });
+        });
+        //是否有效
+        $("#gridTable_Form tbody").find('.Formchecked').click(function () {
+            var index = $(this).attr("index");
+            if ($(this).attr("checked")) {
+                $("#gridTable_Form tbody tr:eq(" + index + ")").find('input,select').show();
+            } else {
+                $("#gridTable_Form tbody tr:eq(" + index + ")").find('input,select').hide();
+                $("#gridTable_Form tbody tr:eq(" + index + ") td:last").find('input').show();
+            }
+        });
+    }
+    //加载表单明细
+    function GetDetailList() {
+        $("#gridTable_Detail").jqGrid({
+            datatype: "local",
+            height: $(window).height() - 220,
+            width: $(window).width(),
+            colModel: [
+                { label: '属性名称', name: 'PropertyName', width: 100, sortable: false },
+                { label: '控件名称', name: 'ControlId', width: 200, sortable: false },
+                { label: '控件类型', name: 'ControlType', width: 100, sortable: false },
+                { label: '合并列', name: 'ControlColspan', width: 60, sortable: false, align: 'center' },
+                { label: '显示顺序', name: 'SortCode', width: 60, sortable: false, align: 'center' },
+                { label: '是否显示', name: 'Enabled', width: 60, sortable: false, align: 'center' }
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            hoverrows: false,
+        });
+        AjaxJson("/CodeMaticModule/CodeMatic/GetFieldTreeJson", { tableCode: tableCode }, function (JsonData) {
+            var RowIndex = 1;
+            $.each(JsonData, function (i) {
+                var rowData = JsonData[i];
+                var rowhtml = {
+                    PropertyName: '<input id="PropertyName➩Detail' + RowIndex + '" value="' + rowData.comments + '" type="text" class="editable" />',
+                    ControlId: '<input id="ControlId➩Detail' + RowIndex + '" value="' + rowData.column_Name + '" type="text" class="editable"/>',
+                    ControlType: '<select id="ControlType➩Detail' + RowIndex + '" class="editable"><option value="4">标  签</option></select>',
+                    ControlColspan: '<input id="ControlColspan➩Detail' + RowIndex + '" type="text" onkeyup="IsNumber(this.id)" class="editable" />',
+                    SortCode: '<input id="SortCode➩Detail' + RowIndex + '" type="text" onkeyup="IsNumber(this.id)" style="text-align: center;" class="editable" value="' + RowIndex + '" />',
+                    Enabled: '<input id="Enabled➩Detail' + RowIndex + '" index="' + RowIndex + '" class="Formchecked" name="checkbox" type="checkbox" checked="checked" />',
+                }
+                $('#gridTable_Detail').jqGrid('addRowData', RowIndex, rowhtml);
+                RowIndex++;
+            });
+        });
+        //是否有效
+        $("#gridTable_Detail tbody").find('.Formchecked').click(function () {
+            var index = $(this).attr("index");
+            if ($(this).attr("checked")) {
+                $("#gridTable_Detail tbody tr:eq(" + index + ")").find('input,select').show();
+            } else {
+                $("#gridTable_Detail tbody tr:eq(" + index + ")").find('input,select').hide();
+                $("#gridTable_Detail tbody tr:eq(" + index + ") td:last").find('input').show();
+            }
+        });
+    }
+    //加载列表
+    function GetIndexList() {
+        $("#gridTable_Index").jqGrid({
+            datatype: "local",
+            height: $(window).height() - 220,
+            width: $(window).width(),
+            colModel: [
+                { label: '标题名称', name: 'label', width: 100, sortable: false },
+                { label: '绑定字段', name: 'name', width: 200, sortable: false },
+                { label: '宽度', name: 'width', width: 60, sortable: false, align: 'center' },
+                { label: '对齐', name: 'align', width: 60, sortable: false, align: 'center' },
+                { label: '是否隐藏', name: 'hidden', width: 60, sortable: false, align: 'center' },
+                { label: '是否排序', name: 'Sortable', width: 60, sortable: false, align: 'center' },
+                { label: '显示顺序', name: 'SortCode', width: 60, sortable: false, align: 'center' },
+                { label: '数据转换如：1-男;0-女', name: 'formatter', width: 300, sortable: false },
+                { label: '是否显示', name: 'Enabled', width: 60, sortable: false, align: 'center' }
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            hoverrows: false,
+        });
+        AjaxJson("/CodeMaticModule/CodeMatic/GetFieldTreeJson", { tableCode: tableCode }, function (JsonData) {
+            var RowIndex = 1;
+            $.each(JsonData, function (i) {
+                var rowData = JsonData[i];
+                var rowhtml = {
+                    label: '<input id="label➩Index' + RowIndex + '" value="' + rowData.comments + '" type="text" class="editable" />',
+                    name: '<input id="name➩Index' + RowIndex + '" value="' + rowData.column_Name + '" type="text" class="editable"/>',
+                    width: '<input id="width➩Index' + RowIndex + '" value="0" type="text" style="text-align: center;" class="editable" />',
+                    align: '<select id="align➩Index' + RowIndex + '" class="editable"><option value="left">left</option><option value="center">center</option><option value="right">right</option></select>',
+                    hidden: '<input id="hidden➩Index' + RowIndex + '" index="' + RowIndex + '"  name="checkbox" type="checkbox" />',
+                    Sortable: '<input id="Sortable➩Index' + RowIndex + '" index="' + RowIndex + '" name="checkbox" type="checkbox" checked="checked" />',
+                    SortCode: '<input id="SortCode➩Index' + RowIndex + '" type="text" onkeyup="IsNumber(this.id)" style="text-align: center;" class="editable" value="' + RowIndex + '" />',
+                    formatter: '<input id="formatter➩Index' + RowIndex + '" type="text" class="editable"/>',
+                    Enabled: '<input id="Enabled➩Index' + RowIndex + '" index="' + RowIndex + '" class="Formchecked" name="checkbox" type="checkbox" checked="checked" />',
+                }
+                $('#gridTable_Index').jqGrid('addRowData', RowIndex, rowhtml);
+                RowIndex++;
+            });
+        });
+        //是否有效
+        $("#gridTable_Index tbody").find('.Formchecked').click(function () {
+            var index = $(this).attr("index");
+            if ($(this).attr("checked")) {
+                $("#gridTable_Index tbody tr:eq(" + index + ")").find('input,select').show();
+            } else {
+                $("#gridTable_Index tbody tr:eq(" + index + ")").find('input,select').hide();
+                $("#gridTable_Index tbody tr:eq(" + index + ") td:last").find('input').show();
+            }
+        });
+    }
+
+
+    /*生成代码===========================*/
+    //查看加载生成代码
+    function LoadCodeBuilder() {
+        Loading(true, "正在生成代码...");
+        window.setTimeout(function () {
+            $('.dp-highlighter').html('');
+            $('.dp-highlighter').remove();
+            BuildEntity();
+            BuildBusiness();
+            BuildFrom();
+            BuildDetail();
+            BuildList();
+            BuildController();
+            Loading(false);
+        }, 200);
+    }
+    //实体类
+    function BuildEntity() {
+        var postData = {
+            ProjectName: "LeaRun.Entity",
+            ClassName: $("#ClassName").val(),
+            EntityName: $("#Entity").val(),
+            table: tableCode,
+        }
+        getAjax("/CodeMaticModule/CodeMatic/GetCodeBuilderEntity", postData, function (data) {
+            $('#Entitycode').val("");
+            $('#Entitycode').val(data).show();
+            dp.SyntaxHighlighter.HighlightAll('Entitycode');
+        });
+    }
+    //业务层
+    function BuildBusiness() {
+        var postData = {
+            ProjectName: "LeaRun.Business",
+            ClassName: $("#ClassName").val(),
+            EntityName: $("#Entity").val(),
+            BusinessName: $("#Business").val(),
+            table: tableCode
+        }
+        getAjax("/CodeMaticModule/CodeMatic/GetCodeBuilderBusiness", postData, function (datacode) {
+            $('#Businesscode').val("");
+            $('#Businesscode').val(datacode).show();
+            dp.SyntaxHighlighter.HighlightAll('Businesscode');
+        });
+    }
+    //表单
+    function BuildFrom() {
+        var postData = {
+            Areas: $('#Areas').val(),
+            ControllerName: $("#Controller").val(),
+            ClassName: $("#ClassName").val(),
+            PageFormName: $("#PageForm").val(),
+            table: tableCode,
+            FromJson: GetTableDataJson("#gridTable_Form"),
+            FormCss: $("#FormCss").val(),
+            ColumnCount: $('#FormLineType').val(),
+        }
+        getAjax("/CodeMaticModule/CodeMatic/GetCodeBuilderFrom", postData, function (datacode) {
+            $('#Formcode').val("");
+            $('#Formcode').val(datacode).show();
+            dp.SyntaxHighlighter.HighlightAll('Formcode');
+        });
+    }
+    //表单明细
+    function BuildDetail() {
+        var postData = {
+            Areas: $('#Areas').val(),
+            ControllerName: $("#Controller").val(),
+            ClassName: $("#ClassName").val(),
+            PageFormDetailName: $("#PageFormDetail").val(),
+            table: tableCode,
+            FromDetailJson: GetTableDataJson("#gridTable_Detail"),
+            FormDetailCss: $("#FormCssDetail").val(),
+            ColumnCount: $('#FormLineTypeDetail').val(),
+        }
+        getAjax("/CodeMaticModule/CodeMatic/GetCodeBuilderFromDetail", postData, function (datacode) {
+            $('#FormDetailcode').val("");
+            $('#FormDetailcode').val(datacode).show();
+            dp.SyntaxHighlighter.HighlightAll('FormDetailcode');
+        });
+    }
+    //列表
+    function BuildList() {
+        var postData = {
+            Areas: $('#Areas').val(),
+            ControllerName: $("#Controller").val(),
+            ClassName: $("#ClassName").val(),
+            PageListName: $("#PageList").val(),
+            table: tableCode,
+            showFieldJson: GetTableDataJson("#gridTable_Index"),
+            AllowOrder: $("#AllowOrder").val(),
+            OrderType: $("#OrderType").val(),
+            OrderField: $("#OrderField").val(),
+            AllowPageing: $("#AllowPageing").val(),
+            pageSize: $("#pageSize").val(),
+            PageLayout: $("#PageLayout").val(),
+            method: "AllowInsert☻" + $("#AllowInsert").attr("checked") + "≌" + "AllowUpdate☻" + $("#AllowUpdate").attr("checked") + "≌" + "AllowDelete☻" + $("#AllowDelete").attr("checked") + "≌" + "AlloLookup☻" + $("#AlloLookup").attr("checked")
+        }
+        getAjax("/CodeMaticModule/CodeMatic/GetCodeBuilderList", postData, function (datacode) {
+            $('#Listcode').val("");
+            $('#Listcode').val(datacode).show();
+            dp.SyntaxHighlighter.HighlightAll('Listcode');
+        });
+    }
+    //控制器
+    function BuildController() {
+        var postData = {
+            Areas: $('#Areas').val(),
+            ClassName: $("#ClassName").val(),
+            ControllerName: $("#Controller").val(),
+            BusinessName: $("#Business").val(),
+            EntityName: $("#Entity").val(),
+            table: tableCode
+        }
+        getAjax("/CodeMaticModule/CodeMatic/GetCodeBuilderController", postData, function (datacode) {
+            $('#Controllercode').val("");
+            $('#Controllercode').val(datacode).show();
+            dp.SyntaxHighlighter.HighlightAll('Controllercode');
+        });
+    }
+    //下载生成代码
+    function DownloadCodeBuilder() {
+        var parm = '/CodeMaticModule/CodeMatic/DownloadCodeBuilder?table=' + tableCode;
+        window.location.href = parm;
+    }
+</script>
+
+<div class="btnbartitle">
+    <div>
+        表名：<span id="adCmdTable"></span>
+    </div>
+</div>
+<div id="wizard" class="swMain">
+    <ul style="padding-left: 5px;">
+        <li><a href="#step-1">
+            <label class="stepNumber">1</label>
+            <span class="stepDesc">设置页面表单<br />
+                <small>定义表单操作字段信息</small>
+            </span>
+        </a></li>
+        <li><a href="#step-2">
+            <label class="stepNumber">2</label>
+            <span class="stepDesc">设置页面详细<br />
+                <small>定义表单详细字段信息</small>
+            </span>
+        </a></li>
+        <li><a href="#step-3">
+            <label class="stepNumber">3</label>
+            <span class="stepDesc">设置页面列表<br />
+                <small>定义列表操作字段信息</small>
+            </span>
+        </a></li>
+        <li><a href="#step-4">
+            <label class="stepNumber">4</label>
+            <span class="stepDesc">生成设置<br />
+                <small>代码生成设置</small>
+            </span>
+        </a></li>
+        <li><a href="#step-5">
+            <label class="stepNumber">5</label>
+            <span class="stepDesc">查看代码<br />
+                <small>查看代码效果</small>
+            </span>
+        </a></li>
+    </ul>
+
+    <div id="step-1">
+        <h2 class="StepTitle">第一步 请勾选要操作表单字段</h2>
+        <div class="line"></div>
+        <table id="gridTable_Form"></table>
+    </div>
+
+    <div id="step-2">
+        <h2 class="StepTitle">第二步 请勾选要操作表单字段</h2>
+        <div class="line"></div>
+        <table id="gridTable_Detail"></table>
+    </div>
+
+    <div id="step-3">
+        <h2 class="StepTitle">第三步 请勾选要操作列表字段</h2>
+        <div class="line"></div>
+        <table id="gridTable_Index"></table>
+    </div>
+
+    <div id="step-4">
+        <h2 class="StepTitle">第四步 生成设置</h2>
+        <div class="line"></div>
+        <div id="BuildSetup" style="margin-top: 1px;">
+            <div class="line"></div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%;" valign="top">
+                        <div class="bd" style="border: none; margin-bottom: 1px;">
+                            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                                <div class="tab_list_top" style="position: absolute">
+                                    <div class="tab_list bd actived">生成名称设置</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1px; margin-left: 1px;">
+                                <table border="0" cellpadding="0" cellspacing="0" class="form">
+                                    <tr>
+                                        <th class="formTitle">业务区域：</th>
+                                        <td class="formValue">
+                                            <select id="Areas" class="txtselect">
+                                                <option value="CommonModule">CommonModule</option>
+                                                <option value="ExampleModule">ExampleModule</option>
+                                            </select>
+                                        </td>
+                                        <th class="formTitle">类名备注：</th>
+                                        <td class="formValue">
+                                            <input id="ClassName" type="text" class="txt" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="formTitle">实体类名：</th>
+                                        <td class="formValue">
+                                            <input id="Entity" type="text" class="txt" />
+                                        </td>
+                                        <th class="formTitle">业务类名：</th>
+                                        <td class="formValue">
+                                            <input id="Business" type="text" class="txt" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="formTitle">表单页面：</th>
+                                        <td class="formValue">
+                                            <input id="PageForm" type="text" class="txt" />
+                                        </td>
+                                        <th class="formTitle">详细页面：</th>
+                                        <td class="formValue">
+                                            <input id="PageFormDetail" type="text" class="txt" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="formTitle">列表页面：</th>
+                                        <td class="formValue">
+                                            <input id="PageList" type="text" class="txt" />
+                                        </td>
+                                        <th class="formTitle">控制器：</th>
+                                        <td class="formValue">
+                                            <input id="Controller" type="text" class="txt" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width: 50%;" valign="top">
+                        <div class="bd" style="border: none; margin-bottom: 1px;">
+                            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                                <div class="tab_list_top" style="position: absolute">
+                                    <div class="tab_list bd actived">生成列表设置</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1px; margin-left: 1px;">
+                                <table border="0" cellpadding="0" cellspacing="0" class="form">
+                                    <tr>
+                                        <th class="formTitle">请求url：
+                                        </th>
+                                        <td class="formValue">
+                                            <input readonly id="RequestUrl" type="text" class="txt" value="默认" />
+                                        </td>
+                                        <th class="formTitle">是否排序：
+                                        </th>
+                                        <td class="formValue">
+                                            <select id="AllowOrder" class="txtselect">
+                                                <option value="1">排序</option>
+                                                <option value="2">无排序</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="formTitle">排序类型：
+                                        </th>
+                                        <td class="formValue">
+                                            <select id="OrderType" class="txtselect">
+                                                <option value="desc">desc</option>
+                                                <option value="asc">asc</option>
+                                            </select>
+                                        </td>
+                                        <th class="formTitle">排序字段：
+                                        </th>
+                                        <td class="formValue">
+                                            <input id="OrderField" type="text" class="txt" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="formTitle">是否分页：
+                                        </th>
+                                        <td class="formValue">
+                                            <select id="AllowPageing" class="txtselect">
+                                                <option value="1">分页</option>
+                                                <option value="2">无分页</option>
+                                            </select>
+                                        </td>
+                                        <th class="formTitle">分页大小：
+                                        </th>
+                                        <td class="formValue">
+                                            <input id="pageSize" type="text" class="txt" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="formTitle">页面布局：
+                                        </th>
+                                        <td class="formValue" colspan="3">
+                                            <select id="PageLayout" class="txtselect">
+                                                <option value="1">显示列表</option>
+                                                <option value="2">显示列表+工具栏按钮</option>
+                                                <option value="3">左边目录+显示列表</option>
+                                                <option value="4">左边目录+显示列表+工具栏按钮</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="formTitle">操作：
+                                        </th>
+                                        <td class="formValue" colspan="3">
+                                            <span class="item">
+                                                <input type="checkbox" name="checkbox" id="AllowInsert" />
+                                                <label for="AllowInsert">新增</label>
+                                            </span>
+                                            <span class="item">
+                                                <input type="checkbox" name="checkbox" id="AllowUpdate" />
+                                                <label for="AllowUpdate">编辑</label>
+                                            </span>
+                                            <span class="item">
+                                                <input type="checkbox" name="checkbox" id="AllowDelete" />
+                                                <label for="AllowDelete">删除</label>
+                                            </span>
+                                            <span class="item">
+                                                <input type="checkbox" name="checkbox" id="AlloLookup" />
+                                                <label for="AlloLookup">明细</label>
+                                            </span>
+                                            <style>
+                                                .custom-checkbox label {
+                                                    background-position-y: 1.5px;
+                                                }
+                                            </style>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 50%;">
+                        <div class="line"></div>
+                        <div class="bd" style="border: none;">
+                            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                                <div class="tab_list_top" style="position: absolute">
+                                    <div class="tab_list bd actived">生成表单设置</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1px; margin-left: 1px;">
+                                <table border="0" cellpadding="0" cellspacing="0" class="form">
+                                    <tr>
+                                        <th class="formTitle">显示列数(L):
+                                        </th>
+                                        <td class="formValue">
+                                            <select id="FormLineType" class="txtselect">
+                                                <option value="1">二列</option>
+                                                <option value="2">四列</option>
+                                                <option value="3">六列</option>
+                                                <option value="4">八列</option>
+                                            </select>
+                                        </td>
+                                        <th class="formTitle">表单样式(L):
+                                        </th>
+                                        <td class="formValue">
+                                            <select id="FormCss" class="txtselect">
+                                                <option value="form">form</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width: 50%;" valign="top">
+                        <div class="line"></div>
+                        <div class="bd" style="border: none;">
+                            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                                <div class="tab_list_top" style="position: absolute">
+                                    <div class="tab_list bd actived">生成明细设置</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1px; margin-left: 1px;">
+                                <table border="0" cellpadding="0" cellspacing="0" class="form">
+                                    <tr>
+                                        <th class="formTitle">显示列数(L):
+                                        </th>
+                                        <td class="formValue">
+                                            <select id="FormLineTypeDetail" class="txtselect">
+                                                <option value="2">二列</option>
+                                                <option value="4">四列</option>
+                                                <option value="6">六列</option>
+                                                <option value="8">八列</option>
+                                            </select>
+                                        </td>
+                                        <th class="formTitle">表单样式(L):
+                                        </th>
+                                        <td class="formValue">
+                                            <select id="FormCssDetail" class="txtselect">
+                                                <option value="form">form</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="step-5">
+        <h2 class="StepTitle">第五步 查看代码效果</h2>
+        <div class="bd" style="border: none;">
+            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                <div class="tab_list_top" style="position: absolute">
+                    <div id="TabdivEntity" class="tab_list bd actived" onclick="Tabchange('divEntity')">实体层(Entity)</div>
+                    <div id="TabdivBusiness" class="tab_list bd " onclick="Tabchange('divBusiness')">业务层(Business)</div>
+                    <div id="TabdivForm" class="tab_list bd " onclick="Tabchange('divForm')">页面表单(PageForm)</div>
+                    <div id="TabdivFormDetail" class="tab_list bd " onclick="Tabchange('divFormDetail')">页面明细(PageForm)</div>
+                    <div id="TabdivList" class="tab_list bd " onclick="Tabchange('divList')">页面列表(PageList)</div>
+                    <div id="TabdivController" class="tab_list bd " onclick="Tabchange('divController')">控制器(Controller)</div>
+                </div>
+            </div>
+            <div class="ScrollBar" style="padding-top: 1px;">
+                <div id="divEntity" class="tabPanel">
+                    <textarea id="Entitycode" name="Entitycode" class="CSharp" style="display: none;">
+                                </textarea>
+                </div>
+                <div id="divBusiness" class="tabPanel" style="display: none;">
+                    <textarea id="Businesscode" name="Businesscode" class="CSharp" style="display: none;">
+                                </textarea>
+                </div>
+                <div id="divForm" class="tabPanel" style="display: none;">
+                    <textarea id="Formcode" name="Formcode" class="Xml" style="display: none;">
+                                </textarea>
+                </div>
+                <div id="divFormDetail" class="tabPanel" style="display: none;">
+                    <textarea id="FormDetailcode" name="FormDetailcode" class="Xml" style="display: none;">
+                                </textarea>
+                </div>
+                <div id="divList" class="tabPanel" style="display: none;">
+                    <textarea id="Listcode" name="Listcode" class="Xml" style="display: none;">
+                                </textarea>
+                </div>
+                <div id="divController" class="tabPanel" style="display: none;">
+                    <textarea id="Controllercode" name="Controllercode" class="CSharp" style="display: none;">
+                                </textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .ui-jqgrid .ui-jqgrid-btable {
+        border-bottom: none;
+    }
+
+    .ui-widget-content {
+        border-left: none;
+        border-bottom: none;
+    }
+
+    .ui-jqgrid tr.ui-row-ltr td {
+        padding: 0px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .ui-jqgrid .ui-state-highlight {
+        background-color: none;
+    }
+
+    .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+        background: none;
+    }
+
+    .editable {
+        height: 22px;
+        background-color: #fff;
+    }
+</style>

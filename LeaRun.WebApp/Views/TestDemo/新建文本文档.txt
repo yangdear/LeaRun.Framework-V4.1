@@ -1,0 +1,198 @@
+@{
+    ViewBag.Title = "用户管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<link href="~/Content/Scripts/jquery.grid/extgrid.v.1.2.5.all.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.grid/jquery.extgrid.v.1.2.5.all.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $("#DataGrid").height($(window).height() - 78);
+        GetTree();
+        GetGrid();
+    })
+    var CompanyId = "", DepartmentId = "", DepartmentName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                if (item.Type == "Company") {
+                    DepartmentId = "";
+                    CompanyId = item.CompanyId;     //公司ID
+                } else if (item.Type == "Department") {
+                    CompanyId = "";
+                    DepartmentId = item.id;         //部门ID
+                    DepartmentName = item.text;     //部门名称
+                }
+                $("#CenterTitle").html(" - " + item.text + "(" + item.value + ")");
+                GetGrid();
+            },
+            url: "/CommonModule/Department/TreeJson"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    var grid;
+    function GetGrid() {
+        grid = $("#DataGrid").extgrid({
+            url: "/CommonModule/User/TestPageListJson",
+            columns: [
+                { field: 'code', width: '80px', title: '工号', sortable: true },
+			    { field: 'account', width: '80px', title: '登录账户', sortable: true },
+			    { field: 'realname', width: '80px', title: '姓名' },
+			    { field: 'gender', width: '45px', title: '性别' },
+			    { field: 'mobile', width: '100px', title: '手机' },
+			    { field: 'telephone', width: '100px', title: '电话' },
+			    { field: 'email', width: '100px', title: '邮箱' },
+                { field: 'companyname', width: '150', title: '所在公司' },
+                { field: 'departmentname', width: '80px', title: '所在部门' },
+                { field: 'duty', width: '80px', title: '职务' },
+                { field: 'Enabled', width: '45px', title: '有效' },
+                { field: 'logoncount', width: '70px', title: '登录次数' },
+                { field: 'lastvisit', width: '120', title: '最后登录时间' },
+                { field: 'remark', width: '300px', title: '说明' },
+            ],
+            sortName: 'code',
+            sortOrder: 'asc',
+            pagination: true,
+            pageNumber: 1,
+            pageSize: 20,
+            pageList: [10, 20, 50, 100, 500, 1000],
+            rowNumbersWidth: '30',
+            singleSelect: true,//开启单选  
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/User/Form?CompanyId=" + CompanyId + "&DepartmentId=" + DepartmentId
+        openDialog(url, "Form", "新增用户", 650, 350, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = grid.getRowData(0);
+        alert(JSON.stringify(KeyValue));
+        //if (IsChecked(KeyValue)) {
+        //    var url = "/CommonModule/User/Form?KeyValue=" + KeyValue;
+        //    openDialog(url, "Form", "编辑用户", 650, 350, function (iframe) {
+        //        top.frames[iframe].AcceptClick();
+        //    });
+        //}
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetPqGridRowValue("#grid_paging", "userid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/User/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //重置密码
+    function btn_resetpassword() {
+        var KeyValue = GetPqGridRowValue("#grid_paging", "userid");
+        var Account = GetPqGridRowValue("#grid_paging", "account");
+        var realname = GetPqGridRowValue("#grid_paging", "realname");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/User/ResetPassword?KeyValue=" + KeyValue + '&Account=' + Account + '&Type=1';
+            openDialog(url, "ResetPassword", "重置密码 - " + realname, 400, 130, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //用户角色
+    function btn_UserRole() {
+        var UserId = GetPqGridRowValue("#grid_paging", "userid");
+        var CompanyId = GetPqGridRowValue("#grid_paging", "companyid");
+        var realname = GetPqGridRowValue("#grid_paging", "realname");
+        if (IsChecked(UserId)) {
+            var url = "/CommonModule/User/UserRole?CompanyId=" + CompanyId + '&UserId=' + UserId;
+            openDialog(url, "UserRole", "用户角色 - " + realname, 625, 350, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //用户权限
+    function btn_AllotPermission() {
+        var UserId = GetPqGridRowValue("#grid_paging", "userid");
+        var RealName = GetPqGridRowValue("#grid_paging", "realname");
+        if (IsChecked(UserId)) {
+            var url = "/CommonModule/Permission/AllotPermission?ObjectId=" + UserId + '&Category=5';
+            openDialog(url, "AllotPermission", "用户权限 - " + RealName, 830, 480, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //数据范围
+    function btn_ScopePermission() {
+        var UserId = GetPqGridRowValue("#grid_paging", "userid");
+        var RealName = GetPqGridRowValue("#grid_paging", "realname");
+        if (IsChecked(UserId)) {
+            var url = "/CommonModule/Permission/ScopePermission?ObjectId=" + UserId + '&Category=5';
+            openDialog(url, "AllotPermission", "数据范围 - " + RealName, 830, 480, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        var $GirdId = $("#grid_paging");
+        var rowIndx = GetPqGridRowIndx($GirdId);
+        $GirdId.pqGrid("refreshDataAndView");
+        $GirdId.pqGrid({
+            load: function (event, ui) {
+                //停留在当前选中行
+                $GirdId.pqGrid("setSelection", { rowIndx: rowIndx });
+            }
+        });
+    }
+    var Init = {
+        GetTree: function () {
+
+        },
+        GetGrid: function () {
+
+        },
+        btn_add: function () {
+
+        },
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                组织结构
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                用户列表 <span id="CenterTitle"></span>
+            </div>
+        </div>
+        <!--工具栏-->
+        <div class="tools_bar" style="border-top: none; margin-bottom: 1px;">
+            <div class="PartialButton">
+                <a id="learun-replace" title="刷新当前(Ctrl+Q)" onclick="Replace();" class="tools_btn"><span><b style="background: url('/Content/Images/Icon16/arrow_refresh.png') 50% 4px no-repeat;">刷新</b></span></a><div class="tools_separator"></div>
+                <a id="learun-add" title="新增(Ctrl+Z)" onclick="btn_add();" class="tools_btn"><span><b style="background: url('/Content/Images/Icon16/add.png') 50% 4px no-repeat;">新增</b></span></a>
+                <a id="learun-edit" title="编辑(Ctrl+W)" onclick="btn_edit();" class="tools_btn"><span><b style="background: url('/Content/Images/Icon16/edit.gif') 50% 4px no-repeat;">编辑</b></span></a>
+                <a id="learun-delete" title="删除(Ctrl+S)" onclick="btn_delete();" class="tools_btn"><span><b style="background: url('/Content/Images/Icon16/DeleteRed.png') 50% 4px no-repeat;">删除</b></span></a>
+                <a id="learun-lookup" title="详细信息(Ctrl+X)" onclick="btn_lookup();" class="tools_btn"><span><b style="background: url('/Content/Images/Icon16/application_view_detail.png') 50% 4px no-repeat;">详细</b></span></a>
+                <div class="tools_separator"></div>
+                <a id="learun-copy" title="复制数据" onclick="btn_copy();" class="tools_btn disabled"><span><b style="background: url('/Content/Images/Icon16/page_copy.png') 50% 4px no-repeat;">复制</b></span></a>
+                <a id="learun-paste" title="粘贴数据" onclick="btn_paste();" class="tools_btn disabled"><span><b style="background: url('/Content/Images/Icon16/page_paste.png') 50% 4px no-repeat;">粘贴</b></span></a>
+                <div class="tools_separator"></div>
+                <a id="learun-import" title="Excel导入" onclick="btn_import();" class="tools_btn"><span><b style="background: url('/Content/Images/Icon16/excel_imports.png') 50% 4px no-repeat;">导入</b></span></a>
+                <a id="learun-derive" title="导出Excel" onclick="btn_derive();" class="tools_btn"><span><b style="background: url('/Content/Images/Icon16/excel_exports.png') 50% 4px no-repeat;">导出</b></span></a>
+                <div class="tools_separator"></div>
+                <a id="learun-leave" title="关闭当前窗口(Esc)" onclick="btn_back();" class="tools_btn"><span><b style="background: url('/Content/Images/Icon16/back.png') 50% 4px no-repeat;">离开</b></span></a>
+
+            </div>
+        </div>
+        <div style="width: 100%;" id="DataGrid">
+        </div>
+    </div>
+</div>

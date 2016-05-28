@@ -1,0 +1,61 @@
+﻿@{
+    ViewBag.Title = "日志文件";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        $("#txtLog").css("height", $(window).height() - 32);
+        GetTree();
+    })
+    function GetTree() {
+        var root = {
+            "id": "",
+            "text": "Log4net",
+            "value": "Log4net",
+            "isexpand": true,
+            "hasChildren": true,
+            "img": "/Content/Images/Icon16/folder_bug.png"
+        };
+        var treedata = [];
+        AjaxJson("/CommonModule/SysLog/FileList", {}, function (data) {
+            treedata = data;
+        });
+        var o = {
+            onnodeclick: function (item) {
+                ReadLog(item.text);
+            }
+        };
+        root["ChildNodes"] = treedata;
+        o.data = [root];
+        $("#ItemsTree").treeview(o);
+        $(".bbit-tree-node-ct li:first div").addClass('bbit-tree-selected');
+        var FileName = $(".bbit-tree-node-ct li:first div a span").text();
+        ReadLog(FileName)
+    }
+    //读取Log文件内容
+    function ReadLog(FileName) {
+        getAjax("/CommonModule/SysLog/ReadTxtLog", { FileName: FileName }, function (data) {
+            $("#txtLog").val(data);
+        });
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                文件目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                文件详细
+            </div>
+        </div>
+        <textarea id="txtLog" readonly="readonly" style="border: 0px solid #A8A8A8; width: 100%;"></textarea>
+    </div>
+</div>

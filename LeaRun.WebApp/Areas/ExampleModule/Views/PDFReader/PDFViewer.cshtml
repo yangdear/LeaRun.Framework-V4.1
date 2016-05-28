@@ -1,0 +1,59 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PDF文件查看</title>
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/FlexPaper/flexpaper_flash.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script>
+        $(function () {
+            $("#viewerPlaceHolder").height($(window).height() - 20);
+            $("#viewerPlaceHolder").width($(window).width() - 20);
+        })
+    </script>
+</head>
+<body style="margin: 10px;">
+    <a id="viewerPlaceHolder" style="width: 1000px; height: 700px; display: block; z-index: 100;"></a>
+    <script type="text/javascript">
+        var swfPath = "@Url.Content("~/Resource/PDF/20141024101421648.swf")";
+        if (GetQuery('filename')) {
+            swfPath = "@Url.Content("~/Resource/PDF/")" + GetQuery('filename').replace('.pdf', '.swf');
+        }
+        if (swfPath != "") {
+            var fp = new FlexPaperViewer(
+            '@Url.Content("~/Content/Scripts/FlexPaper/FlexPaperViewer")', /* 对应FlexPaperViewer.swf文件*/
+            'viewerPlaceHolder',   /*对应于a 标签的id*/
+            {
+                config: {
+                    SwfFile: escape(swfPath),  /*SwfFile: 指示导入的.swf的路径*/
+                    Scale: 0.6,
+                    ZoomTransition: 'easeOut',
+                    ZoomTime: 0.5,
+                    ZoomInterval: 0.2,
+                    FitPageOnLoad: true,
+                    FitWidthOnLoad: false,
+                    PrintEnabled: true,
+                    FullScreenAsMaxWindow: false,
+                    ProgressiveLoading: false,
+                    MinZoomSize: 0.2,
+                    MaxZoomSize: 5,
+                    SearchMatchAll: false,
+                    InitViewMode: 'Portrait',
+                    ViewModeToolsVisible: true,
+                    ZoomToolsVisible: true,
+                    NavToolsVisible: true,
+                    CursorToolsVisible: true,
+                    SearchToolsVisible: true,
+                    localeChain: 'en_US'
+                }
+            });
+        }
+    </script>
+</body>
+</html>

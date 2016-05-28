@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "物料列表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        $("#keywords").focus();
+        GetGrid();
+        //绑定键盘按下事件  
+        $(document).keypress(function (e) {
+            // 回车键事件  
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+    //搜索
+    function btn_Search() {
+        var keywords = $("#keywords").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/ExampleModule/Order/GetItemListJson")?keywords=" + escape(keywords)
+        }).trigger('reloadGrid');
+    }
+    //显示物料
+    function GetGrid() {
+        var index = GetQuery('index');
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ExampleModule/Order/GetItemListJson")",
+            datatype: "json",
+            height: $(window).height() - 77,
+            autowidth: true,
+            colModel: [
+                { label: '物料主键', name: 'ItemId', hidden: true },
+                { label: '物料代码', name: "ItemCode", width: 100, sortable: false },
+                { label: '物料名称', name: "ItemName", width: 200, sortable: false },
+                { label: '规格型号', name: "ItemModel", width: 100, sortable: false, align: 'center' },
+                { label: '单位', name: "UnitId", width: 70, sortable: false, align: 'center' },
+                { label: '产地', name: 'ItemProduct', width: 150, sortable: false },
+                { label: '说明', name: 'Remark', width: 194, sortable: false }
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            //双击事件
+            ondblClickRow: function (RowIndx) {
+                var rowData = $(this).jqGrid('getRowData', RowIndx);
+                var $parentobj = top.frames[tabiframeId()];
+                if (!$parentobj.IsExistItem(index, rowData.ItemCode)) {
+                    $parentobj.$("#ItemId➩" + index).val(rowData.ItemId);
+                    $parentobj.$("#ItemCode➩" + index).val(rowData.ItemCode);
+                    $parentobj.$("#ItemName➩" + index).val(rowData.ItemName);
+                    $parentobj.$("#ItemModel➩" + index).val(rowData.ItemModel);
+                    $parentobj.$("#UnitId➩" + index).val(rowData.UnitId);
+                    $parentobj.$("#Qty➩" + index).val("0");
+                    $parentobj.$("#Price➩" + index).val("0.00");
+                    $parentobj.$("#PriceAmount➩" + index).val("0.00");
+                    $parentobj.$("#PlusPrice➩" + index).val("0.00");
+                    $parentobj.$("#CESS➩" + index).val("0.00");
+                    $parentobj.$("#CESSAmount➩" + index).val("0.00");
+                    $parentobj.$("#PlusPriceAmount➩" + index).val("0.00");
+                    $parentobj.$("#gridTable tbody tr:eq(" + index + ")").find('input').attr("datacol", "yes");
+                    index++;
+                    $parentobj.$("#gridTable tbody tr:eq(" + index + ")").find('input').removeAttr('disabled');
+                    $parentobj.$("#gridTable").find('.disabled').attr("disabled", "disabled");
+                    $parentobj.$("#ItemCode➩" + index).focus();
+                    closeDialog();
+                } else {
+                    top.TipMsg("物料代码已存在,不能重复添加", 4000, "error");
+                }
+            }
+        });
+    }
+</script>
+
+<div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">
+    <div class="QueryArea">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>关键字：
+                </th>
+                <td>
+                    <input id="keywords"  type="text" class="txt" style="width: 200px" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="line"></div>
+    <table id="gridTable"></table>
+    <style>
+        .ui-widget-content {
+            border-left: none;
+        }
+
+        .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+            background: none;
+        }
+    </style>
+</div>

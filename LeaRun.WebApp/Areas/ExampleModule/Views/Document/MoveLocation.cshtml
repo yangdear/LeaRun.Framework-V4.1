@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "文件中心管理/移动文件（夹）";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script>
+    $(function () {
+        GetTree();
+    });
+    //加载左边树
+    //注意 FolderId 默认等于1 是我的硬盘主键ID 这样就可以加载我的硬盘下面子节点文件夹
+    var MoveFolderId = "";
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                MoveFolderId = item.id;         //文件夹Id
+            },
+            url: "@Url.Content("~/ExampleModule/Document/TreeJson?FolderId=1")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+        //移除Id上级元素
+        $("#ItemsTree_" + GetQuery('KeyValue').replace(/-/g, '_')).parent('li').remove();
+    }
+    //保存事件
+    function AcceptClick() {
+        if (MoveFolderId == "") {
+            top.TipMsg("请选择一个文件夹！", 4000, "error");
+            return false;
+        }
+        Loading(true, "正在移动数据...");
+        window.setTimeout(function () {
+            var postData = {
+                KeyValue: GetQuery('KeyValue'),
+                MoveFolderId: MoveFolderId,
+                sort: GetQuery('sort')
+            }
+            AjaxJson("/ExampleModule/Document/SubmitMoveLocation", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 10px">
+    <div style="height: 29px;">
+        <div style="line-height: 26px; color: #3083eb;  font-size: 14px; color: #aaa;">
+            选择移动到的位置
+        </div>
+    </div>
+    <div id="ItemsTree" class="border" style="height: 248px; overflow: auto;">
+    </div>
+</form>
+

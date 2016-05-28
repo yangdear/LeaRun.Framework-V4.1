@@ -1,0 +1,161 @@
+﻿@{
+    ViewBag.Title = "订单管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        GetGrid();
+    })
+    //搜索
+    function btn_Search() {
+        var BillNo = $("#BillNo").val();
+        var StartTime = $("#StartTime").val();
+        var EndTime = $("#EndTime").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/ExampleModule/Order/GetOrderList")?StartTime=" + StartTime + '&EndTime=' + EndTime + '&BillNo=' + BillNo, page: 1
+        }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        var StartTime = $("#StartTime").val();
+        var EndTime = $("#EndTime").val();
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ExampleModule/Order/GetOrderList")?StartTime=" + StartTime + '&EndTime=' + EndTime,
+            datatype: "json",
+            height: $(window).height() - 150,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'POOrderId', width: 80, align: 'left', hidden: true },
+                { label: '制单编号', name: 'BillNo', index: 'BillNo', width: 100, align: 'center' },
+                {
+                    label: '制单日期', name: 'BillDate', index: 'BillDate', width: 110, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm');
+                    }
+                },
+                { label: '供应商', name: 'SupplierId', index: 'SupplierId', width: 200, align: 'left' },
+                { label: '采购方式', name: 'Method', index: 'Method', width: 70, align: 'center' },
+                { label: '结算方式', name: 'Clearing', index: 'Clearing', width: 70, align: 'center' },
+                {
+                    label: '结算日期', name: 'ClearingTime', index: 'ClearingTime', width: 110, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm');
+                    }
+                },
+                { label: '币别', name: 'Currency', index: 'Currency', width: 70, align: 'center' },
+                { label: '制单员', name: 'CreateUserName', index: 'CreateUserName', width: 90, align: 'center' },
+                { label: '采购员', name: 'Salesman', index: 'Salesman', width: 90, align: 'center' },
+                { label: '变更人员', name: 'ModifyUserName', index: 'ModifyUserName', width: 90, align: 'center' },
+                {
+                    label: '变更日期', name: 'ModifyDate', index: 'ModifyDate', width: 110, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm');
+                    }
+                },
+                { label: '备注', name: 'Remark', index: 'Remark', width: 200, align: 'left' }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            shrinkToFit: false,
+            gridview: true,
+            subGrid: true,
+            subGridRowExpanded: function (subgrid_id, row_id) {
+                var POOrderId = GetJqGridValue("#gridTable", row_id, "POOrderId");
+                var subgrid_table_id = subgrid_id + "_t";
+                $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "'></table>");
+                $("#" + subgrid_table_id).jqGrid({
+                    url: "@Url.Content("~/ExampleModule/Order/GetOrderEntryList")?POOrderId=" + POOrderId,
+                    datatype: "json",
+                    colModel: [
+                        { label: '物料代码', name: "ItemCode", width: 100, sortable: false },
+                        { label: '物料名称', name: "ItemName", width: 200, sortable: false },
+                        { label: '规格型号', name: "ItemModel", width: 80, sortable: false, align: 'center' },
+                        { label: '单位', name: "UnitId", width: 70, sortable: false, align: 'center' },
+                        { label: '数量', name: 'Qty', width: 70, sortable: false, align: 'center' },
+                        { label: '单价', name: 'Price', width: 70, sortable: false, align: 'center' },
+                        { label: '金额', name: 'PriceAmount', width: 70, sortable: false, align: 'center' },
+                        { label: '含税单价', name: 'PlusPrice', width: 70, sortable: false, align: 'center' },
+                        { label: '税率(%)', name: 'CESS', width: 70, sortable: false, align: 'center' },
+                        { label: '税额', name: 'CESSAmount', width: 70, sortable: false, align: 'center' },
+                        { label: '含税金额', name: 'PlusPriceAmount', width: 70, sortable: false, align: 'center' },
+                        { label: '说明', name: 'Description', width: 200, sortable: false }
+                    ],
+                    width: "1227",
+                    rowNum: "all"
+                });
+            }
+        });
+        columnModelData("#gridTable");
+    }
+    //新增
+    function btn_add() {
+        AddTabMenu("POOrderForm", "@Url.Content("~/ExampleModule/Order/Form")", "新增订单", "page_white_add.png", true, true, true);
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "POOrderId");
+        if (IsChecked(KeyValue)) {
+            AddTabMenu("POOrderForm", "@Url.Content("~/ExampleModule/Order/Form")?KeyValue=" + KeyValue, "变更订单", "page_white_edit.png", true, true, true);
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "POOrderId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/ExampleModule/Order/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //详细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "POOrderId");
+        if (IsChecked(KeyValue)) {
+            AddTabMenu("POOrderForm", "@Url.Content("~/ExampleModule/Order/Form")?KeyValue=" + KeyValue + '&motionType=0', "订单详细", "page_white_edit.png", true, true, true);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+    <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <div class="QueryArea">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>制单编号：</th>
+                <td>
+                    <input id="BillNo" type="text" class="txt" style="width: 120px" />
+                </td>
+                <th>制单日期：</th>
+                <td>
+                    <input id="StartTime" type="text" class="txt Wdate" value="@LeaRun.Utilities.DateTimeHelper.GetDate(-7)" style="width: 120px" onfocus="var endDate=$dp.$('EndTime');WdatePicker({onpicked:function(){EndTime.focus();},maxDate:'#F{$dp.$D(\'EndTime\')}'})" />
+                </td>
+                <td>-</td>
+                <td>
+                    <input id="EndTime" type="text" class="txt Wdate" value="@LeaRun.Utilities.DateTimeHelper.GetToday()" style="width: 120px" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'StartTime\')}'})" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="grid_List" class="topline">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+<style>
+    .ui-widget-content {
+        border-left: none;
+    }
+</style>

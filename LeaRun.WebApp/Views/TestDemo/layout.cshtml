@@ -1,0 +1,48 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>layout</title>
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/layout/splitter.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <script type="text/javascript">
+        $().ready(function () {
+            // Vertical splitter. Set min/max/starting sizes for the left pane.
+            $("#layout").splitter({
+                splitVertical: true,
+                outline: true,
+                sizeLeft: 150, minLeft: 100, maxLeft: 200,
+                anchorToWindow: true,
+                accessKey: "L"
+            });
+            // First horizontal splitters, nested in the right pane of the vertical splitter.
+            $("#layoutRightPanel").splitter({
+                splitHorizontal: true,
+                outline: true,
+                sizeTop: 300, minTop: 300, maxTop: 300,
+                accessKey: "V"
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="layout" class="layout">
+        <div class="layoutPanel layout-west">
+        </div>
+        <div id="layoutRightPanel" class="layoutPanel layout-center">
+            <div id="TopPanel">
+            </div>
+            <div id="BottomPanel">
+            </div>
+        </div>
+        <!-- #RightPane -->
+    </div>
+</body>
+</html>

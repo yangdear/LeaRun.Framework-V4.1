@@ -1,0 +1,179 @@
+﻿@{
+    ViewBag.Title = "角色管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetTree();
+        GetGrid();
+    });
+    var CompanyId = "", CompanyName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                CompanyId = item.id;            //ID
+                CompanyName = item.text;        //名称
+                $("#CenterTitle").html(" - " + CompanyName);
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/CommonModule/Roles/GridPageListJson")?CompanyId=" + CompanyId, page: 1
+                }).trigger('reloadGrid');
+            },
+            url: "@Url.Content("~/CommonModule/Company/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/Roles/GridPageListJson")",
+            datatype: "json",
+            height: $(window).height() - 132,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'roleid', index: 'userid', width: 80, hidden: true },
+                { label: '编码', name: 'code', index: 'code', width: 80 },
+                { label: '角色', name: 'fullname', index: 'fullname', width: 100 },
+                {
+                    label: '成员人数', name: 'membercount', index: 'membercount', width: 80, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue + "个人";
+                    }
+                },
+                { label: '角色分类', name: 'category', index: 'category', width: 80, align: 'center' },
+                { label: '所属公司Id', name: 'companyid', index: 'companyid', hidden: true },
+                { label: '所属公司', name: 'companyname', index: 'companyname', width: 120 },
+                {
+                    label: '有效', name: 'enabled', index: 'enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                { label: '描述', name: 'remark', index: 'remark', width: 600 }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'SortCode',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+        columnModelData("#gridTable");
+    }
+    //新增
+    function btn_add() {
+        if (!!CompanyId) {
+            var url = "/CommonModule/Roles/Form?CompanyId=" + CompanyId
+            openDialog(url, "Form", "新增角色", 450, 240, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        } else {
+            alertDialog("请选择左边公司", 0);
+        }
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "roleid");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Roles/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑角色", 450, 240, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "roleid");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Roles/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "角色明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "roleid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/Roles/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //角色用户
+    function btn_Member() {
+        var RoleId = GetJqGridRowValue("#gridTable", "roleid");
+        var RoleName = GetJqGridRowValue("#gridTable", "fullname");
+        var CompanyId = GetJqGridRowValue("#gridTable", "companyid");
+        var CompanyName = GetJqGridRowValue("#gridTable", "companyname");
+        if (IsChecked(RoleId)) {
+            var url = "/CommonModule/Permission/AllotMember?ObjectId=" + RoleId + '&CompanyId=' + CompanyId + '&CompanyName=' + escape(CompanyName) + '&Category=2';
+            openDialog(url, "AllotMember", "角色用户", 820, 400, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //角色用户批量
+    function btn_MemberBatch() {
+        var url = "/CommonModule/Permission/AllotMemberBatch?Category=2&CategoryName=" + escape('角色');
+        openDialog(url, "AllotMember", "角色用户批量设置", 820, 400, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+    //角色权限
+    function btn_AllotPermission() {
+        var RoleId = GetJqGridRowValue("#gridTable", "roleid");
+        var RoleName = GetJqGridRowValue("#gridTable", "fullname");
+        if (IsChecked(RoleId)) {
+            var url = "/CommonModule/Permission/AllotPermission?ObjectId=" + RoleId + '&Category=2';
+            openDialog(url, "AllotPermission", "角色权限 - " + RoleName, 830, 480, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //数据范围
+    function btn_ScopePermission() {
+        var RoleId = GetJqGridRowValue("#gridTable", "roleid");
+        var RoleName = GetJqGridRowValue("#gridTable", "fullname");
+        if (IsChecked(RoleId)) {
+            var url = "/CommonModule/Permission/ScopePermission?ObjectId=" + RoleId + '&Category=2';
+            openDialog(url, "AllotPermission", "数据范围 - " + RoleName, 830, 480, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                公司目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                角色列表<span id="CenterTitle"></span>
+            </div>
+        </div>
+        <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+            <div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+

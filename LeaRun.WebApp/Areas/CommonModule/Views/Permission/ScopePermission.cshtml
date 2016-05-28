@@ -1,0 +1,192 @@
+﻿@{
+    ViewBag.Title = "数据范围";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<link href="~/Content/Styles/learunui-startmenu.css" rel="stylesheet" />
+<script type="text/javascript">
+    var ObjectId = GetQuery('ObjectId');                  //对象主键
+    var Category = GetQuery('Category');                  //分类
+    //初始化
+    $(function () {
+        $("#layoutA").splitter({
+            type: "v",
+            outline: true,
+            minLeft: 180, sizeLeft: 180, maxLeft: 180,
+            anchorToWindow: true,
+            accessKey: "L"
+        });
+        GetAuthorizedProject();
+        $(".main_menu li").find('.leftselected').trigger("click");
+    });
+
+    //授权项目 
+    var ModuleId = "";
+    function GetAuthorizedProject() {
+        getAjax("/CommonModule/Permission/ScopeAuthorizedProject", {}, function (data) {
+            $("#AuthorizedProject").html(data);
+            //点击事件
+            $(".main_menu li div").click(function () {
+                Loading(true);
+                $(".main_menu li div").removeClass('leftselected'); $(this).addClass('leftselected');
+                $("#CenterTitle").html(" - " + $(this).find('span').html());
+                ModuleId = $(this).attr('ModuleId');
+                window.setTimeout(function () {
+                    switch (ModuleId) {
+                        case "b29cabd8-ffb6-4d34-9d08-ee1dba2b5b6b"://公司管理
+                            ScopeCompanyTree();
+                            break;
+                        case "e84c0fca-d912-4f5c-a25e-d5765e33b0d2"://部门管理
+                            GetScopeDepartmentTree();
+                            break;
+                        case "cef74b80-24a5-4d77-9ede-bbbc75cdb431"://角色管理
+                            GetScopeRoleTree();
+                            break;
+                        case "eb0c4d65-4757-4892-b2e9-35882704e592"://岗位管理
+                            GetScopePostTree();
+                            break;
+                        case "b863d076-37bb-45aa-8318-37942026921e"://用户组管理
+                            GetScopeUserGroupTree();
+                            break;
+                        case "58e86c4c-8022-4d30-95d5-b3d0eedcc878"://用户管理
+                            GetScopeUserTree();
+                            break;
+                        default:
+                            $("#ConditionInstall").html("<span style='color:red;margin:10px;'>代码未写中...</span>");
+                            break;
+                    }
+                    Loading(false);
+                }, 100);
+            });
+        });
+    }
+    //保存事件
+    function AcceptClick() {
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            //获取对什么资源Id:
+            var ResourceId = ""; $('#ConditionInstall .bbit-tree-node-cb').each(function () {
+                var _src = $(this).attr('src');
+                _src = _src.substr(_src.lastIndexOf("/") + 1);
+                if (_src == 'checkbox_1.gif') {
+                    var _ResourceId = $(this).attr('id').substring(17).replace(/_/g, "-");
+                    _ResourceId = _ResourceId.substring(0, _ResourceId.length - 3);
+                    ResourceId += _ResourceId + ",";
+                }
+            });
+            var postData = {
+                ScopeType: $('#TabConditionInstall').attr('ScopeType'),//范围类型:1-显示设置；2-条件设置
+                ModuleId: ModuleId,
+                ResourceId: ResourceId,
+                ObjectId: ObjectId,
+                Category: Category,
+            }
+            AjaxJson("/CommonModule/Permission/ScopeAuthorizedSubmit", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+            });
+        }, 200);
+    }
+
+    /*加载数据==========================================*/
+
+    //加载公司
+    function ScopeCompanyTree() {
+        var itemtree = {
+            showcheck: true,
+            url: "@Url.Content("~/CommonModule/Permission/ScopeCompanyList")?ObjectId=" + ObjectId + '&Category=' + Category
+        };
+        $("#ConditionInstall").treeview(itemtree);
+    }
+    //加载部门
+    function GetScopeDepartmentTree() {
+        var itemtree = {
+            showcheck: true,
+            url: "@Url.Content("~/CommonModule/Permission/ScopeDepartmentList")?ObjectId=" + ObjectId + '&Category=' + Category
+        };
+        $("#ConditionInstall").treeview(itemtree);
+    }
+    //加载角色
+    function GetScopeRoleTree() {
+        var itemtree = {
+            showcheck: true,
+            url: "@Url.Content("~/CommonModule/Permission/ScopeRoleList")?ObjectId=" + ObjectId + '&Category=' + Category
+        };
+        $("#ConditionInstall").treeview(itemtree);
+    }
+    //加载岗位
+    function GetScopePostTree() {
+        var itemtree = {
+            showcheck: true,
+            url: "@Url.Content("~/CommonModule/Permission/ScopePostList")?ObjectId=" + ObjectId + '&Category=' + Category
+        };
+        $("#ConditionInstall").treeview(itemtree);
+    }
+    //加载用户组
+    function GetScopeUserGroupTree() {
+        var itemtree = {
+            showcheck: true,
+            url: "@Url.Content("~/CommonModule/Permission/ScopeUserGroupList")?ObjectId=" + ObjectId + '&Category=' + Category
+        };
+        $("#ConditionInstall").treeview(itemtree);
+    }
+    //加载用户
+    function GetScopeUserTree() {
+        var itemtree = {
+            showcheck: true,
+            url: "@Url.Content("~/CommonModule/Permission/ScopeUserList")?ObjectId=" + ObjectId + '&Category=' + Category
+        };
+        $("#ConditionInstall").treeview(itemtree);
+    }
+</script>
+<div class="note-prompt" style="margin: 1px;">
+    温馨提示：选中复选框即可授予相应权限，取消选中则回收相应权限。
+</div>
+<div id="layoutA" class="layout" onselectstart="return false;" style="-moz-user-select: none;">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                授权项目
+            </div>
+        </div>
+        <div class="ScrollBar main_menu">
+            <ul id="AuthorizedProject">
+            </ul>
+            <style>
+                .main_menu {
+                    width: 100%;
+                    height: 100%;
+                    border-right: none;
+                    margin-right: 0;
+                    background: #f5f5f5;
+                }
+
+                    .main_menu li div {
+                        height: 32px;
+                        line-height: 32px;
+                    }
+
+                    .main_menu img {
+                        margin-bottom: 3px;
+                        margin-right: 0px;
+                    }
+            </style>
+        </div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                数据权限 <span id="CenterTitle"></span>
+            </div>
+        </div>
+        <div class="bd" style="border: none;">
+            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                <div class="tab_list_top" style="position: absolute">
+                    <div id="TabConditionInstall" scopetype="1" class="tab_list bd actived">显示设置</div>
+                </div>
+            </div>
+        </div>
+        <div id="ConditionInstall" style="height: 372px; overflow: auto;">
+        </div>
+    </div>
+</div>

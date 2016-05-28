@@ -1,0 +1,119 @@
+﻿@{
+    ViewBag.Title = "部门管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetTree();
+        GetGrid("");
+    });
+    var CompanyId, CompanyName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                CompanyId = item.id;            //ID
+                CompanyName = item.text;        //名称
+                $("#CenterTitle").html(" - " + CompanyName);
+                $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/Department/GridListJson")?CompanyId=" + CompanyId }).trigger('reloadGrid');
+            },
+            url: "@Url.Content("~/CommonModule/Company/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //加载表格
+    function GetGrid(CompanyId) {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/Department/GridListJson")",
+            datatype: "json",
+            height: $(window).height() - 105,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'departmentid', index: "departmentid", hidden: true },
+                { label: '编码', name: 'code', index: "code", width: 80 },
+                { label: '部门', name: 'fullname', index: "fullname", width: 100 },
+                { label: '简称', name: 'shortname', index: "shortname", width: 100 },
+                { label: '性质', name: 'nature', index: "nature", width: 100, align: "center" },
+                { label: '负责人', name: 'manager', index: "manager", width: 80, align: "center" },
+                { label: '电话', name: 'phone', index: "phone", width: 100, align: "center" },
+                { label: '传真', name: 'fax', index: "fax", width: 100, align: "center" },
+                { label: '所属公司Id', name: 'companyid', index: 'companyid', hidden: true },
+                { label: '所属公司', name: 'companyname', index: "companyname", width: 120 },
+                {
+                    label: '有效', name: 'enabled', index: 'enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                { label: '说明', name: 'remark', index: "remark", width: 300 }
+            ],
+            pager: false,
+            rowNum: 1000,
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+        columnModelData("#gridTable");
+    }
+    //新增
+    function btn_add() {
+        if (!!CompanyId) {
+            var url = "/CommonModule/Department/Form?CompanyId=" + CompanyId
+            openDialog(url, "Form", "新增部门信息", 650, 260, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        } else {
+            alertDialog("请选择左边公司", 0);
+        }
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "departmentid");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Department/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑部门信息", 650, 260, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "departmentid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/Department/DeleteDepartment', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                公司目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                部门列表<span id="CenterTitle"></span>
+            </div>
+        </div>
+        <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+            <div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>
+        </div>
+        <table id="gridTable"></table>
+    </div>
+</div>

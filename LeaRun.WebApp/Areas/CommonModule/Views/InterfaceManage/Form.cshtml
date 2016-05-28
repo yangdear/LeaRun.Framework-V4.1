@@ -1,0 +1,229 @@
+﻿@{
+    ViewBag.Title = "接口管理》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<!--jqgrid表格组件start-->
+<script src="~/Content/Scripts/jqgrid/jquery-ui-custom.min.js"></script>
+<script src="~/Content/Scripts/jqgrid/grid.locale-cn.js"></script>
+<link href="~/Content/Scripts/jqgrid/css/jqgrid.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jqgrid/jqGrid.js"></script>
+<!--表格组件end-->
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        GetParameterGrid();
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!KeyValue) {
+            //接口信息
+            AjaxJson("/CommonModule/InterfaceManage/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+            var rowindex = 1;
+            var strxml = "<Request>\r\n";
+            strxml += "\t<data  code='" + $("#Code").val() + "'>\r\n";
+            strxml += "\t\t<no>\r\n";
+            //参数信息
+            AjaxJson("/CommonModule/InterfaceManage/GridInterfaceParameterListJson", { InterfaceId: KeyValue }, function (data) {
+                var JsonData = data.rows;
+                $.each(JsonData, function (i) {
+                    var rowData = JsonData[i];
+                    strxml += "\t\t\t<" + rowData.Field + ">" + rowData.FieldMemo + "</" + rowData.Field + ">\r\n";
+                    $("#Field➩" + rowindex).val(rowData.Field);
+                    $("#FieldType➩" + rowindex).val(rowData.FieldType);
+                    $("#FieldMaxLength➩" + rowindex).val(rowData.FieldMaxLength);
+                    if (rowData.AllowNull == 1) {
+                        $("#AllowNull➩" + rowindex).attr("checked", 'checked');
+                    } else {
+                        $("#AllowNull➩" + rowindex).removeAttr("checked");
+                    }
+                    $("#SortCode➩" + rowindex).val(rowData.SortCode);
+                    if (rowData.Enabled == 1) {
+                        $("#Enabled➩" + rowindex).attr("checked", 'checked');
+                    } else {
+                        $("#Enabled➩" + rowindex).removeAttr("checked");
+                    }
+                    $("#FieldMemo➩" + rowindex).val(rowData.FieldMemo);
+                    $("#gridTable tbody tr:eq(" + rowindex + ")").find('input,select').show();
+                    $("#gridTable tbody tr:eq(" + (rowindex + 1) + ") td:eq(1)").find('input').show();
+                    rowindex++;
+                });
+            });
+            strxml += "\t\t</no>\r\n";
+            strxml += "\t</data>\r\n";
+            strxml += "</Request>\r\n";
+            $("#txtXML").val(strxml);
+        }
+    }
+    //视图参数列表
+    function GetParameterGrid() {
+        $("#gridTable").jqGrid({
+            datatype: "local",
+            height: 222,
+            autowidth: true,
+            colModel: [
+                { label: '输入参数', name: "Field", width: 210, sortable: false },
+                { label: '数据类型', name: "FieldType", width: 60, sortable: false, align: 'center' },
+                { label: '长度', name: "FieldMaxLength", width: 45, sortable: false, align: 'center' },
+                { label: '允许空', name: "AllowNull", width: 45, sortable: false, align: 'center' },
+                { label: '顺序', name: 'SortCode', width: 45, sortable: false, align: 'center' },
+                { label: '有效', name: 'Enabled', width: 45, sortable: false, align: 'center' },
+                { label: '说明', name: 'FieldMemo', width: 220, sortable: false }
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            hoverrows: false,
+        });
+        //默认添加50行 空行
+        for (var i = 1; i < 16; i++) {
+            var rowdata = {
+                Field: '<input id="Field➩' + i + '" onkeyup="FieInputEvent(' + i + ')" class="editable" type="text" />',
+                FieldType: '<select id="FieldType➩' + i + '" class="editable"><option value="string">字符串</option><option value="int">数字</option><option value="datetime">日期</option><option value="money">金额</option></select>',
+                FieldMaxLength: '<input id="FieldMaxLength➩' + i + '" onfocus="IsNumber(this.id)" class="editable" style="text-align: center;" type="text" />',
+                AllowNull: '<input id="AllowNull➩' + i + '" name="checkbox" type="checkbox" />',
+                SortCode: '<input id="SortCode➩' + i + '" onfocus="IsNumber(this.id)" class="editable" style="text-align: center;" type="text" value="' + i + '" />',
+                Enabled: '<input id="Enabled➩' + i + '" name="checkbox" type="checkbox" checked="checked" style="" />',
+                FieldMemo: '<input id="FieldMemo➩' + i + '" class="editable" type="text" />',
+            }
+            $('#gridTable').jqGrid('addRowData', i, rowdata);
+        };
+        $("#gridTable tbody").find('input,select').hide();
+        $("#gridTable tbody tr:eq(1) td:eq(1)").find('input').show();
+        //滚动条到底事件
+        var nScrollHight = 0;
+        var nScrollTop = 0;
+        var njqgridHight = $(".ui-jqgrid-bdiv").height();
+        $('.ui-jqgrid-bdiv').scroll(function () {
+            nScrollHight = $(this)[0].scrollHeight;
+            nScrollTop = $(this)[0].scrollTop;
+            if (nScrollTop + njqgridHight >= nScrollHight) {
+                var RowIndex = $("#gridTable").jqGrid("getRowData").length + (1);
+                var rowdata = {
+                    Field: '<input id="Field➩' + RowIndex + '" onkeyup="FieInputEvent(' + RowIndex + ')" class="editable" type="text" />',
+                    FieldType: '<select id="FieldType➩' + i + '" class="editable"><option value="string">字符串</option><option value="int">数字</option><option value="datetime">日期</option><option value="money">金额</option></select>',
+                    FieldMaxLength: '<input id="FieldMaxLength➩' + i + '" onfocus="IsNumber(this.id)" class="editable" style="text-align: center;" type="text" />',
+                    AllowNull: '<input id="AllowNull➩' + RowIndex + '" name="checkbox" type="checkbox" />',
+                    SortCode: '<input id="SortCode➩' + RowIndex + '" onfocus="IsNumber(this.id)" class="editable" style="text-align: center;" type="text" value="' + RowIndex + '" />',
+                    Enabled: '<input id="Enabled➩' + RowIndex + '" name="checkbox" type="checkbox" checked="checked" style="" />',
+                    FieldMemo: '<input id="FieldMemo➩' + RowIndex + '" class="editable" type="text" />',
+                }
+                $('#gridTable').jqGrid('addRowData', RowIndex, rowdata);
+            }
+        });
+    }
+    //参数字段输入事件
+    function FieInputEvent(index) {
+        $("#gridTable tbody tr:eq(" + index + ")").find('input,select').show();
+        $("#gridTable tbody tr:eq(" + (index + 1) + ") td:eq(1)").find('input').show();
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#tbInterfaceManage");
+            postData["ParameterJson"] = GetTableDataJson("#gridTable");
+            AjaxJson("/CommonModule/InterfaceManage/SubmitInterfaceForm?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1">
+    <div style="margin: 1px;">
+        <table id="tbInterfaceManage" class="form">
+            <tr>
+                <th class="formTitle">接口编码：
+                </th>
+                <td class="formValue">
+                    <input id="Code" maxlength="50" type="text" class="txt required" datacol="yes" err="接口编码" checkexpession="NotNull" />
+                </td>
+                <th class="formTitle">接口名称：
+                </th>
+                <td class="formValue">
+                    <input id="FullName" maxlength="50" type="text" class="txt required" datacol="yes" err="接口名称" checkexpession="NotNull" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">动作类型：
+                </th>
+                <td class="formValue">
+                    <select id="Action" class="txtselect">
+                        <option value="">==请选择==</option>
+                        <option value="Insert">Insert</option>
+                        <option value="Update">Update</option>
+                        <option value="Delete">Delete</option>
+                        <option value="Select">Select</option>
+                        <option value="Procedure">Procedure</option>
+                        <option value="DataTableProc">DataTableProc</option>
+                        <option value="DataSetProc">DataSetProc</option>
+                    </select>
+                </td>
+                <th class="formTitle">接口状态：</th>
+                <td class="formValue">
+                    <select id="Enabled" class="txtselect">
+                        <option value="1">启动</option>
+                        <option value="0">停用</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">约束达式：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="Constraints" class="txtArea" rows="4"></textarea>
+                </td>
+            </tr>
+        </table>
+        <div class="bd" style="border-bottom: none; margin-top: 1px; margin-bottom: 1px;">
+            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                <div class="tab_list_top" style="position: absolute">
+                    <div id="TabViewBarameter" class="tab_list bd actived" onclick="Tabchange('ViewBarameter')">视图参数</div>
+                    <div id="TabXmlFormat" class="tab_list bd" onclick="Tabchange('XmlFormat')">XML格式</div>
+                </div>
+            </div>
+        </div>
+        <div class="ScrollBar">
+            <!--视图参数-->
+            <div id="ViewBarameter" class="tabPanel">
+                <table id="gridTable"></table>
+                <style>
+                    .ui-widget-content {
+                        border-top: 1px solid #ccc;
+                        border-right: 1px solid #ccc;
+                    }
+
+                    .ui-jqgrid tr.ui-row-ltr td {
+                        padding: 0px;
+                        border-bottom: 1px solid #ccc;
+                    }
+
+                    .ui-jqgrid .ui-state-highlight {
+                        background-color: none;
+                    }
+
+                    .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+                        background: none;
+                    }
+
+                    .editable {
+                        height: 22px;
+                        background-color: #fff;
+                    }
+                </style>
+            </div>
+            <div id="XmlFormat" class="tabPanel" style="display: none;">
+                <textarea readonly id="txtXML" class="border" style="width: 99.8%; height: 249px;">
+                </textarea>
+            </div>
+        </div>
+    </div>
+</form>

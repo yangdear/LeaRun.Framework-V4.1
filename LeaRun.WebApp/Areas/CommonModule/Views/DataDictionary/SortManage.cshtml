@@ -1,0 +1,164 @@
+﻿@{
+    ViewBag.Title = "数据字典》分类管理";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetTree();
+        LoadParent();
+    });
+    //加载上级
+    function LoadParent() {
+        $("#ParentName").focus(function () {
+            var objId = this.id;
+            comboBoxTree(objId, "200px");
+            var itemtree = {
+                onnodeclick: function (item) {
+                    $("#ParentId").val(item.id);
+                    $('#ParentName').val(item.text);
+                },
+                url: "@Url.Content("~/CommonModule/DataDictionary/TreeJson")"
+            };
+            $("#comboBoxTree" + objId).treeview(itemtree);
+        })
+    }
+    var KeyValue = "";
+    var DataDictionaryId = "", DataDictionaryName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                DataDictionaryId = item.id;            //ID
+                DataDictionaryName = item.text;        //名称
+                $("#titleinfo").text(DataDictionaryName);
+            },
+            url: "@Url.Content("~/CommonModule/DataDictionary/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+        LoadrightMenu("#ItemsTree");
+    }
+    //新增
+    function btn_add() {
+        KeyValue = "";
+        $("#ParentId").val(DataDictionaryId);
+        $("#ParentName").val(DataDictionaryName);
+    }
+    //编辑
+    function btn_edit() {
+        if (IsChecked(DataDictionaryId)) {
+            KeyValue = DataDictionaryId;
+            AjaxJson("/CommonModule/DataDictionary/SetFormSortManage", { KeyValue: DataDictionaryId }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        if (IsDelData(DataDictionaryId)) {
+            var delparm = 'KeyValue=' + DataDictionaryId;
+            delConfig('/CommonModule/DataDictionary/DeleteSortManage', delparm, 1);
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            AjaxJson("/CommonModule/DataDictionary/SubmitFormSortManage?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                windowload();
+            });
+        }, 200);
+    }
+    //刷新
+    function windowload() {
+        Replace();
+    }
+</script>
+<form id="form1">
+    <div id="layout" class="layout">
+        <!--左边-->
+        <div class="layoutPanel layout-west">
+            <div class="ScrollBar" id="ItemsTree"></div>
+            <div class="rightMenu">
+                <ul>
+                    <li onclick="btn_add()">
+                        <img src="~/Content/Images/Icon16/add.png" />新增
+                    </li>
+                    <li onclick="btn_edit()">
+                        <img src="~/Content/Images/Icon16/edit.gif" />编辑
+                    </li>
+                    <div class='m-split'></div>
+                    <li onclick="btn_delete()">
+                        <img src="~/Content/Images/Icon16/DeleteRed.png" />删除
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!--中间-->
+        <div class="layoutPanel layout-center">
+            <div id="message" style="display: none"></div>
+            <table class="form" style="border-right: none;">
+                <tr>
+                    <th class="formTitle">分类上级：
+                    </th>
+                    <td class="formValue" style="border-top: none;">
+                        <input id="ParentId" type="hidden" value="0" />
+                        <input id="ParentName" type="text" class="txt icontree" value="==请选择==" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">分类名称：
+                    </th>
+                    <td class="formValue">
+                        <input id="FullName" type="text" datacol="yes" err="名称" checkexpession="NotNull" class="txt" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">分类编码：
+                    </th>
+                    <td class="formValue">
+                        <input id="Code" type="text" datacol="yes" err="编码" checkexpession="NotNull" class="txt" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">显示顺序：</th>
+                    <td class="formValue">
+                        <input id="SortCode" type="text" value="@ViewBag.SortCode" onkeyup="IsNumber(this.id)" class="txt" datacol="yes" err="显示顺序" checkexpession="Num" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">选项：
+                    </th>
+                    <td class="formValue">
+                        <span class="item">
+                            <input type="checkbox" name="checkbox" id="IsTree" />
+                            <label for="IsTree">树型结构</label>
+                        </span>
+                        <span class="item">
+                            <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                            <label for="Enabled">有效</label>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">备注：
+                    </th>
+                    <td class="formValue">
+                        <textarea id="Remark" name="Description" maxlength="200" class="txtArea" rows="4"></textarea>
+                    </td>
+                </tr>
+            </table>
+            <style>
+                .form .formTitle {
+                    border-left: none;
+                    border-top: none;
+                }
+            </style>
+        </div>
+    </div>
+</form>
+

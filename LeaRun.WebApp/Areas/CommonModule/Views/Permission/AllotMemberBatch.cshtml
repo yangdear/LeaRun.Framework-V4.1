@@ -1,0 +1,139 @@
+﻿@{
+    ViewBag.Title = "批量分配用户";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    var ObjectId = GetQuery('ObjectId');                  //对象主键
+    var Category = GetQuery('Category');                  //分类
+    var CategoryName = GetQuery('CategoryName');          //分类名称
+    $(function () {
+        $("#ObjectTitle").html(CategoryName);
+        $("#layoutA").splitter({
+            type: "v",
+            outline: true,
+            minLeft: 190, sizeLeft: 190, maxLeft: 190,
+            anchorToWindow: true,
+            accessKey: "L"
+        });
+        GetTree();
+        GetList();
+        //自定义复选框 全选/反选
+        $("#CheckButton").click(function () {
+            if (!$('.sys_spec_text').find('a').hasClass('disabled')) {
+                if (!!$(this).hasClass("checkAllOff")) {
+                    $(this).attr('title', '反选');
+                    $(this).text('反选');
+                    $(this).attr('class', 'checkAllOn');
+                    $('.sys_spec_text li').addClass('selected');
+                    $('.sys_spec_text li').find('a').removeClass('a_selected');
+                } else {
+                    $(this).attr('title', '全选');
+                    $(this).text('全选');
+                    $(this).attr('class', 'checkAllOff');
+                    $('.sys_spec_text li').removeClass('selected');
+                    $('.sys_spec_text li').find('a').removeClass('a_selected');
+                }
+            }
+        })
+        //模糊查询用户（注：这个方法是理由jquery查询）
+        $("#txt_Search").keyup(function () {
+            if ($(this).val() != "") {
+                var Search = $(this).val();
+                window.setTimeout(function () {
+                    $(".sys_spec_text li")
+                     .hide()
+                     .filter(":contains('" + (Search) + "')")
+                     .show();
+                }, 200);
+            } else {
+                $(".sys_spec_text li").show();
+            }
+        }).keyup();
+    })
+    //加载左边
+    function GetTree() {
+        var itemtree = {
+            showcheck: false,
+            //点击事件
+            onnodeclick: function (item) {
+                $(".sys_spec_text").html("");
+                if (item.Type == 'Roles') {
+                    ObjectId = item.id;
+                    Loading(true);
+                    window.setTimeout(function () {
+                        GetList();
+                        Loading(false);
+                    }, 100);
+                    $("#CheckButton").attr('title', '全选');
+                    $("#CheckButton").text('全选');
+                    $("#CheckButton").attr('class', 'checkAllOff');
+                }
+            },
+            url: "@Url.Content("~/CommonModule/Permission/ScopeRoleList")?ObjectId=" + ObjectId + '&Category=' + Category
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //加载用户
+    function GetList() {
+        getAjax("/CommonModule/Permission/MemberList", { ObjectId: ObjectId, Category: Category }, function (data) {
+            $(".sys_spec_text").html(data);
+        });
+        //选中/不选中
+        $(".sys_spec_text li").click(function () {
+            if (!$(this).find('a').hasClass('disabled')) {
+                if (!!$(this).hasClass("selected")) {
+                    $(this).removeClass("selected");
+                    $(this).find('a').removeClass("a_selected");
+                } else {
+                    $(this).addClass("selected").siblings("li");
+                    $(this).find('a').addClass("a_selected");
+                }
+            }
+        });
+    }
+    //保存事件
+    function AcceptClick() {
+        if (ObjectId != "") {
+            Loading(true, "正在提交数据...");
+            window.setTimeout(function () {
+                var UserId = ""; $('.sys_spec_text .selected a').each(function () { UserId += $(this).attr('id') + ","; });
+                var postData = { UserId: UserId, ObjectId: ObjectId, Category: Category, }
+                AjaxJson("/CommonModule/Permission/AuthorizedMember", postData, function (data) {
+                    Loading(false);
+                    tipDialog(data.Message, 3, data.Code);
+                });
+            }, 200);
+        } else {
+            tipDialog('请选择归属' + CategoryName + '。', 4, 'warning');
+        }
+    }
+</script>
+<div class="note-prompt" style="margin: 1px;">
+    温馨提示：选中复选框即可授予相应权限，取消选中则回收相应权限。
+</div>
+<div id="layoutA" class="layout" onselectstart="return false;" style="-moz-user-select: none;">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                归属<span id="ObjectTitle"></span>
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div style="float: left">
+                归属用户；用户查询：<input id="txt_Search" type="text" class="btnbartitleinput" style="width: 120px;" />
+            </div>
+            <div style="float: right">
+                <label id="CheckButton" class="checkAllOff" title="全选">全选</label>
+            </div>
+        </div>
+        <div class="ScrollBar">
+            <ul class="sys_spec_text">
+            </ul>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,395 @@
+﻿@{
+    ViewBag.Title = "单据编码》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//数据库名称
+    var SeriousId = 'none';//流水号ID
+    $(function () {
+        LoadModule();
+        if (!!KeyValue) {
+            SetControl();
+        }
+    });
+    //处理外表关联
+    function LoadFormatStr(ele, rowindex) {
+        var i = rowindex - 1;
+        if (SeriousId == 'FullName➩' + rowindex) {
+            SeriousId = 'none';
+            $("#Temp_List tbody tr:eq(" + i + ") td:nth-child(3)").html('');
+            $("#Temp_List tbody tr:eq(" + i + ") td:nth-child(4)").html('');
+        }
+        switch ($(ele).val()) {
+            case '0':
+                $("#Temp_List tbody tr:eq(" + i + ") td:nth-child(3)").html('<input id="FormatStr➩' + rowindex + '" type="text" class="txt" />');
+                break;
+            case '1':
+                //处理日期下拉框，
+                $("#Temp_List tbody tr:eq(" + i + ") td:nth-child(3)").html('<select id="FormatStr➩' + rowindex + '" class="txtselect" on >'
+                            + '<option value="MMdd">mmdd</option>'
+                            + '<option value="ddMM">ddmm</option>'
+                            + '<option value="MMyy">mmyy</option>'
+                            + '<option value="yyMM">yymm</option>'
+                            + '<option value="yyyyMM">yyyymm</option>'
+                            + '<option value="yyMMdd">yymmdd</option>'
+                            + '<option value="yyyyMMdd">yyyymmdd</option>'
+                            );
+                $("#AutoReset➩" + rowindex).removeAttr("disabled");
+                break;
+            case '2':
+                //流水号
+                //只允许出现一次流水号
+                if (SeriousId == 'none') {
+                    SeriousId = 'FullName➩' + rowindex;
+                    $("#Temp_List tbody tr:eq(" + i + ") td:nth-child(3)").html('<input id="FormatStr➩' + rowindex + '" type="text" class="txt" value="1" />');
+                    $("#Temp_List tbody tr:eq(" + i + ") td:nth-child(4)").html('<input id="FLength➩' + rowindex + '" type="text" class="txt" value="6" />');
+                }
+                else {
+                    tipDialog('单据编码中只能有一个流水号！', '3', 0);
+                    $(ele).val("0");
+                }
+                break;
+            case '3':
+                $("#Temp_List tbody tr:eq(" + i + ") td:nth-child(3)").html('<select id="FormatStr➩' + rowindex + '" class="txtselect" >'
+                            + '<option value="code">代码</option>'
+                            + '<option value="name">名称</option>'
+                            );
+                break;
+            case '4':
+                $("#Temp_List tbody tr:eq(" + i + ") td:nth-child(3)").html('<select id="FormatStr➩' + rowindex + '" class="txtselect" >'
+                            + '<option value="code">代码</option>'
+                            + '<option value="name">名称</option>'
+                            );
+                break;
+            case '5':
+                $("#Temp_List tbody tr:eq(" + i + ") td:nth-child(3)").html('<select id="FormatStr➩' + rowindex + '" class="txtselect" >'
+                            + '<option value="code">代码</option>'
+                            + '<option value="name">名称</option>'
+                            );
+                break;
+            default:
+                break;
+        }
+    }
+
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#RuleHead");
+            postData["CodeRuleDetailJson"] = GetTableDataJson("#Temp_List");
+            AjaxJson("/CommonModule/CodeRule/SubmitForm_CodeRule?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+    //加载模块
+    function LoadModule() {
+        $("#ModuleName").focus(function () {
+            var objId = this.id;
+            comboBoxTree(objId, "200px");
+            var itemtree = {
+                onnodeclick: function (item) {
+                    $("#ModuleId").val(item.id);
+                    $('#ModuleName').val(item.text);
+                },
+                url: "@Url.Content("~/CommonModule/Module/TreeJson")"
+            };
+            $("#comboBoxTree" + objId).treeview(itemtree);
+        })
+    }
+    /*编辑加载begin=========================================================*/
+    //根据数据库表名字加载字段
+    function SetControl() {
+        //加载表头
+        AjaxJson("/CommonModule/CodeRule/GetEntityJson", { CodeRuleId: KeyValue }, function (data) {
+            SetWebControls(data);
+        });
+        $("#ModuleName").val('@ViewBag.ModuleName');
+        //加载明细
+        AjaxJson("/CommonModule/CodeRule/GetDetailsEntityJson", { CodeRuleId: KeyValue }, function (data) {
+            var JsonData = eval(data);
+            $.each(JsonData, function (i) {
+                isLoadRow = true;
+                var SetData = JsonData[i];
+                for (var key in SetData) {
+                    var id = $('#' + key + "➩" + (i + 1));
+                    var value = $.trim(SetData[key]).replace("&nbsp;", "");
+                    var type = id.attr('type');
+                    switch (key) {
+                        case "AutoReset":
+                            if (value == 1) {
+                                id.attr("checked", 'checked');
+                            } else {
+                                id.removeAttr("checked");
+                            }
+                            break;
+                        case "FullName":
+                            id.val(value);
+                            LoadFormatStr(id, i + 1);
+                            break;
+                        default:
+                            id.val(value);
+                            break;
+                    }
+                }
+            });
+        });
+    }
+    /*编辑加载end=========================================================*/
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="CodeRule">
+        <div id="RuleHead" style="height: 30px; line-height: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">单据名称：
+                    </th>
+                    <td class="formValue">
+                        <input id="FullName" maxlength="50" type="text" class="txt" datacol="yes" err="单据名称" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">编码代号：
+                    </th>
+                    <td class="formValue">
+                        <input id="Code" maxlength="50" type="text" class="txt" datacol="yes" err="Excel文件名" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">对应模块：
+                    </th>
+                    <td class="formValue">
+                        <input id="ModuleId" type="hidden" />
+                        <input id="ModuleName" maxlength="50" type="text" class="txt required" datacol="yes" err="对应模块" checkexpession="NotNull" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+         <div class="bd" style="border-bottom: none; margin-top: 1px; margin-bottom: 1px;">
+            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                <div class="tab_list_top" style="position: absolute">
+                    <div class="tab_list bd actived" >规则设计</div>
+                </div>
+            </div>
+        </div>
+        <table id="Temp_List" class="grid leftline" style="width: 100%">
+            <thead>
+                <tr>
+                    <td style="width: 30px; text-align: center; border-left: none;">
+                        <div class="table-header">行号</div>
+                    </td>
+                    <td style="width: 80px;">
+                        <div class="table-header">项目</div>
+                    </td>
+                    <td style="width: 80px;">
+                        <div class="table-header">格式</div>
+                    </td>
+                    <td style="width: 80px;">
+                        <div class="table-header">长度</div>
+                    </td>
+                    <td style="width: 80px;">
+                        <div class="table-header">补位符</div>
+                    </td>
+                    <td style="width: 80px;">
+                        <div class="table-header">流水号依据</div>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">1</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩1" class="txtselect" onchange="LoadFormatStr(this,1)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩1" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩1" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩1" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">2</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩2" class="txtselect" onchange="LoadFormatStr(this,2)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩2" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩2" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩2" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">3</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩3" class="txtselect" onchange="LoadFormatStr(this,3)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩3" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩3" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩3" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">4</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩4" class="txtselect" onchange="LoadFormatStr(this,4)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩4" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩4" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩4" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">5</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩5" class="txtselect" onchange="LoadFormatStr(this,5)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩5" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩5" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩5" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">6</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩6" class="txtselect" onchange="LoadFormatStr(this,6)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩6" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩6" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩6" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">7</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩7" class="txtselect" onchange="LoadFormatStr(this,7)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩7" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩7" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩7" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">8</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩8" class="txtselect" onchange="LoadFormatStr(this,8)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩8" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩8" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩8" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">9</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩9" class="txtselect" onchange="LoadFormatStr(this,9)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩9" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩9" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩9" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+                <tr>
+                    <td class="td-div" style="width: 30px; text-align: center; border-left: none;">10</td>
+                    <td style="width: 80px;">
+                        <select id="FullName➩10" class="txtselect" onchange="LoadFormatStr(this,10)">
+                            <option value="0">自定义</option>
+                            <option value="1">日期</option>
+                            <option value="2">流水号</option>
+                            <option value="3">部门</option>
+                            <option value="4">公司</option>
+                            <option value="5">用户</option>
+                        </select>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="FormatStr➩10" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;"></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="Remark➩10" type="text" class="txt" /></td>
+                    <td style="width: 80px; text-align: center;">
+                        <input id="AutoReset➩10" class="PrimaryKey" name="checkbox" type="checkbox" disabled /></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</form>

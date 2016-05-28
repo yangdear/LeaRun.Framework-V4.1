@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "Excel导入";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script src="../../Content/Scripts/jquery.form.js"></script>
+<script type="text/javascript">
+    $(window).resize(function () {
+        $('.div-body').height($(window).height() - 74);
+    });
+    $(function () {
+        $('.div-body').height($(window).height() - 74);
+        var options = {
+            success: function (data) {
+                var data = JSON.parse(data);
+                if (data.Status == 'true') {
+                    tipDialog('导入成功', 3, 1)
+                }
+                else {
+                    var JsonData = data.ResultData;
+                    $.each(JsonData, function (i) {
+                        var SetData = JsonData[i];
+                        var rowid = SetData.rowid;
+                        var locate = SetData.locate;
+                        var reason = SetData.reason;
+                        CreateRow(rowid, locate, reason);
+                    });
+                    tipDialog('导入时出现错误', 3, 0)
+                }
+                Loading(false);
+            }
+        };
+        $("#form1").ajaxForm(options);
+    });
+    //提交表单
+    function AcceptClick() {
+        closeDialog();
+    }
+    function CreateRow(rowid, locate, reason) {
+        var tr = '<tr>';
+        tr += '<td style="width: 30px;">' + rowid + '</td>'
+        tr += '<td style="width: 300px;">' + locate + '</td>'
+        tr += '<td style="width: 300px;">' + reason + '</td>'
+        tr += '</tr>';
+        $(tr).appendTo("#Error_Detail");
+    }
+</script>
+<form id="form1" action="~/CommonModule/ExcelImport/ImportExel?moduleId=@ViewBag.ModuleId" method="post" enctype="multipart/form-data">
+    <div class="bd" style="border-bottom: none; margin: 1px;margin-bottom: 0px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabimport" class="tab_list bd actived" onclick="Tabchange('import')">@ViewBag.ImportName</div>
+            </div>
+            <div style="float: right; padding-right: 5px;">
+                Excel模板： <a class="alink" href="~/CommonModule/ExcelImport/GetExcellTemperature?ImportId=@ViewBag.ImportId">下载模板.xls</a>
+            </div>
+        </div>
+    </div>
+    <div class="border" style="border-top: none; margin-top: 0px; margin-left: 1px; margin-right: 1px;">
+        <div class="btnbarcontetn" style="background: #fff">
+            <div>
+                <div id="ImportHead">
+                    <table border="0" class="frm" style="height: 35px; width: auto; padding-left: 5px; padding-top: 1px;">
+                        <tr>
+                            <th style="width: 60px;">导入文件：
+                            </th>
+                            <td>
+                                <input type="file" id="filePath" class="keyword" style="width: 494px; border-radius: 0px;" name="filePath" />
+                            </td>
+                            <td>
+                                <input type="submit" class="btnSearch" value="导入" onclick="Loading(true, '正在导入数据...')" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="ImportGrid">
+            <table id="Error_Head" class="grid" style="width: 100%">
+                <thead>
+                    <tr>
+                        <td style="width: 50px; text-align: center; border-left: none;">
+                            <div class="table-header">行号</div>
+                        </td>
+                        <td style="width: 300px;">
+                            <div class="table-header">位置</div>
+                        </td>
+                        <td style="width: 300px;">
+                            <div class="table-header">原因</div>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody id="Error_Detail">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <style>
+        .grid thead td .table-header {
+            padding-left: 2px;
+        }
+        .grid tbody td {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</form>

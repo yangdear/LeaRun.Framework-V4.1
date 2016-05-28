@@ -1,0 +1,47 @@
+﻿@{
+    ViewBag.Title = "百万数据量测试";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        GetGrid();
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ExampleModule/Hadoop/TestTableMegaListJson")",
+            datatype: "json",
+            height: $(window).height() - 99,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'testid', width: 80, align: 'left', hidden: true },
+                { label: '编码', name: 'code', index: 'code', width: 80, align: 'left' },
+                { label: '名称', name: 'fullname', index: 'fullname', width: 300, align: 'left' },
+                {
+                    label: '创建时间', name: 'createdate', index: 'createdate', width: 150, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm:ss');
+                    }
+                },
+                { label: '备注', name: 'remark', width: 500, align: 'left' },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'testid',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+    }
+</script>
+<div class="border" style="margin-top: 1px; height: 40px; line-height: 40px; padding-left: 5px; font-weight: bold; font-family: 'Roboto', sans-serif; color: #666; background: #FFFDCD;">
+    <img src="~/Content/Images/Icon32/table_tab_search.png" style="vertical-align: middle;" />
+    百万级别数据量性能测试
+</div>
+<div id="grid_List">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

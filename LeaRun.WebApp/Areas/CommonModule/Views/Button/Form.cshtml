@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "系统按钮》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var ModuleId = GetQuery('ModuleId');//模块Id
+    var Category = GetQuery('Category');//分类
+    $(function () {
+        LoadParent();
+        InitControl();
+    })
+    //加载上级按钮
+    function LoadParent() {
+        $("#ParentName").focus(function () {
+            var objId = this.id;
+            comboBoxTree(objId, "150px");
+            var itemtree = {
+                onnodeclick: function (item) {
+                    $("#ParentId").val(item.id);
+                    $('#ParentName').val(item.text);
+                },
+                url: "@Url.Content("~/CommonModule/Button/ButtonTreeJson")?ModuleId=" + ModuleId + "&Category=" + Category
+            };
+            $("#comboBoxTree" + objId).treeview(itemtree);
+            //移除Id上级元素
+            $("#comboBoxTree" + objId + "_" + GetQuery('KeyValue').replace(/-/g, '_')).parent('li').remove();
+        })
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!KeyValue) {
+            AjaxJson("/CommonModule/Button/SetFormControl", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        } else {
+            //显示顺序
+            AjaxJson("/CommonModule/Button/SortCode", {}, function (Data) {
+                $("#SortCode").val(Data);
+            });
+            $("#ParentId").val(GetQuery('ButtonId'));
+            $("#ParentName").val(GetQuery('ButtonName'));
+            $("#Category").val(Category);
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            if (KeyValue == "") {
+                postData["ModuleId"] = ModuleId;
+            }
+            AjaxJson("/CommonModule/Button/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class="formTitle">按钮编码：
+            </th>
+            <td class="formValue">
+                <input id="Code" maxlength="50" type="text"   class="txt required" datacol="yes" err="按钮编码" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">按钮名称：
+            </th>
+            <td class="formValue">
+                <input id="FullName" maxlength="50" type="text" class="txt required" datacol="yes" err="按钮名称" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">上级按钮：
+            </th>
+            <td class="formValue">
+                <input id="ParentId" type="hidden" />
+                <input id="ParentName" type="text" class="txt icontree" />
+            </td>
+            <th class="formTitle">分类：
+            </th>
+            <td class="formValue">
+                <select disabled id="Category" class="txtselect">
+                    <option value="1">工具栏</option>
+                    <option value="2">右击栏</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">Icon图标：
+            </th>
+            <td class="formValue">
+                <input id="Icon" type="text" class="txt" />
+            </td>
+            <th class="formTitle">Js事件方法：
+            </th>
+            <td class="formValue">
+                <input id="JsEvent" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">Action地址：
+            </th>
+            <td class="formValue" colspan="3">
+                <input id="ActionEvent" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">显示顺序：</th>
+            <td class="formValue">
+                <input id="SortCode" type="text" onkeyup="IsNumber(this.id)" class="txt required" datacol="yes" err="显示顺序" checkexpession="Num" />
+            </td>
+            <th class="formTitle">选项：</th>
+            <td class="formValue" >
+                <span class="item">
+                    <input type="checkbox" name="checkbox" id="Split" />
+                    <label for="Split">分开线</label>
+                </span>
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                    <label for="Enabled">有效</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">说明：
+            </th>
+            <td class="formValue" colspan="3">
+                <textarea id="Remark" name="Description" maxlength="200" class="txtArea" rows="4"></textarea>
+            </td>
+        </tr>
+    </table>
+</form>

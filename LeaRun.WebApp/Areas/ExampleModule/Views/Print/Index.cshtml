@@ -1,0 +1,109 @@
+﻿@{
+    ViewBag.Title = "打印功能";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        GetGrid();
+    })
+    //表格列表
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ExampleModule/Print/GetPrintList")",
+            datatype: "json",
+            height: $(window).height() - 152,
+            autowidth: true,
+            colModel: [
+                { label: '物料代码', name: "ItemCode", width: 100, sortable: false },
+                { label: '物料名称', name: "ItemName", width: 200, sortable: false },
+                { label: '规格型号', name: "ItemModel", width: 80, sortable: false, align: 'center' },
+                { label: '单位', name: "UnitId", width: 70, sortable: false, align: 'center' },
+                { label: '数量', name: 'Qty', width: 70, sortable: false, align: 'center' },
+                { label: '单价', name: 'Price', width: 70, sortable: false, align: 'center' },
+                { label: '金额', name: 'PriceAmount', width: 70, sortable: false, align: 'center' },
+                { label: '含税单价', name: 'PlusPrice', width: 70, sortable: false, align: 'center' },
+                { label: '税率(%)', name: 'CESS', width: 70, sortable: false, align: 'center' },
+                { label: '税额', name: 'CESSAmount', width: 70, sortable: false, align: 'center' },
+                { label: '含税金额', name: 'PlusPriceAmount', width: 70, sortable: false, align: 'center' },
+                { label: '说明', name: 'Description', width: 384, sortable: false }
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "ItemCode": "合计",
+                    "Qty": $(this).getCol("Qty", false, "sum"),
+                    "Price": $(this).getCol("Price", false, "sum"),
+                    "PriceAmount": $(this).getCol("PriceAmount", false, "sum"),
+                    "PlusPrice": $(this).getCol("PlusPrice", false, "sum"),
+                    "CESSAmount": $(this).getCol("CESSAmount", false, "sum"),
+                    "PlusPriceAmount": $(this).getCol("PlusPriceAmount", false, "sum")
+                });
+            }
+        });
+        //表头合并
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+              { startColumnName: 'ItemCode', numberOfColumns: 4, titleText: '物料信息' },
+              { startColumnName: 'Qty', numberOfColumns: 7, titleText: '价格信息' }
+            ]
+        });
+    }
+    //要打印数据源，子页面调用的函数
+    function PrintDataSource() {
+        var columnModel = $("#gridTable").jqGrid('getGridParam', 'colModel');
+        var dataModel = $("#gridTable").jqGrid("getRowData");
+        var footerData = $("#gridTable").jqGrid("footerData");
+        var JsonData = {
+            columnModel: columnModel,
+            dataModel: dataModel,
+            footerData: footerData,
+        }
+        return JsonData;
+    }
+    //点击打印
+    function btn_Print() {
+        PrintDialog("/Utility/PrintPage", "PrintPage", "打印当前页", 1200, 500, function (iframe) {
+            top.frames[iframe].SubmitPrint()
+        });
+    }
+</script>
+<div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+    <div class="tools_bar" style="margin-top: 1px; margin-bottom: 1px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <div id="grid_List" class="topline">
+        <div class="btnbartitle">
+            <div>
+                打印数据列表
+            </div>
+        </div>
+        <table id="gridTable"></table>
+        <style>
+            .ui-widget-content {
+                border-left: none;
+            }
+
+            .ui-jqgrid tr.ui-row-ltr td {
+                padding: 0px;
+                border-bottom: 1px solid #ccc;
+            }
+
+            .ui-jqgrid .ui-jqgrid-htable th {
+                line-height: 15px;
+            }
+
+                .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+                    background: none;
+                }
+        </style>
+    </div>
+</div>
+

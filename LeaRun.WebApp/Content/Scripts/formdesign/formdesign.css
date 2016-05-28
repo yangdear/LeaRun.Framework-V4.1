@@ -1,0 +1,295 @@
+﻿.items-list {
+	margin: 0px;
+}
+.items_move_img {
+    width:20px;
+    vertical-align:middle;
+    padding:5px;
+    position: absolute;
+    z-index: 1000;
+    display:none;
+}
+.items-list li {
+	height: 30px;
+	line-height: 30px;
+	padding-left: 10px;
+	cursor: default;
+}
+.items-list li:hover {
+	background: #F7F7F7;
+}
+.items-list li img{vertical-align:middle;margin:0px 5px 0px 0px;padding-bottom:3px;}
+.formlayout {
+	background-image: url(Images/blank.gif);
+}
+.item_control {
+	position: absolute;
+	background-color: #fff;
+}
+.item_text {
+	height: 22px;
+	line-height: 22px;
+	width: 150px;
+}
+.item_focus {
+	box-shadow: 2px 2px 19px #ccc;
+	cursor: move;
+}
+.rs_right {
+	overflow: hidden;
+	position: absolute;
+	right: -3px;
+	top: 0px;
+	height: 100%;
+	width: 3px;
+	cursor: w-resize;
+}
+.rs_rb{
+	position:absolute;right:-1px;bottom:-1px;width:9px;height:9px;overflow:hidden;cursor:nw-resize;
+}
+.item_lable {
+	top: 20px;
+	left: 90px;
+	position: absolute;
+	height: 22px;
+	line-height: 22px;
+	width: auto;
+}
+.item_lable .item_text {
+	width: auto;
+}
+
+.item_hyperlink {
+	top: 50px;
+	left: 90px;
+	position: absolute;
+	height: 22px;
+	line-height: 22px;
+	width: auto;
+    color:blue;
+}
+.item_hyperlink .item_text {
+	width: auto;
+}
+
+
+.item_input {
+	top: 80px;
+	left: 90px;
+	position: absolute;
+	border: solid 1px #A8A8A8;
+	height: 22px;
+	line-height: 22px;
+	width: 150px;
+}
+.item_textarea {
+	top: 110px;
+	left: 90px;
+	position: absolute;
+	border: solid 1px #A8A8A8;
+	height: 44px;
+	line-height: 22px;
+	width: 150px;
+}
+.item_textarea .item_text {
+    height: 44px;
+}
+.item_selectenum {
+	top: 163px;
+	left: 90px;
+	position: absolute;
+	border: solid 1px #A8A8A8;
+	height: 22px;
+	line-height: 22px;
+	width: 150px;
+}
+.item_selectenum .select_arrow {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	width: 22px;
+	height: 22px;
+	display: block;
+	background: url(Images/select_arrow.png) no-repeat scroll 8px 8.5px;
+}
+.item_selecttable {
+	top: 163px;
+	left: 90px;
+	position: absolute;
+	border: solid 1px #A8A8A8;
+	height: 22px;
+	line-height: 22px;
+	width: 150px;
+}
+.item_selecttable .select_arrow {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	width: 22px;
+	height: 22px;
+	display: block;
+	background: url(Images/select_arrow.png) no-repeat scroll 8px 8.5px;
+}
+
+.item_datatime {
+	top: 193px;
+	left: 90px;
+	position: absolute;
+	border: solid 1px #A8A8A8;
+	height: 22px;
+	line-height: 22px;
+	width: 150px;
+}
+.item_datatime .datatime_arrow {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	width: 22px;
+	height: 22px;
+	display: block;
+	background: url(Images/datetime_arrow.png) no-repeat scroll 4px 4px transparent;
+}
+.item_radio {
+	top: 223px;
+	left: 90px;
+	position: absolute;
+	height: 22px;
+	line-height: 22px;
+	width: auto;
+}
+.item_radio .item_text {
+	width: auto;
+    padding-right:5px;
+}
+.item_radio .radio_arrow {
+    float:left;
+	width: 22px;
+	height: 22px;
+	display: block;
+	background: url(Images/radio.png) no-repeat scroll 4px 5px transparent;
+}
+
+.item_checkbox {
+	top: 253px;
+	left: 90px;
+	position: absolute;
+	height: 22px;
+	line-height: 22px;
+	width: auto;
+}
+.item_checkbox .item_text {
+	width: auto;
+    padding-right:5px;
+}
+.item_checkbox .checkbox_arrow {
+    float:left;
+	width: 22px;
+	height: 22px;
+	display: block;
+	background: url(Images/checkbox.png) no-repeat scroll 4px 5px transparent;
+}
+
+.item_upload {
+	top: 283px;
+	left: 90px;
+	position: absolute;
+	border: solid 1px #A8A8A8;
+	height: 22px;
+	line-height: 22px;
+	width: 150px;
+}
+.item_upload .upload_arrow {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	width: 40px;
+	height: 22px;
+	display: block;
+    border-left: solid 1px #A8A8A8;
+    text-align:center;
+	background: #F7F7F7;
+}
+.item_table{
+	top: 313px;
+	left: 90px;
+	position: absolute;
+	border: solid 1px #A8A8A8;
+	height: 200px;
+	width: 400px;
+}
+.item_table .item_text {
+	height: 200px;
+	width: 400px;
+}
+.item_table .item_grid{width: 100%;margin:0px;border-collapse:collapse;table-layout:fixed;}
+.item_table .item_grid thead td{border-right:1px solid #ccc; border-bottom:1px solid #ccc;text-align:left;text-overflow:ellipsis; font-weight:normal;word-break:keep-all;overflow:hidden;background-color:#F7F7F7;}
+.item_img {
+	top: 543px;
+	left: 90px;
+	position: absolute;
+	border: solid 1px #A8A8A8;
+	height: 150px;
+	width: 150px;
+}
+.item_img .item_text {
+    height: 150px;
+}
+
+.propertygrid {
+    background: #F7F7F7;
+    padding-left:18px;
+    border-bottom: 1px solid #ccc;
+}
+.propertygrid .grid-group {
+    height: 22px;
+    line-height:22px;
+    font-weight: bold;
+    background: #F7F7F7;
+    /*border-bottom: 1px solid #ccc;*/
+}
+.propertygrid .grid-group:last-child {
+    border-bottom:none;
+}
+.propertygrid .grid-group .grid-collapse {
+    float:left;
+    position: absolute;left: 0px;
+    width: 18px;height: 18px;display: block;background: url(Images/minus.gif) no-repeat scroll 0px 2px transparent;
+    vertical-align:middle;padding-bottom:4px;
+    cursor:pointer;
+}
+.propertygrid .grid-group .grid-expand {
+    float:left;
+    position: absolute;left: 0px;
+    width: 18px;height: 18px;display: block;background: url(Images/plus.gif) no-repeat scroll 0px 2px transparent;
+    vertical-align:middle;padding-bottom:4px;
+    cursor:pointer;
+}
+.propertygrid .grid-sub {
+    width:100%;margin:0px;padding:0px;border-collapse:collapse;table-layout:fixed;background-color: #fff;
+}
+.propertygrid .grid-sub .cell-title {
+    padding: 0 4px;
+    width:50%;
+    height: 22px;
+    line-height:22px;
+    border-bottom: 1px dotted #ccc;
+    /*border-left: 1px dotted #ccc;*/
+    white-space:nowrap;
+    overflow: hidden;
+    cursor:default;
+}
+.propertygrid .grid-sub .cell-value {
+    padding: 0 4px;
+    width:50%;
+    height: 22px;
+    line-height:22px;
+    border-bottom: 1px dotted #ccc;
+    border-left: 1px dotted #ccc;
+    white-space:nowrap;
+    overflow: hidden;
+    cursor:default;
+}
+.propertygrid .grid-sub tr:last-child .cell-value,.propertygrid .grid-sub tr:last-child .cell-title {
+    border-bottom:none;
+}
+

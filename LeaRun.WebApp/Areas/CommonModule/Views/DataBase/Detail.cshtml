@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "数据库管理》查询页面";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    var tableName = GetQuery('tableName');
+    var pk = GetQuery('pk');
+    $(function () {
+        GetGrid();
+    })
+    //加载表格
+    var lastsel
+    function GetGrid() {
+        var colModelData = [];
+        AjaxJson("/CommonModule/DataBase/GridColumnListJson", { tableName: tableName }, function (data) {
+            var DataJson = data.rows;
+            $.each(DataJson, function (i) {
+                var field = DataJson[i].column.toLocaleLowerCase();
+                var remark = DataJson[i].remark;
+                $("#queryWhere").append($("<option title=" + remark + "></option>").val(field).html(field));
+                colModelData.push({ label: "<div title=" + remark + ">" + field + "</div>", name: field, index: field, editable: true });
+            });
+        });
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/DataBase/GridDataTableListJson")?tableName=" + escape(tableName),
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: colModelData,
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            onSelectRow: function (id) {
+                if (id && id !== lastsel) {
+                    $('#gridTable').jqGrid('restoreRow', lastsel);
+                    $("#lr-edti,#lr-delete").removeClass('disabled');
+                    $("#lr-save,#lr-cancel").addClass("disabled");
+                    lastsel = id;
+                }
+            }
+        });
+        /*编辑行数据begin*/
+        //编辑
+        $("#lr-edti").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable");
+            if (Index) {
+                $("#gridTable").jqGrid('editRow', Index);
+                $("#lr-edti").addClass("disabled");
+                $("#lr-save,#lr-cancel").removeClass("disabled");
+            }
+        });
+        //保存
+        $("#lr-save").click(function () {
+            var parameter = "";
+            $(".editable").each(function () {
+                parameter += '"' + $(this).attr('name') + '"' + ':' + '"' + $.trim($(this).val()) + '",'
+            });
+            parameter = '{' + parameter.substr(0, parameter.length - 1) + '}';
+            var Index = GetJqGridRowIndx("#gridTable");
+            $("#gridTable").jqGrid('saveRow', Index, {
+                url: '/CommonModule/DataBase/EditDataTableRow',
+                extraparam: { tableName: tableName, pk: pk, entityJons: parameter },
+                successfunc: function (response) {
+                    return true;
+                }
+            });
+            $("#lr-save,#lr-cancel").addClass("disabled");
+            $("#lr-edti").removeClass("disabled");
+        });
+        //取消
+        $("#lr-cancel").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable");
+            $("#gridTable").jqGrid('restoreRow', Index);
+            $("#lr-save,#lr-cancel").addClass("disabled");
+            $("#lr-edti").removeClass("disabled");
+        });
+        /*编辑行数据end*/
+    }
+    //搜索
+    function btn_Search() {
+        var Parameter = [{
+            paramName: $("#queryWhere").val(),
+            paramValue: $("#keywords").val(),
+            Operation: $("#logic").val(),
+        }]
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/CommonModule/DataBase/GridDataTableListJson")?tableName=" + escape(tableName) + '&ParameterJson=' + escape(JSON.stringify(Parameter))
+        }).trigger('reloadGrid');
+    }
+    //删除行
+    function DeleteRow() {
+        var RowData = $("#gridTable").jqGrid('getRowData', GetJqGridRowIndx("#gridTable"));
+        AjaxJson("/CommonModule/DataBase/DeleteDataTableRow", { tableName: tableName, pk: pk, entityJons: JSON.stringify(RowData) }, function (Data) {
+            $("#gridTable").trigger("reloadGrid");
+        });
+    }
+    //刷新
+    function Replace() {
+        $("#gridTable").trigger("reloadGrid");
+    }
+</script>
+
+<div class="topline leftline rightline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        <div class="PartialButton">
+            <a id="lr-replace" class="tools_btn" title="刷新当前" onclick="Replace()"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/arrow_refresh.png")) no-repeat 50% 4px;'>刷新</b></span></a>
+            <div class="tools_separator"></div>
+            <a id="lr-edti" class="tools_btn disabled" title="编辑选中行"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/table_edit.png")) no-repeat 50% 4px;'>编辑</b></span></a>
+            <a id="lr-save" class="tools_btn disabled" title="保存"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/table_save.png")) no-repeat 50% 4px;'>保存</b></span></a>
+            <a id="lr-cancel" class="tools_btn disabled" title="取消保存行"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/cancel.png")) no-repeat 50% 4px;'>取消</b></span></a>
+            <div class="tools_separator"></div>
+            <a id="lr-delete" class="tools_btn disabled" title="删除行" onclick="DeleteRow()" ><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/table_row_delete.png")) no-repeat 50% 4px;'>删除行</b></span></a>
+        </div>
+    </div>
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>查询条件：
+            </th>
+            <td>
+                <select id="queryWhere" class="select"  style="width: 100px">
+                </select>
+            </td>
+            <th style="width: 50px;">逻辑符：
+            </th>
+            <td>
+                <select id="logic" class="select"  style="width: 70px">
+                    <option value="Equal">等于</option>
+                    <option value="NotEqual">不等于</option>
+                    <option value="Greater">大于</option>
+                    <option value="GreaterThan">大于等于</option>
+                    <option value="Less">小于</option>
+                    <option value="LessThan">小于等于</option>
+                    <option value="Null">为空</option>
+                    <option value="NotNull">不为空</option>
+                    <option value="Like">包含</option>
+                </select>
+            </td>
+            <th>关键字：
+            </th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 260px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

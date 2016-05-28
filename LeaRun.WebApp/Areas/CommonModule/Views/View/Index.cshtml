@@ -1,0 +1,132 @@
+﻿@{
+    ViewBag.Title = "系统视图";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        GetTree();
+        GetGird();
+    });
+    var ModuleId = "", ModuleName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                ModuleId = item.id;            //ID
+                ModuleName = item.text;        //名称
+                $("#titleinfo").text(ModuleName);
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/CommonModule/View/GridListJson")?ModuleId=" + ModuleId
+                }).trigger('reloadGrid');
+            },
+            url: "@Url.Content("~/CommonModule/View/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //加载表格
+    function GetGird() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/View/GridListJson")",
+            datatype: "json",
+            height: $(window).height() - 105,
+            autowidth: true,
+            colModel: [
+                { label: "主键", name: "ViewId", index: "ViewId", hidden: true },
+                { label: "绑定字段", name: "FieldName", index: "FieldName", width: 120 },
+                { label: "内部名称", name: "FullName", index: "FullName", width: 120 },
+                { label: "显示名称", name: "ShowName", index: "ShowName", width: 120 },
+                { label: "显示列宽", name: "ColumnWidth", index: "ColumnWidth", width: 65, align: "center" },
+                { label: "对齐方式", name: "TextAlign", index: "TextAlign", width: 65, align: "center" },
+                {
+                    label: "导出/打印", name: "AllowDerive", index: "AllowDerive", width: 80, align: "center",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1')
+                            return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        else
+                            return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                {
+                    label: "是否显示", name: "AllowShow", index: "AllowShow", width: 65, align: "center",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1')
+                            return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        else
+                            return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                {
+                    label: "有效", name: "Enabled", index: "Enabled", width: 45, align: "center",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1')
+                            return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        else
+                            return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                { label: "自定义转换", name: "CustomSwitch", index: "CustomSwitch", width: 400 }
+            ],
+            pager: false,
+            rowNum: 1000,
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true
+        });
+    }
+    //新增
+    function btn_add() {
+        if (!!ModuleId) {
+            var url = "/CommonModule/View/Form?ModuleId=" + ModuleId;
+            FullopenDialog(url, "Form", "新增视图", function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        } else {
+            tipDialog('请选择左边导航目录。', 4, 'warning');
+        }
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = ModuleId;
+        if (!!KeyValue) {
+            var url = "/CommonModule/View/Form?KeyValue=" + KeyValue + '&ModuleId=' + ModuleId;
+            FullopenDialog(url, "Form", "编辑视图", function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        } else {
+            tipDialog('请选择左边导航目录。', 4, 'warning');
+        }
+    }
+    //刷新表格
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                导航目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="ToolbaAarea">
+            <div class="btnbartitle">
+                <div>
+                    视图列表 - <span id="titleinfo">未选择</span>
+                </div>
+            </div>
+            <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+                <div class="PartialButton">
+                    @Html.Partial("_PartialButton")
+                </div>
+            </div>
+        </div>
+        <table id="gridTable"></table>
+    </div>
+</div>

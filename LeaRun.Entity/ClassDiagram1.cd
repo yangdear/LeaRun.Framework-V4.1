@@ -1,0 +1,319 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="LeaRun.Entity.BaseEntity" Collapsed="true">
+    <Position X="46.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>BaseUtility\BaseEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.DataContext" Collapsed="true">
+    <Position X="95.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIBAEAAhCEEECBgAgAAAgRKAIIICAAAIAAEgIAABTCk=</HashCode>
+      <FileName>BaseUtility\DataContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_BackupJob" Collapsed="true">
+    <Position X="27.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAEIAAAAIAAQICAAAAAAAAAIAAAAEAAAABBAAgAEQA=</HashCode>
+      <FileName>CommonModule\Base_BackupJob.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_Button" Collapsed="true">
+    <Position X="41" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAAAAAAJAAAgAwoAQAAAAAAEAQAgAhQAkAGQA=</HashCode>
+      <FileName>CommonModule\Base_Button.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_ButtonPermission" Collapsed="true">
+    <Position X="54.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAIAAAAAAAAAAAAAAAAAQAAAAAAEQAAAABRAgAGAA=</HashCode>
+      <FileName>CommonModule\Base_ButtonPermission.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_CodeRule" Collapsed="true">
+    <Position X="68" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAAAAAAJAAAAAggAQAAAAQAEAAAAAhQAgAEAA=</HashCode>
+      <FileName>CommonModule\Base_CodeRule.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_CodeRuleDetail" Collapsed="true">
+    <Position X="81.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAoAIQCAAAIAAJAAAAAAgBAAABIQAEAAAQAhQAgAEQA=</HashCode>
+      <FileName>CommonModule\Base_CodeRuleDetail.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_CodeRuleSerious" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAAAAAAJAAAEAAgAgAAAAQAEAAAAAhQAiAEAA=</HashCode>
+      <FileName>CommonModule\Base_CodeRuleSerious.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_Company" Collapsed="true">
+    <Position X="14" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACBgCIASJAICAAgwCQQAAAABMACAgAhYggAGSA=</HashCode>
+      <FileName>CommonModule\Base_Company.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_DataDictionary" Collapsed="true">
+    <Position X="29.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAIACAAAIAAJAAAAAggAAAAAAAAEAAAgChQAgAGQA=</HashCode>
+      <FileName>CommonModule\Base_DataDictionary.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_DataDictionaryDetail" Collapsed="true">
+    <Position X="43.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAACAAAJAAAAAggAAAAAAAAEAAAgChQAgAEQA=</HashCode>
+      <FileName>CommonModule\Base_DataDictionaryDetail.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_DataScopePermission" Collapsed="true">
+    <Position X="56.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAYAAAAACAgAAAAAAAAAQAAAAAAEAEAAABQAgAGAA=</HashCode>
+      <FileName>CommonModule\Base_DataScopePermission.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_Department" Collapsed="true">
+    <Position X="70.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAgCIAgJAAAAAggAAQAAAABMAAAgAhYAgAEQA=</HashCode>
+      <FileName>CommonModule\Base_Department.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_Employee" Collapsed="true">
+    <Position X="83.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CMhgIgAA4AAAAQAIBEAQAQgUlAABBEAAQAAiA0ECCAA=</HashCode>
+      <FileName>CommonModule\Base_Employee.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_ExcelImport" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAKACAAgAAAJAAAAAggAUAAAABAEAAAAADQggAEAA=</HashCode>
+      <FileName>CommonModule\Base_ExcelImport.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_ExcelImportDetail" Collapsed="true">
+    <Position X="16.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAICQAAAIAAIAAAIBAAAEAAgCAAEAAAAAFQAgAEAA=</HashCode>
+      <FileName>CommonModule\Base_ExcelImportDetail.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_FormAttribute" Collapsed="true">
+    <Position X="32" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAMACAAAACApAAAQQAgAQAAAgoAEAAAAArQAhEEQA=</HashCode>
+      <FileName>CommonModule\Base_FormAttribute.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_FormAttributeValue" Collapsed="true">
+    <Position X="45.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAIAAAABAAAAAAAAAAAAQAAAAAAEAAABAAAAAAAAA=</HashCode>
+      <FileName>CommonModule\Base_FormAttributeValue.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_GroupUser" Collapsed="true">
+    <Position X="59" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAAAIAgJAAAAAggAAAAAAAAEAAAAghQAgAEQA=</HashCode>
+      <FileName>CommonModule\Base_GroupUser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_InterfaceManage" Collapsed="true">
+    <Position X="72.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAAAAAAJAAAACggAAAAAAAAFAAAAAhQAgAEQQ=</HashCode>
+      <FileName>CommonModule\Base_InterfaceManage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_InterfaceManageParameter" Collapsed="true">
+    <Position X="86" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAIABBAAAAAIAAAACAAAAAAAAIAEAAAAAgQAAAiAA=</HashCode>
+      <FileName>CommonModule\Base_InterfaceManageParameter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_Module" Collapsed="true">
+    <Position X="5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAAAAgApAAAAIggDQAABABQEABAgAhQAkAGQA=</HashCode>
+      <FileName>CommonModule\Base_Module.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_ModulePermission" Collapsed="true">
+    <Position X="18.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAIAAAAAAAAAAAAAACAAQAAAAAAEAAAAABQAgAGAA=</HashCode>
+      <FileName>CommonModule\Base_ModulePermission.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_ObjectUserRelation" Collapsed="true">
+    <Position X="34.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAIAAAAAAAAAIAAAAAAAgAAAAAAEAAAAABQAgAGAA=</HashCode>
+      <FileName>CommonModule\Base_ObjectUserRelation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_Post" Collapsed="true">
+    <Position X="47.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAKAAAIAgJEAAAAggAAAAAAAAEAAAAAhQAgAEQA=</HashCode>
+      <FileName>CommonModule\Base_Post.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_ProvinceCity" Collapsed="true">
+    <Position X="61.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAAAAAAJAAAAAggAAAAAAAAEAAAgAhQAgAGAA=</HashCode>
+      <FileName>CommonModule\Base_ProvinceCity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_QueryRecord" Collapsed="true">
+    <Position X="74.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIACAIAAAAJAAAABAgAQAAAAAAEAAAAAhQAgAEAg=</HashCode>
+      <FileName>CommonModule\Base_QueryRecord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_Roles" Collapsed="true">
+    <Position X="88.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAKAAAIAAJAAAAAggAAAAAAAAEAAAAAhQAgAGQA=</HashCode>
+      <FileName>CommonModule\Base_Roles.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_Shortcuts" Collapsed="true">
+    <Position X="7.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAAAAQAAAAAAEAAAAABCAgAAAA=</HashCode>
+      <FileName>CommonModule\Base_Shortcuts.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_SysLog" Collapsed="true">
+    <Position X="20.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAIAIAAEAAIAgAAAAAAAAAQAAAAAAGAAAAABAEgCEQA=</HashCode>
+      <FileName>CommonModule\Base_SysLog.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_SysLogDetail" Collapsed="true">
+    <Position X="36.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAIAAAAEAAAAAAAAAAEAAAAAAAAEAAAAABIEBAAAA=</HashCode>
+      <FileName>CommonModule\Base_SysLogDetail.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_User" Collapsed="true">
+    <Position X="50" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAIACAACICgJCAQCIgkAgAAAAYAOCGAMAxQAgAEUA=</HashCode>
+      <FileName>CommonModule\Base_User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_View" Collapsed="true">
+    <Position X="63.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQIAAAAAAABIAAAEAAAAQEAACAAUAAAgABQAgAAAg=</HashCode>
+      <FileName>CommonModule\Base_View.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_ViewPermission" Collapsed="true">
+    <Position X="77" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAIAAAAAAAAAAAAAAAAAQAAAAAAEAAAAQBQAgAGAA=</HashCode>
+      <FileName>CommonModule\Base_ViewPermission.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_ViewWhere" Collapsed="true">
+    <Position X="90.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAIAAAIAAABIAAAAAAAAQAAAiAAUAAAgABQAAAgAA=</HashCode>
+      <FileName>CommonModule\Base_ViewWhere.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_Email" Collapsed="true">
+    <Position X="9.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAIAAAAgAAACAUAAIAAAIAAAAAgFAAAighBAgAGAA=</HashCode>
+      <FileName>ExampleModule\Base_Email.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_EmailAccessory" Collapsed="true">
+    <Position X="23" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIgAAAAAAAABAAAABAAIAAAAAAEAAAABBAABAAAA=</HashCode>
+      <FileName>ExampleModule\Base_EmailAccessory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_EmailAddressee" Collapsed="true">
+    <Position X="38.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAIIAAAAAAAABAAAMCAEAIACAgAAEAAAAAhAAAAAAA=</HashCode>
+      <FileName>ExampleModule\Base_EmailAddressee.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_EmailCategory" Collapsed="true">
+    <Position X="52.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAMACAAAAAAJAAAAAAgAAAAAAAAEAAAAAhQAgAEQA=</HashCode>
+      <FileName>ExampleModule\Base_EmailCategory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_NetworkFile" Collapsed="true">
+    <Position X="65.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>SAAAIgAAAAAAAIhAAAAAAQAAAAgAAMAIAABhQAlAEAA=</HashCode>
+      <FileName>ExampleModule\Base_NetworkFile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_NetworkFolder" Collapsed="true">
+    <Position X="79.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAIACABAAAAJgAAAAAgQAAACAAAMAIAgAhQAgAGAA=</HashCode>
+      <FileName>ExampleModule\Base_NetworkFolder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.Base_PhoneNote" Collapsed="true">
+    <Position X="92.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQIAAAAAAAAIAAAAAAAAAAAAAAAEAAAgArQAgAMQA=</HashCode>
+      <FileName>ExampleModule\Base_PhoneNote.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.POOrder" Collapsed="true">
+    <Position X="11.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAIACAAAABMDMAAAgoggEICAAAAEEFAwAhAAgoEQE=</HashCode>
+      <FileName>ExampleModule\POOrder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.POOrderEntry" Collapsed="true">
+    <Position X="25.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEIACBAUAgADQCgAAAgAAAgEAAAEABAIAlQAgAEAI=</HashCode>
+      <FileName>ExampleModule\POOrderEntry.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LeaRun.Entity.EntityModel.FileProperty" Collapsed="true">
+    <Position X="97" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEAAAAgAIAAAAAgCQAAAAAAAAAAQABAAAAAAA=</HashCode>
+      <FileName>BaseUtility\EntityModel\FileProperty.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>

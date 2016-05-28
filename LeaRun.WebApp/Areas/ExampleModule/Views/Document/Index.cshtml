@@ -1,0 +1,331 @@
+﻿@{
+    ViewBag.Title = "文件中心管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        GetTree();
+        GetGrid();
+        SwitchListAndView();
+    });
+    //加载左边树
+    //注意 FolderId 默认等于1 是我的硬盘主键ID 这样就可以加载我的硬盘下面子节点文件夹
+    var FolderId = "1", FolderName = "", IsPublic = "0";
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                FolderId = item.id;         //文件夹Id
+                FolderName = item.text;     //文件夹名称
+                IsPublic = item.IsPublic;   //是否公共 1-公共、0-我的
+                GridFolderEvent(FolderId, IsPublic);
+            },
+            url: "@Url.Content("~/ExampleModule/Document/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    //表格文件夹点击事件
+    function GridFolderEvent(id, IsPublic) {
+        FolderId = id;
+        IsPublic = IsPublic;
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/ExampleModule/Document/GridListJson")?FolderId=" + FolderId, page: 1
+        }).trigger('reloadGrid');
+    }
+    //查询事件
+    function btn_Search() {
+        var keywords = $("#keywords").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/ExampleModule/Document/GridListJson")?FolderId=" + FolderId + '&keywords=' + escape(keywords), page: 1
+        }).trigger('reloadGrid');
+        window.setTimeout(function () {
+            if ($('.switch-btns .selected').attr('id') == 'li-switch-view') {
+                $('#' + $('.switch-btns .selected').attr('id')).trigger("click");
+            }
+        }, 200);
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ExampleModule/Document/GridListJson")?FolderId=" + FolderId,
+            datatype: "json",
+            height: $(window).height() - 151,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'id', hidden: true },
+                { label: 'fullname', name: 'fullname', hidden: true },
+                { label: 'sort', name: 'sort', hidden: true },
+                { label: 'icon', name: 'icon', hidden: true },
+                { label: 'ispublic', name: 'ispublic', hidden: true },
+                {
+                    label: '文件名', name: 'filename', index: 'filename', width: 500, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.icon == "-1") {
+                            return "<div style='cursor:pointer;padding-top:1px;'><img style='padding-bottom:3px;padding-right:2px;' src='../../Content/Scripts/tree/images/folder.gif' />" + cellvalue + "</div>";
+                        } else {
+                            if (rowObject.icon == "new") {
+                                return "<div style='padding-top:1px;'><img style='padding-bottom:3px;padding-right:2px;' src='../../Content/Images/Icon16/page_white.png' />" + cellvalue + "</div>";
+                            } else {
+                                return "<div style='padding-top:1px;'><img style='padding-bottom:3px;padding-right:2px;' src='../../Content/Images/Icon16/file_extension_" + rowObject.icon + ".png' />" + cellvalue + "</div>";
+                            }
+                        }
+                    }
+                },
+                { label: '类型', name: 'filetype', index: 'filetype', width: 80, align: 'left' },
+                {
+                    label: '大小', name: 'filesize', index: 'filesize', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return CountFileSize(cellvalue);
+                    }
+                },
+                {
+                    label: '创建时间', name: 'createdate', index: 'createdate', width: 120, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd hh:mm:ss');
+                    }
+                },
+                { label: '创建人', name: 'createusername', index: 'createusername', width: 120, align: 'left' }
+            ],
+            gridview: true,
+            rowNum: 10000,
+            rownumbers: true,
+            shrinkToFit: false,
+            ondblClickRow: function (id) {
+                var rowData = $("#gridTable").getRowData(id);  //根据ID拿到一行的数据  
+                if (rowData.icon == "-1") {
+                    GridFolderEvent(rowData.id, rowData.ispublic);
+                    var treeid = "ItemsTree_" + rowData.id.replace(/-/g, '_');
+                    $('#' + treeid + ' img').trigger("click");
+                }
+            }
+        });
+        columnModelData("#gridTable");
+    }
+    //计算文件大小函数(保留两位小数),Size为字节大小
+    function CountFileSize(Size) {
+        var m_strSize = "";
+        var FactSize = 0;
+        FactSize = Size;
+        if (FactSize < 1024.00)
+            m_strSize = FactSize + " 字节";
+        else if (FactSize >= 1024.00 && FactSize < 1048576)
+            m_strSize = (FactSize / 1024.00) + " KB";
+        else if (FactSize >= 1048576 && FactSize < 1073741824)
+            m_strSize = (FactSize / 1024.00 / 1024.00) + " MB";
+        else if (FactSize >= 1073741824)
+            m_strSize = (FactSize / 1024.00 / 1024.00 / 1024.00) + " GB";
+        return m_strSize;
+    }
+    //新建文件夹
+    function btn_NewFolder() {
+        if (!!FolderId) {
+            var url = "/ExampleModule/Document/Form?FolderId=" + FolderId + '&IsPublic=' + IsPublic;
+            openDialog(url, "Form", "新增文件夹", 400, 110, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        } else {
+            tipDialog('请选择左边文件夹目录。', 4, 'warning');
+        }
+    }
+    //上传文件
+    function btn_upload() {
+        var url = "/ExampleModule/Document/Uploadify?FolderId=" + FolderId;
+        Dialog(url, "Uploadify", "上传文件到网络硬盘", 500, 350, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //返回上一级
+    function btn_Upward() {
+        AjaxJson("/ExampleModule/Document/SetForm", { KeyValue: FolderId }, function (data) {
+            if (data.ParentId != '0') {
+                GridFolderEvent(data.ParentId, data.IsPublic);
+            }
+        });
+    }
+    //下载
+    function btn_download() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "id");
+        var sort = GetJqGridRowValue("#gridTable", "sort");
+        if (IsChecked(KeyValue)) {
+            if (sort == "1") {
+                alertDialog("文件夹不支持下载！", 0);
+            } else {
+                var url = '/ExampleModule/Document/Download?KeyValue=' + KeyValue;
+                location.href = url;
+            }
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "id");
+        var sort = GetJqGridRowValue("#gridTable", "sort");
+        var Prompt = "您确实要永久性地删除此文件吗？";
+        if (IsDelData(KeyValue)) {
+            if (sort == "1") {
+                delConfirm('/ExampleModule/Document/DeleteFolder', { FolderId: KeyValue }, Prompt);
+            } else {
+                delConfirm('/ExampleModule/Document/DeleteFile', { NetworkFileId: KeyValue }, Prompt);
+            }
+        }
+    }
+    //重命名
+    function btn_rename() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "id");
+        var FullName = GetJqGridRowValue("#gridTable", "fullname");
+        var sort = GetJqGridRowValue("#gridTable", "sort");
+        if (IsChecked(KeyValue)) {
+            if (sort == "1") {
+                var url = "/ExampleModule/Document/Form?KeyValue=" + KeyValue
+                openDialog(url, "Form", "文件夹重命名", 400, 110, function (iframe) {
+                    top.frames[iframe].AcceptClick()
+                });
+            } else {
+                var url = "/ExampleModule/Document/FileReName?KeyValue=" + KeyValue + '&FullName=' + escape(FullName)
+                openDialog(url, "FileReName", "文件重命名", 400, 110, function (iframe) {
+                    top.frames[iframe].AcceptClick()
+                });
+            }
+        }
+    }
+    //移动
+    function btn_moveLocation() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "id");
+        var FullName = GetJqGridRowValue("#gridTable", "fullname");
+        var sort = GetJqGridRowValue("#gridTable", "sort");
+        if (IsChecked(KeyValue)) {
+            var url = "/ExampleModule/Document/MoveLocation?KeyValue=" + KeyValue + "&sort=" + sort;
+            openDialog(url, "MoveLocation", "移动文件（夹）", 500, 300, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        }
+    }
+    //共享
+    function btn_share() {
+        alert("正在开发中...");
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+    /*视图begin=========================================================================*/
+    //切换到列表/视图
+    function SwitchListAndView() {
+        $('#grid_View').height($(window).height() - 78)
+        $('.switch-btns li').click(function () {
+            $('.switch-btns li').removeClass('selected');
+            $(this).addClass('selected');
+            if ($(this).attr('id') == 'li-switch-list') {
+                $(this).find('div').addClass('icon-btn-switch-list-select');
+                $("#li-switch-view").find('div').addClass('icon-btn-switch-view');
+                $("#li-switch-view").find('div').removeClass('icon-btn-switch-view-select');
+                $('#grid_List').show();
+                $('#grid_View').hide();
+            }
+            //显示视图
+            if ($(this).attr('id') == 'li-switch-view') {
+                $(this).find('div').addClass('icon-btn-switch-view-select');
+                $("#li-switch-list").find('div').addClass('icon-btn-switch-list');
+                $("#li-switch-list").find('div').removeClass('icon-btn-switch-list-select');
+                $('#grid_List').hide();
+                $('#grid_View').show();
+                var data = $("#gridTable").jqGrid("getRowData");
+                var html = "";
+                for (var i = 0; i < data.length; i++) {
+                    var icon = data[i].icon;
+                    if (icon == "-1") {
+                        icon = "Folder";
+                    }
+                    html += '<div class="filelist-item">';
+                    html += '<div><img src="../../Content/Images/fileType/' + icon + '_72.png" /></div>';
+                    html += '<div title="' + data[i].fullname + '" class="filelist-text">' + data[i].fullname + '</div>';
+                    html += '</div>';
+                }
+                $("#grid_View").html(html);
+            }
+        })
+    }
+    /*视图end=========================================================================*/
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                文件夹目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                路径： 我的硬盘/我的文件夹/共享文件
+            </div>
+        </div>
+        <!--工具栏-->
+        <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+            <div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>
+            <div style="padding-top: 6px; padding-right: 5px;">
+                <ul class="switch-btns" style="float: right;">
+                    <li id="li-switch-list" class="selected" style="border: 1px solid #ccc;" title="切换到列表视图">
+                        <div class="icon icon-btn-switch-list-select"></div>
+                    </li>
+                    <li id="li-switch-view" style="border: 1px solid #ccc; border-left: none;" title="切换到大图视图">
+                        <div class="icon icon-btn-switch-view"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    <th>文件名：
+                    </th>
+                    <td>
+                        <input id="keywords"  type="text" class="txt" style="width: 200px" />
+                    </td>
+                    <td>
+                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--列表-->
+        <div id="grid_List" class="topline">
+            <table id="gridTable"></table>
+        </div>
+        <!--视图-->
+        <div id="grid_View" class="ScrollBar topline" style="padding: 10px;">
+        </div>
+    </div>
+</div>
+<style>
+    .filelist-item {
+        background: 0;
+        border-radius: 2px;
+        border: 1px solid #fff;
+        float: left;
+        height: 115px;
+        margin: 0 5px 10px 0;
+        text-align: center;
+        width: 112px;
+        padding-top: 13px;
+        cursor: pointer;
+    }
+
+        .filelist-item:hover {
+            border: 1px solid #ccc;
+            background-color: #F7F7F7;
+        }
+
+    .filelist-text {
+        padding-top: 10px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+</style>
+

@@ -1,0 +1,392 @@
+﻿@{
+    ViewBag.Title = "电子邮件";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        $("#layoutA").splitter({
+            type: "v",
+            outline: true,
+            minLeft: 211, sizeLeft: 211, maxLeft: 211,
+            anchorToWindow: true,
+            accessKey: "L"
+        });
+        GetLeft();
+        GetGrid();
+        //上一页
+        $("#PagePrev").click(function () {
+            if (pageIndex > 1) {
+                pageIndex--;
+                GetGrid();
+            }
+        });
+        //下一页
+        $("#PageNext").click(function () {
+            if (pageIndex < pagetotal) {
+                pageIndex++;
+                GetGrid();
+            }
+        })
+    });
+    //加载左边菜单
+    function GetLeft() {
+        GetMyDocument();
+        //统计邮件信息（未读数、草稿数、已发送数、已删除数）
+        AjaxJson("/ExampleModule/Email/CountEmailJson", {}, function (JsonData) {
+            $("#inbox0").text(JsonData.UnRead);     //未读数
+            $("#outbox").text(JsonData.Draft);      //草稿数
+            $("#sentbox").text(JsonData.Sended);    //已发送数
+            $("#delbox").text(JsonData.Delete);     //已删除数
+        });
+        $(".accordion-list dt").click(function () {
+            if ($(this).find('i').hasClass('arrow_expand')) {
+                $(this).parent().find('dd').hide();
+                $(this).find('i').addClass('arrow_close').removeClass('arrow_expand');
+            } else {
+                $(this).parent().find('dd').show();
+                $(this).find('i').addClass('arrow_expand').removeClass('arrow_close');
+            }
+        });
+        $(".accordion-list dd a").click(function () {
+            $(".accordion-list dd a").removeClass('active');
+            $(this).addClass('active')
+        });
+        $("#MyDocuments dt").trigger("click");
+    };
+    //加载我的文件夹
+    function GetMyDocument() {
+        //收件箱 
+        $("#btn_Inbox").click(function () {
+            $("#btn_Delete").show();
+            $("#btn_CompleteDelete").find('span').html("彻底删除");
+            Loading(true);
+            window.setTimeout(function () {
+                Category = 1;
+                GetGrid();
+            }, 200);
+        });
+        //草稿箱
+        $("#btn_Outbox").click(function () {
+            $("#btn_Delete").hide();
+            $("#btn_CompleteDelete").find('span').html("删除草稿");
+            Loading(true);
+            window.setTimeout(function () {
+                Category = 2;
+                GetGrid();
+            }, 200);
+        });
+        //已发送
+        $("#btn_Sentbox").click(function () {
+            $("#btn_Delete").show();
+            $("#btn_CompleteDelete").find('span').html("彻底删除");
+            Loading(true);
+            window.setTimeout(function () {
+                Category = 3;
+                GetGrid();
+            }, 200);
+        });
+        //已删除
+        $("#btn_Delbox").click(function () {
+            $("#btn_Delete").hide();
+            $("#btn_CompleteDelete").find('span').html("彻底删除");
+            Loading(true);
+            window.setTimeout(function () {
+                Category = 4;
+                GetGrid();
+            }, 200);
+        });
+        $("#MyDocuments dd").remove();
+        AjaxJson("/ExampleModule/Email/EmailCategoryJson", {}, function (JsonData) {
+            $.each(JsonData, function (i) {
+                $("#MyDocuments").append("<dd><a id=" + JsonData[i].EmailCategoryId + "><i class=\"accordion-icon tags\"></i>" + JsonData[i].FullName + "</a></dd>");
+                $("#MoveTo").prepend("<div id=" + JsonData[i].EmailCategoryId + " class=\"nui-dropdownData-item\">" + JsonData[i].FullName + "</div>");
+            });
+            //添加css效果
+            $(".accordion-list dd a").click(function () {
+                $(".accordion-list dd a").removeClass('active');
+                $(this).addClass('active')
+            });
+            //按钮下拉框 css效果
+            $(".nui-toolbar-item").click(function () {
+                $(".nui-dropdownData").hide();
+                var left = $(this).offset().left;
+                $(this).find('.nui-dropdownData').show().css('top', ($(this).offset().top + 28)).css('left', left);
+            })
+            $(document).click(function (e) {
+                if (e.target.className != 'nui-btn-text' && e.target.className != 'nui-toolbar-item nui-btn-left' && e.target.className != 'nui-dropdownBtn-arr') {
+                    $(".nui-dropdownData").hide();
+                }
+            });
+        });
+        LoadrightMenu("#MyDocuments");
+        //新增文件夹
+        $("#Add_Folder").click(function () {
+            var url = "/ExampleModule/Email/EmailCategory"
+            openDialog(url, "Form", "新增文件夹", 400, 110, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        });
+        //编辑文件夹
+        $("#Edit_Folder").click(function () {
+            var EmailCategoryId = $("#MyDocuments dd .active").attr('id');
+            if (IsChecked(EmailCategoryId)) {
+                var url = "/ExampleModule/Email/EmailCategory?KeyValue=" + EmailCategoryId
+                openDialog(url, "Form", "编辑文件夹", 400, 110, function (iframe) {
+                    top.frames[iframe].AcceptClick()
+                });
+            }
+        });
+        //删除文件夹
+        $("#Delete_Folder").click(function () {
+            var EmailCategoryId = $("#MyDocuments dd .active").attr('id');
+            if (IsDelData(EmailCategoryId)) {
+                var delparm = 'KeyValue=' + EmailCategoryId;
+                delConfig('/ExampleModule/Email/DeleteEmailCategory', delparm);
+            }
+        });
+    }
+    //写信
+    function WriteEmail(EmailId) {
+        if (!EmailId) { EmailId = ""; }
+        Loading(true);
+        top.$.dialog({
+            id: "WriteEmail", width: 1000, height: 500, lock: true, max: false, resize: false, extendDrag: true,
+            title: "写信",
+            content: 'url:' + RootPath() + '/ExampleModule/Email/WriteEmail?KeyValue=' + EmailId,
+            button: [
+                {
+                    name: '发 送',
+                    className: 'green',
+                    callback: function () {
+                        top.frames['WriteEmail'].SendEvent()
+                        return false;
+                    }
+                },
+                {
+                    name: '存草稿',
+                    callback: function () {
+                        top.frames['WriteEmail'].SaveDraftEvent()
+                        return false;
+                    }
+                },
+                {
+                    name: '关 闭'
+                }
+            ]
+        });
+    }
+    //查看邮件
+    function LookEmail(EmailId) {
+        Loading(true);
+        top.$.dialog({
+            id: "LookEmail", width: 1000, height: 500, lock: true, max: false, resize: false, extendDrag: true,
+            title: "查看邮件",
+            content: 'url:' + RootPath() + '/ExampleModule/Email/LookEmail?EmailId=' + EmailId,
+            button: [
+                {
+                    name: '回 复',
+                    className: 'green',
+                    callback: function () {
+
+                        return false;
+                    }
+                },
+                {
+                    name: '关 闭'
+                }
+            ]
+        });
+    }
+    //加载表格
+    var pageIndex = 1;
+    var pagetotal = 1;
+    var Category = 1;
+    function GetGrid() {
+        var $grid = $("#groupgrid tbody");
+        $grid.html('');
+        AjaxJson("/ExampleModule/Email/GridPageList", { Category: Category, pageIndex: pageIndex, pageSize: 50 }, function (Data) {
+            $grid.html(Data.rows);
+            $("#PageCode").html("" + Data.page + "/" + Data.total + " 页");
+            pageIndex = Data.page;
+            pagetotal = Data.total;
+        });
+        //分组表格Css
+        $(".groupgrid tr").click(function () {
+            if (!$(this).hasClass('group_tr')) {
+                $(".groupgrid tr").removeClass('active').removeClass("tdhover");
+                $(this).addClass('active');
+            }
+        }).hover(function () {
+            if (!$(this).hasClass('group_tr') && !$(this).hasClass('active')) {
+                $(this).addClass("tdhover");
+            }
+        }, function () {
+            $(this).removeClass("tdhover");
+        });
+        //自定义复选框 全选/反选
+        $("#CheckButton").click(function () {
+            if (!$('.sys_spec_text').find('a').hasClass('disabled')) {
+                if (!!$(this).hasClass("checkAllOff")) {
+                    $(this).attr('title', '反选');
+                    $(this).text('反选');
+                    $(this).attr('class', 'checkAllOn');
+                    $("#groupgrid tbody").find('input[type="checkbox"]').attr('checked', 'checked');
+                } else {
+                    $(this).attr('title', '全选');
+                    $(this).text('全选');
+                    $(this).attr('class', 'checkAllOff');
+                    $("#groupgrid tbody").find('input[type="checkbox"]').removeAttr('checked');
+                }
+            }
+        })
+    }
+    //删除邮件
+    function btn_Delete() {
+        var EmailId = CheckboxValue();
+        if (IsDelData(EmailId)) {
+            Loading(true, "正在删除邮件...");
+            window.setTimeout(function () {
+                AjaxJson("/ExampleModule/Email/DeleteEmail", { KeyValue: EmailId, Category: Category, DeleteMark: 1 }, function (data) {
+                    tipDialog(data.Message, 3, data.Code);
+                    GetGrid();
+                });
+            }, 200);
+        }
+    }
+    //彻底删除邮件
+    function btn_CompleteDelete() {
+        var EmailId = CheckboxValue();
+        if (IsDelData(EmailId)) {
+            confirmDialog("提示", "彻底删除后邮件将无法恢复，您确定要删除吗？", function (r) {
+                if (r) {
+                    Loading(true, "正在彻底删除邮件...");
+                    window.setTimeout(function () {
+                        var EmailId = CheckboxValue();
+                        AjaxJson("/ExampleModule/Email/DeleteEmail", { KeyValue: EmailId, Category: Category, DeleteMark: 2 }, function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            GetGrid();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function windowload() {
+        GetMyDocument();
+        GetGrid();
+    }
+</script>
+<div id="layoutA" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle " style="height: 35px; padding: 0px;">
+            <div class="component_button rightline" onclick="Replace()">
+                <img src="~/Content/Images/Icon16/inbox_download.png" />
+                收件
+            </div>
+            <div class="component_button" onclick="WriteEmail()">
+                <img src="~/Content/Images/Icon16/email_edit.png" style="padding-bottom: 4px;" />
+                写信
+            </div>
+        </div>
+        <div class="ScrollBar" id="menu">
+            <dl class="accordion-list">
+                <dt>邮件箱<i class="accordion-icon arrow_expand"></i></dt>
+                <dd>
+                    <a id="btn_Inbox"><i class="accordion-icon inbox"></i>收件箱 <span id="inbox0"></span></a>
+                </dd>
+                <dd>
+                    <a id="btn_Outbox"><i class="accordion-icon outbox"></i>草稿箱<span id="outbox"></span></a>
+                </dd>
+                <dd>
+                    <a id="btn_Sentbox"><i class="accordion-icon sentbox"></i>已发送<span id="sentbox"></span></a>
+                </dd>
+                <dd>
+                    <a id="btn_Delbox"><i class="accordion-icon delbox"></i>已删除<span id="delbox"></span></a>
+                </dd>
+                <dd>
+                    <a><i class="accordion-icon query"></i>查询邮件</a>
+                </dd>
+            </dl>
+            <dl id="MyDocuments" class="accordion-list">
+                <dt>我的文件夹<i class="accordion-icon arrow_expand"></i></dt>
+            </dl>
+            <div class="rightMenu">
+                <ul>
+                    <li id="Add_Folder">新建文件夹</li>
+                    <li id="Edit_Folder">编辑文件夹</li>
+                    <li id="Delete_Folder">删除文件夹</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="ScrollBar">
+            <div style="margin: 10px; margin-top: 7px;">
+                <div class="nui-toolbar">
+                    <div class="nui-toolbar-item">
+                        <span class="nui-btn-text">刷新</span>
+                    </div>
+                    <div id="btn_Delete" class="nui-toolbar-item" onclick="btn_Delete()">
+                        <span class="nui-btn-text">删除</span>
+                    </div>
+                    <div id="btn_CompleteDelete" class="nui-toolbar-item" onclick="btn_CompleteDelete();">
+                        <span class="nui-btn-text">彻底删除</span>
+                    </div>
+                    <div class="nui-toolbar-item nui-btn-right">
+                        <span class="nui-btn-text">标记为</span>
+                        <span class="nui-dropdownBtn-arr"><i></i></span>
+                        <div class="nui-dropdownData">
+                            <div id="dropdown_read" class="nui-dropdownData-item">已读</div>
+                            <div id="dropdown_unread" class="nui-dropdownData-item">未读</div>
+                            <div id="dropdown_backlog" class="nui-dropdownData-item">待办邮件</div>
+                            <div id="dropdown_redflag" class="nui-dropdownData-item">红旗邮件</div>
+                            <div id="dropdown_whiteflag" class="nui-dropdownData-item">取消邮件</div>
+                        </div>
+                    </div>
+                    <div class="nui-toolbar-item nui-btn-left">
+                        <span class="nui-btn-text">移动到</span>
+                        <span class="nui-dropdownBtn-arr"><i></i></span>
+                        <div id="MoveTo" class="nui-dropdownData">
+                            <div class="nui-dropdownData-item" onclick="$('#Add_Folder').trigger('click')">新建文件夹</div>
+                        </div>
+                    </div>
+                    <div style="float: right; padding-right: 7px;">
+                        <div id="PageCode" style="float: left; height: 26px; line-height: 26px; margin-top: 2px; margin-right: 7px;">1/1 页</div>
+                        <div id="PagePrev" class="nui-toolbar-item">
+                            <img src="~/Content/Images/page_up.png" />
+                        </div>
+                        <div id="PageNext" class="nui-toolbar-item">
+                            <img src="~/Content/Images/page_next.png" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="topline" style="margin-left: 10px; margin-right: 10px;">
+                <table id="groupgrid" class="groupgrid" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <td style="width: 50px;">
+                                <label id="CheckButton" class="checkAllOff" title="全选">全选</label></td>
+                            <td style="width: 20px;"></td>
+                            <td style="width: 180px;">发件人</td>
+                            <td>主题</td>
+                            <td style="width: 100px; text-align: center;">时间</td>
+                            <td style="width: 20px;"></td>
+                            <td style="width: 50px; text-align: center;">附件</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .layoutResize {
+        border-right: none;
+        background-image: none;
+    }
+</style>
