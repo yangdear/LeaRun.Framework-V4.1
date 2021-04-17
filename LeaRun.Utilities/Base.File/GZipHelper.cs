@@ -2,16 +2,12 @@
 // All Rights Reserved , Copyright © Learun 2013
 //=====================================================================================
 using System;
-using System.Collections.Generic;
 using System.Text;
-using System.Diagnostics;
 using System.IO;
-using Microsoft.Win32;
 using System.IO.Compression;
-using System.Runtime.Serialization.Formatters.Binary;
 using ICSharpCode.SharpZipLib.Zip;
-using ICSharpCode.SharpZipLib.Checksums;
 using System.Web;
+using ICSharpCode.SharpZipLib.Checksum;
 
 namespace LeaRun.Utilities
 {

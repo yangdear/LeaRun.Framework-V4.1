@@ -1,5 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
-using Oracle.DataAccess.Client;
+//using Oracle.DataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -61,9 +61,9 @@ namespace LeaRun.DataAccess
                 case DatabaseType.SqlServer:
                     conn = new SqlConnection(connectionString);
                     break;
-                case DatabaseType.Oracle:
-                    conn = new OracleConnection(connectionString);
-                    break;
+                //case DatabaseType.Oracle:
+                //    conn = new OracleConnection(connectionString);
+                //    break;
                 case DatabaseType.MySql:
                     conn = new MySqlConnection(connectionString);
                     break;
@@ -91,9 +91,9 @@ namespace LeaRun.DataAccess
                 case DatabaseType.SqlServer:
                     cmd = new SqlCommand();
                     break;
-                case DatabaseType.Oracle:
-                    cmd = new OracleCommand();
-                    break;
+                //case DatabaseType.Oracle:
+                //    cmd = new OracleCommand();
+                //    break;
                 case DatabaseType.MySql:
                     cmd = new MySqlCommand();
                     break;
@@ -121,9 +121,9 @@ namespace LeaRun.DataAccess
                 case DatabaseType.SqlServer:
                     adapter = new SqlDataAdapter();
                     break;
-                case DatabaseType.Oracle:
-                    adapter = new OracleDataAdapter();
-                    break;
+                //case DatabaseType.Oracle:
+                //    adapter = new OracleDataAdapter();
+                //    break;
                 case DatabaseType.MySql:
                     adapter = new MySqlDataAdapter();
                     break;
@@ -152,9 +152,9 @@ namespace LeaRun.DataAccess
                 case DatabaseType.SqlServer:
                     adapter = new SqlDataAdapter((SqlCommand)cmd);
                     break;
-                case DatabaseType.Oracle:
-                    adapter = new OracleDataAdapter((OracleCommand)cmd);
-                    break;
+                //case DatabaseType.Oracle:
+                //    adapter = new OracleDataAdapter((OracleCommand)cmd);
+                //    break;
                 case DatabaseType.MySql:
                     adapter = new MySqlDataAdapter((MySqlCommand)cmd);
                     break;
@@ -182,9 +182,9 @@ namespace LeaRun.DataAccess
                 case DatabaseType.SqlServer:
                     param = new SqlParameter();
                     break;
-                case DatabaseType.Oracle:
-                    param = new OracleParameter();
-                    break;
+                //case DatabaseType.Oracle:
+                //    param = new OracleParameter();
+                //    break;
                 case DatabaseType.MySql:
                     param = new MySqlParameter();
                     break;
@@ -280,10 +280,10 @@ namespace LeaRun.DataAccess
                     param = new SqlParameter[size];
                     while (i < size) { param[i] = new SqlParameter(); i++; }
                     break;
-                case DatabaseType.Oracle:
-                    param = new OracleParameter[size];
-                    while (i < size) { param[i] = new OracleParameter(); i++; }
-                    break;
+                //case DatabaseType.Oracle:
+                //    param = new OracleParameter[size];
+                //    while (i < size) { param[i] = new OracleParameter(); i++; }
+                //    break;
                 case DatabaseType.MySql:
                     param = new MySqlParameter[size];
                     while (i < size) { param[i] = new MySqlParameter(); i++; }
